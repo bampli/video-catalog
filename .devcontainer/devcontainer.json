@@ -34,6 +34,17 @@
 	"extensions": [
 		"bmewburn.vscode-intelephense-client",
 		"calebporzio.better-phpunit",
+		// "naumovs.color-highlight",
+		// "ms-vscode.vscode-typescript-tslint-plugin",
+		// "visualstudioexptteam.vscodeintellicode",
+		// "streetsidesoftware.code-spell-checker",
+		// "esbenp.prettier-vscode",
+		// "ms-vscode.vscode-typescript-tslint-plugin",
+		// "ms-azuretools.vscode-docker",
+		// "mikestead.dotenv",
+		// "shan.code-settings-sync",
+		// "dbaeumer.vscode-eslint",
+		// "hazer.reactcodesnippets",
 	]
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
