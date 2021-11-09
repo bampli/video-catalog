@@ -58,7 +58,7 @@ jobs:
         run: docker-compose -f docker-compose.prod.yaml up dockerize
 
       - name: "Rodando Phpunit"
-        run: docker exec -t micro-videos-app php /var/www/backend/vendor/bin/phpunit -c /var/www/phpunit.xml
+        run: docker exec -t micro-videos-app php /var/www/backend/vendor/bin/phpunit -c /var/www/backend/phpunit.xml
 
       # - name: "Copiando frontend .env"
       #   run: docker exec -t micro-videos-app cp /var/www/frontend/.env.example /var/www/frontend/.env
