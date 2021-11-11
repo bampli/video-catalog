@@ -1,6 +1,6 @@
+import React from 'react';
 import logo from './logo.svg';
-//import './App.css';
-import {Button} from "@material-ui/core";
+import './App.css';
 
 function App() {
   return (
@@ -8,9 +8,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          <Button color='primary' variant="contained" >
-            text
-          </Button>
+          Edit <code>src/App.tsx</code> and save to reload.
         </p>
         <a
           className="App-link"
