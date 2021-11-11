@@ -6,8 +6,6 @@ Fc2 video-catalog app
 ## Video Catalog
 
 - Video Catalog API backend
-- Preparing to add frontend
+- Frontend running in container
 
-Initial version from where backend left:
-
-https://github.com/bampli/laravel-microservice-quickstart/tree/devgc
+Backend from https://github.com/bampli/laravel-microservice-quickstart/tree/devgc
