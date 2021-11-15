@@ -5,6 +5,7 @@ import React from 'react';
 import { Navbar } from './components/Navbar';
 import { BrowserRouter } from "react-router-dom";
 import { AppRouter } from './routes/AppRouter';
+import Breadcrumbs from './components/Breadcrumbs';
 
 const App: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Navbar />
         <Box paddingTop={'70px'}>
+          <Breadcrumbs />
           <AppRouter />
         </Box>
       </BrowserRouter>
