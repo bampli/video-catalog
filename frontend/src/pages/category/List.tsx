@@ -4,7 +4,7 @@ import { Page } from '../../components/Page';
 const List = () => {
     return (
         <Page title="Listagem categorias">
-            
+            conteudo qualquer
         </Page>
     );
 }
