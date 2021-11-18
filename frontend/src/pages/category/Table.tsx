@@ -32,7 +32,6 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        console.log(httpVideo);
         httpVideo.get('categories').then(
             response => setData(response.data.data)
         )
