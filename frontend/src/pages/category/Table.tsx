@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
+import { httpVideo } from '../../util/http';
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -27,27 +28,22 @@ type Props = {};
 
 const Table = (props: Props) => {
 
-    const [count, setCount] = useState(0);
+    const [data, setData] = useState([]);
 
     //componentDidMount
     useEffect(() => {
-        console.log('qualquer coisa')
-        return () => console.log('componente também desmontado')
+        console.log(httpVideo);
+        httpVideo.get('categories').then(
+            response => setData(response.data.data)
+        )
     }, []);
-    //componentDidUpdate & componentWillUnmount
-    useEffect(() => {
-        console.log(count)
-        return () => console.log('componente desmontado')
-    }, [count]);
 
-    // return (
-    //     <MUIDataTable
-    //         title="Listagem de categorias"
-    //         columns={columnsDefinition}
-    //         data={data}
-    //     />
     return (
-        <button onClick={() => setCount(count+1)}>{count}</button>
+        <MUIDataTable
+            title="Listagem de categorias"
+            columns={columnsDefinition}
+            data={data}
+        />
     );
 }
 
