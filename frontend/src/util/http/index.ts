@@ -1,9 +1,5 @@
 import axios, {AxiosRequestConfig} from "axios";
 
 export const httpVideo = axios.create({
-    baseURL: process.env.REACT_APP_MICRO_VIDEO_API_URL,
-    headers: {
-        content_type : "application/json;charset=utf-8",
-        access_control_allow_origin: "true"
-    }
+    baseURL: process.env.REACT_APP_MICRO_VIDEO_API_URL
 });
