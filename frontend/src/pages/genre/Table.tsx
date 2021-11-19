@@ -10,6 +10,19 @@ const columnsDefinition: MUIDataTableColumn[] = [
         label: "Nome"
     },
     {
+        name: "categories",
+        label: "Categorias",
+        options: {
+            customBodyRender(value, tableMeta, updateValue) {
+                var cats = new Array<string>();
+                value.forEach((item: any) => {
+                    cats.push(item.name)
+                });
+                return cats.join(", ");
+            }
+        }
+    },
+    {
         name: "is_active",
         label: "Ativo?",
         options: {
@@ -37,14 +50,14 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        httpVideo.get('categories').then(
+        httpVideo.get('genres').then(
             response => setData(response.data.data)
         )
     }, []);
 
     return (
         <MUIDataTable
-            title="Listagem categorias"
+            title="Listagem gêneros"
             columns={columnsDefinition}
             data={data}
         />
