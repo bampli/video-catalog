@@ -1,28 +1,25 @@
-import {AxiosInstance} from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 
 export default class HttpResource {
+  constructor(protected http: AxiosInstance, protected resource) {}
 
-    constructor(protected http: AxiosInstance, protected resource) {
+  list<T = any>(): Promise<AxiosResponse<T>> {
+    return this.http.get<T>(this.resource);
+  }
 
-    }
+  get<T = any>(id): Promise<AxiosResponse<T>> {
+    return this.http.get<T>(`${this.resource}/${id}`);
+  }
 
-    list<T = any>() {
-        return this.http.get<T>(this.resource)
-    }
+  create<T = any>(data): Promise<AxiosResponse<T>> {
+    return this.http.post<T>(this.resource, data);
+  }
 
-    get() {
+  update<T = any>(id, data): Promise<AxiosResponse<T>> {
+    return this.http.get<T>(`${this.resource}/${id}`, data);
+  }
 
-    }
-
-    create() {
-
-    }
-
-    update() {
-
-    }
-
-    delete() {
-
-    }
+  delete<T = any>(id): Promise<AxiosResponse<T>> {
+    return this.http.delete<T>(`${this.resource}/${id}`);
+  }
 }
