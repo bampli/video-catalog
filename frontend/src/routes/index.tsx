@@ -3,6 +3,7 @@ import Dashboard from "../pages/Dashboard";
 import CategoryList from "../pages/category/PageList";
 import CastMemberList from "../pages/cast-member/PageList";
 import GenreList from "../pages/genre/PageList";
+import CategoryForm from "../pages/category/PageForm";
 
 export interface myRouteProps extends RouteProps{
     name:string;
@@ -28,7 +29,7 @@ const routes: myRouteProps[]= [
         name: 'categories.create',
         label: 'Criar categoria',
         path: '/categories/create',
-        component: CategoryList,
+        component: CategoryForm,
         exact: true
     },
     {
