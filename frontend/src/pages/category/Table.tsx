@@ -3,6 +3,7 @@ import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
 import { httpVideo } from '../../util/http';
 import { Chip } from "@material-ui/core";
 import FormatISODate from "../../util/FormatISODate";
+import categoryHttp from '../../util/http/category-http';
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -37,9 +38,12 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        httpVideo.get('categories').then(
-            response => setData(response.data.data)
-        )
+        categoryHttp
+            .list()
+            .then(({data}) => setData(data.data));
+        // httpVideo.get('categories').then(
+        //     response => setData(response.data.data)
+        // )
     }, []);
 
     return (
