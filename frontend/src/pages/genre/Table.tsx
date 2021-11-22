@@ -13,15 +13,36 @@ const columnsDefinition: MUIDataTableColumn[] = [
         name: "categories",
         label: "Categorias",
         options: {
-            customBodyRender(value, tableMeta, updateValue) {
-                var cats = new Array<string>();
-                value.forEach((item: any) => {
-                    cats.push(item.name)
-                });
-                return cats.join(", ");
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return value.map(value => value.name).join(", ");
             }
         }
     },
+    // // fc2 solution before adding compiler parameter to tsconfig.json:
+    // //  "noImplicitAny": false
+    // {
+    //     name: "categories",
+    //     label: "Categorias",
+    //     options: {
+    //         customBodyRender: (value, tableMeta, updateValue) => {
+    //             return value.map((value: any) => value.name).join(", ");
+    //         }
+    //     }
+    // },
+    // // my original solution with no changes at tsconfig.json
+    // {
+    //     name: "categories",
+    //     label: "Categorias",
+    //     options: {
+    //         customBodyRender(value, tableMeta, updateValue) {
+    //             var cats = new Array<string>();
+    //             value.forEach((item: any) => {
+    //                 cats.push(item.name)
+    //             });
+    //             return cats.join(", ");
+    //         }
+    //     }
+    // },
     {
         name: "is_active",
         label: "Ativo?",
