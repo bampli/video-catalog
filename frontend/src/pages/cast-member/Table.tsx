@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
-import { httpVideo } from '../../util/http';
 import FormatISODate from "../../util/FormatISODate";
+import castMemberHttp from '../../util/http/cast-member-http';
 
 const CastMemberTypeMap = {
     1: 'Diretor',
@@ -33,17 +33,21 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-type Props = {};
+interface CastMember {
+    id: string;
+    name: string;
+};
 
+type Props = {};
 const Table = (props: Props) => {
 
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<CastMember[]>([]);
 
     //componentDidMount
     useEffect(() => {
-        httpVideo.get('cast_members').then(
-            response => setData(response.data.data)
-        )
+        castMemberHttp
+            .list<{ data: CastMember[] }>()     // {data: [], meta}
+            .then(({ data }) => setData(data.data));
     }, []);
 
     return (
