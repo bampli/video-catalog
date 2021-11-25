@@ -3,7 +3,10 @@ import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
 import { httpVideo } from '../../util/http';
 import FormatISODate from "../../util/FormatISODate";
 
-const castMemberTypes = ["Diretor", "Ator"];
+const CastMemberTypeMap = {
+    1: 'Diretor',
+    2: 'Ator'
+}
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -15,7 +18,7 @@ const columnsDefinition: MUIDataTableColumn[] = [
         label: "Tipo",
         options: {
             customBodyRender(value, tableMeta, updateValue) {
-                return castMemberTypes[value-1];
+                return CastMemberTypeMap[value];
             }
         }
     },
@@ -45,7 +48,7 @@ const Table = (props: Props) => {
 
     return (
         <MUIDataTable
-            title="Listagem membros do elenco"
+            title="Listagem membros de elencos"
             columns={columnsDefinition}
             data={data}
         />
