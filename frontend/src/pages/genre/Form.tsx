@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Button, makeStyles, MenuItem, TextField, Theme } from "@material-ui/core";
+import { Box, Button, Checkbox, makeStyles, MenuItem, TextField, Theme } from "@material-ui/core";
 import { ButtonProps } from "@material-ui/core/Button"
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from 'react';
@@ -23,21 +23,26 @@ const Form = () => {
     };
 
     const [categories, setCategories] = useState<any[]>([]);
-    const { register, handleSubmit, getValues, setValue, watch } = useForm(
-        // {
-        //     defaultValues: {categories_id: []}
-        // }
-    );
-    const category = getValues()['categories_id'];
+    const {
+        register,
+        handleSubmit,
+        getValues,
+        setValue,
+        watch
+    } = useForm<{ name, categories_id }>({
+        defaultValues: {
+            categories_id: []
+        }
+    });
 
-    useEffect( () => {
-        register({name: "categories_id"})
+    useEffect(() => {
+        register({ name: "categories_id" })
     }, [register]);
 
-    useEffect( () => {
+    useEffect(() => {
         categoryHttp
             .list()
-            .then(({data}) => setCategories(data.data))
+            .then(({ data }) => setCategories(data.data))
     }, []);
 
     function onSubmit(formData, event) {
@@ -48,8 +53,6 @@ const Form = () => {
             .create(formData)
             .then((response) => console.log(response));
     }
-
-    console.log(category);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -86,6 +89,12 @@ const Form = () => {
                     )
                 }
             </TextField>
+            <Checkbox
+                name="is_active"
+                inputRef={register}
+                defaultChecked
+            />
+            Ativo?
             <Box dir={"rtl"}>
                 <Button {...buttonProps} onClick={() => onSubmit(getValues(), null)}>Salvar</Button>
                 <Button {...buttonProps} type="submit">Salvar e continuar editando</Button>
