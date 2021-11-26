@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
-import { httpVideo } from '../../util/http';
 import { Chip } from "@material-ui/core";
 import FormatISODate from "../../util/FormatISODate";
+import genreHttp from '../../util/http/genre-http';
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -10,39 +10,14 @@ const columnsDefinition: MUIDataTableColumn[] = [
         label: "Nome"
     },
     {
-        name: "categories",
-        label: "Categorias",
+        name: "genres",
+        label: "Gêneros",
         options: {
             customBodyRender: (value, tableMeta, updateValue) => {
-                return value.map(value => value.name).join(", ");
+                return value; //.map(value => value.name).join(", ");
             }
         }
     },
-    // // fc2 solution before adding compiler parameter to tsconfig.json:
-    // //  "noImplicitAny": false
-    // {
-    //     name: "categories",
-    //     label: "Categorias",
-    //     options: {
-    //         customBodyRender: (value, tableMeta, updateValue) => {
-    //             return value.map((value: any) => value.name).join(", ");
-    //         }
-    //     }
-    // },
-    // // my original solution with no changes at tsconfig.json
-    // {
-    //     name: "categories",
-    //     label: "Categorias",
-    //     options: {
-    //         customBodyRender(value, tableMeta, updateValue) {
-    //             var cats = new Array<string>();
-    //             value.forEach((item: any) => {
-    //                 cats.push(item.name)
-    //             });
-    //             return cats.join(", ");
-    //         }
-    //     }
-    // },
     {
         name: "is_active",
         label: "Ativo?",
@@ -63,17 +38,21 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-type Props = {};
+interface Genre {
+    id: string;
+    name: string;
+};
 
+type Props = {};
 const Table = (props: Props) => {
 
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<Genre[]>([]);
 
     //componentDidMount
     useEffect(() => {
-        httpVideo.get('genres').then(
-            response => setData(response.data.data)
-        )
+        genreHttp
+            .list<{ data: Genre[] }>()     // {data: [], meta}
+            .then(({ data }) => setData(data.data));
     }, []);
 
     return (
