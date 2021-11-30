@@ -18,7 +18,7 @@ const Form = () => {
 
     const buttonProps: ButtonProps = {
         className: classes.submit,
-        variant: "outlined",
+        variant: "contained",
         //size: "medium"    // this is the default
     };
 
@@ -58,13 +58,26 @@ const Form = () => {
             />
             <Checkbox
                 name="is_active"
+                color={"primary"}
                 inputRef={register} //('is_active').ref} version 7?
                 defaultChecked
             />
             Ativo?
             <Box dir={"rtl"}>
-                <Button {...buttonProps} onClick={() => onSubmit(getValues(), null)}>Salvar</Button>
-                <Button {...buttonProps} type="submit">Salvar e continuar editando</Button>
+                <Button
+                    color={"primary"}
+                    {...buttonProps}
+                    onClick={() => onSubmit(getValues(), null)}
+                >
+                    Salvar
+                </Button>
+                <Button
+                    color={"primary"}
+                    {...buttonProps}
+                    type="submit"
+                >
+                    Salvar e continuar editando
+                </Button>
             </Box>
         </form>
     );
