@@ -1,8 +1,6 @@
 import { green, red } from "@material-ui/core/colors";
 import { createTheme } from "@material-ui/core/styles";
-import { SimplePaletteColorOptions } from "@material-ui/core/styles/createPalette";
-
-import { PaletteOptions } from "@material-ui/core/styles/createPalette";
+import { PaletteOptions, SimplePaletteColorOptions } from "@material-ui/core/styles/createPalette";
 
 const palette: PaletteOptions = {
   primary: {
@@ -18,12 +16,13 @@ const palette: PaletteOptions = {
   },
   success: {
     main: green[500],
-    contrastText: '#fff'
+    contrastText: "#fff",
   },
   error: {
     main: red[500],
   },
 };
+
 const theme = createTheme({
   palette,
   overrides: {
