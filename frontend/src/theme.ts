@@ -25,7 +25,7 @@ const theme = createTheme({
     MUIDataTable: {
       paper: {
         boxShadow: "none",
-      },
+      }
     },
     MUIDataTableToolbar: {
       root: {
