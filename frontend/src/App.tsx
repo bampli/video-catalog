@@ -1,4 +1,5 @@
-import { Box, CssBaseline, MuiThemeProvider } from '@material-ui/core';
+import { Box, CssBaseline } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/core/styles';
 import React from 'react';
 //import logo from './logo.svg';
 //import './App.css';
@@ -11,7 +12,7 @@ import theme from './theme';
 const App: React.FC = () => {
   return (
     <React.Fragment>
-      <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         <CssBaseline />
         <BrowserRouter>
           <Navbar />
@@ -20,7 +21,7 @@ const App: React.FC = () => {
             <AppRouter />
           </Box>
         </BrowserRouter>
-      </MuiThemeProvider>
+      </ThemeProvider>
     </React.Fragment>
   );
 }
