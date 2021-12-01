@@ -8,8 +8,7 @@ import { PaletteOptions } from "@material-ui/core/styles/createPalette";
 const palette: PaletteOptions = {
   primary: {
     main: "#79aec8",
-    contrastText: "#fff",
-    dark: "#000",
+    contrastText: "#fff"
   },
   secondary: {
     main: "#4db5ab",
@@ -25,7 +24,7 @@ const theme = createTheme({
     MUIDataTable: {
       paper: {
         boxShadow: "none",
-      }
+      },
     },
     MUIDataTableToolbar: {
       root: {
@@ -74,6 +73,34 @@ const theme = createTheme({
           color: "#fff !important",
         },
       },
+    },
+    MUIDataTableBodyCell: {
+      root: {
+        color: (palette.secondary as SimplePaletteColorOptions).main,
+        "&:hover, &:active, &:focus": {
+          color: (palette.secondary as SimplePaletteColorOptions).main,
+        },
+      },
+    },
+    MUIDataTableToolbarSelect: {
+      title: {
+        color: (palette.primary as SimplePaletteColorOptions).main,
+      },
+      iconButton: {
+        color: (palette.primary as SimplePaletteColorOptions).main,
+      }
+    },
+    MUIDataTableBodyRow: {
+      root: {
+        '&:nth-child(odd)': {
+          backgroundColor: palette!.background!.default,
+        }
+      }
+    },
+    MUIDataTablePagination: {
+      root: {
+        color: (palette.primary as SimplePaletteColorOptions).main,
+      }
     },
     // MuiFormLabel: {
     //   root: {
