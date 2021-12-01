@@ -23,7 +23,7 @@ const columnsDefinition: MUIDataTableColumn[] = [
         label: "Ativo?",
         options: {
             customBodyRender(value, tableMeta, updateValue) {
-                return value ? <BadgeYes/> : <BadgeNo/>;
+                return value ? <BadgeYes /> : <BadgeNo />;
             }
         }
     },
