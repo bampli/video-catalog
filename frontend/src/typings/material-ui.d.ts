@@ -1,5 +1,5 @@
 import { ComponentNameToClassKey } from "@material-ui/core/styles/overrides";
-//import {PaletteOptions, Palette, PaletteColor, PaletteColorOptions} from "@material-ui/core/styles/createPalette";
+import {PaletteOptions, Palette, PaletteColor, PaletteColorOptions} from "@material-ui/core/styles/createPalette";
 
 declare module "@material-ui/core/styles/overrides" {
   //import { ComponentNameToClassKey } from "@material-ui/core/styles/overrides";
@@ -17,14 +17,14 @@ declare module "@material-ui/core/styles/overrides" {
   }
 }
 
-// declare module '@material-ui/core/styles/createPalette' {
-//   import {PaletteOptions, Palette, PaletteColor, PaletteColorOptions} from "@material-ui/core/styles";
+declare module '@material-ui/core/styles/createPalette' {
+  import {PaletteOptions, Palette, PaletteColor, PaletteColorOptions} from "@material-ui/core/styles";
 
-//   interface Palette {
-//       success: PaletteColor
-//   }
+  interface Palette {
+      success: PaletteColor
+  }
 
-//   interface PaletteOptions {
-//       success?: PaletteColorOptions
-//   }
-// }
+  interface PaletteOptions {
+      success?: PaletteColorOptions
+  }
+}

@@ -18,7 +18,8 @@ const Form = () => {
 
     const buttonProps: ButtonProps = {
         className: classes.submit,
-        variant: "contained",
+        color: 'secondary',
+        variant: 'contained'
         //size: "medium"    // this is the default
     };
 

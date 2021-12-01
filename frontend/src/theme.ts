@@ -1,5 +1,4 @@
-//import { colors, createMuiTheme } from "@material-ui/core";
-//import red from "@material-ui/core/colors/red";
+import { green, red } from "@material-ui/core/colors";
 import { createTheme } from "@material-ui/core/styles";
 import { SimplePaletteColorOptions } from "@material-ui/core/styles/createPalette";
 
@@ -8,7 +7,7 @@ import { PaletteOptions } from "@material-ui/core/styles/createPalette";
 const palette: PaletteOptions = {
   primary: {
     main: "#79aec8",
-    contrastText: "#fff"
+    contrastText: "#fff",
   },
   secondary: {
     main: "#4db5ab",
@@ -16,6 +15,13 @@ const palette: PaletteOptions = {
   },
   background: {
     default: "#fafafa",
+  },
+  success: {
+    main: green[500],
+    contrastText: '#fff'
+  },
+  error: {
+    main: red[500],
   },
 };
 const theme = createTheme({
@@ -88,19 +94,19 @@ const theme = createTheme({
       },
       iconButton: {
         color: (palette.primary as SimplePaletteColorOptions).main,
-      }
+      },
     },
     MUIDataTableBodyRow: {
       root: {
-        '&:nth-child(odd)': {
+        "&:nth-child(odd)": {
           backgroundColor: palette!.background!.default,
-        }
-      }
+        },
+      },
     },
     MUIDataTablePagination: {
       root: {
         color: (palette.primary as SimplePaletteColorOptions).main,
-      }
+      },
     },
     // MuiFormLabel: {
     //   root: {
