@@ -10,6 +10,7 @@ const palette: PaletteOptions = {
   secondary: {
     main: "#4db5ab",
     contrastText: "#fff",
+    dark: "#055a52"
   },
   background: {
     default: "#fafafa",
@@ -39,13 +40,15 @@ const theme = createTheme({
       icon: {
         color: (palette!.primary as SimplePaletteColorOptions).main,
         "&:hover, &:active, &:focus": {
-          color: "#055a52",
+          color: (palette!.secondary as SimplePaletteColorOptions).dark,
+          //color: "#055a52",
         },
       },
       iconActive: {
         color: "#055a52",
         "&:hover, &:active, &:focus": {
-          color: "#055a52",
+          color: (palette!.secondary as SimplePaletteColorOptions).dark,
+          //color: "#055a52",
         },
       },
     },
