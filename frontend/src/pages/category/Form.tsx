@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Button, Checkbox, makeStyles, TextField, Theme } from "@material-ui/core";
+import { Box, Button, Checkbox, FormControlLabel, makeStyles, TextField, Theme } from "@material-ui/core";
 import { ButtonProps } from "@material-ui/core/Button"
 import { useForm } from "react-hook-form";
 import categoryHttp from '../../util/http/category-http';
@@ -33,7 +33,15 @@ export const Form = () => {
         //size: "medium"    // this is the default
     };
 
-    const { register, handleSubmit, getValues, errors, reset } = useForm({
+    const {
+        register,
+        handleSubmit,
+        getValues,
+        setValue,
+        errors,
+        reset,
+        watch
+    } = useForm({
         validationSchema,
         defaultValues: {
             name: '',       // added here to avoid error!
@@ -45,6 +53,10 @@ export const Form = () => {
     const [category, setCategory] = useState<{ id: string } | null>(null);
 
     useEffect(() => {
+        register({ name: "is_active" })
+    }, [register]);
+
+    useEffect(() => {
         if (!id) {
             return;
         }
@@ -54,8 +66,9 @@ export const Form = () => {
             .then(({ data }) => {
                 setCategory(data.data)
                 reset(data.data);
+                console.log(data.data);
             })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function onSubmit(formData, event) {
@@ -106,13 +119,21 @@ export const Form = () => {
                 inputRef={register}
                 InputLabelProps={{ shrink: true }}
             />
-            <Checkbox
-                name="is_active"
-                color={"primary"}
-                inputRef={register}
-                defaultChecked
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        name="is_active"
+                        color={"primary"}
+                        //inputRef={register} // with manual control you should disable here
+                        onChange={
+                            () => setValue('is_active', !getValues()['is_active'])
+                        }
+                        checked={watch('is_active')}
+                    />
+                }
+                label={'Ativo?'}
+                labelPlacement={'end'}
             />
-            Ativo?
             <Box dir={"rtl"}>
                 <Button
                     color={"primary"}
