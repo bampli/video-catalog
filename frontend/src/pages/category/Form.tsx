@@ -3,6 +3,7 @@ import { Box, Button, Checkbox, makeStyles, TextField, Theme } from "@material-u
 import { ButtonProps } from "@material-ui/core/Button"
 import { useForm } from "react-hook-form";
 import categoryHttp from '../../util/http/category-http';
+import * as yup from '../../util/vendor/yup';
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -10,6 +11,13 @@ const useStyles = makeStyles((theme: Theme) => {
             margin: theme.spacing(1)
         }
     }
+});
+
+const validationSchema = yup.object().shape({
+    name: yup.string()
+        .label('Nome')
+        .required()
+        .max(255)
 });
 
 const Form = () => {
@@ -23,8 +31,10 @@ const Form = () => {
         //size: "medium"    // this is the default
     };
 
-    const { register, handleSubmit, getValues } = useForm({
+    const { register, handleSubmit, getValues, errors } = useForm({
+        validationSchema,
         defaultValues: {
+            name: '',
             is_active: true
         }
     });
@@ -38,6 +48,8 @@ const Form = () => {
             .then((response) => console.log(response));
     }
 
+    //console.log(errors);
+
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
@@ -45,8 +57,21 @@ const Form = () => {
                 label="Nome"
                 fullWidth
                 variant={"outlined"}
-                inputRef={register}     // register => react-hook applies to field by name
+                inputRef={register}
+                // inputRef={register({
+                //     required: "O campo nome é requerido",
+                //     maxLength: {
+                //         value: 2,
+                //         message: 'O máximo caracteres é 2'
+                //     }
+                // })}
+                error={errors.name !== undefined}
+                helperText={errors.name && errors.name.message}
             />
+            {/* {
+                errors.name && errors.name.type === 'required' &&
+                (<p>{errors.name.message} </p>)
+            } */}
             <TextField
                 name="description"
                 label="Descrição"
