@@ -4,6 +4,8 @@ import { ButtonProps } from "@material-ui/core/Button"
 import { useForm } from "react-hook-form";
 import categoryHttp from '../../util/http/category-http';
 import * as yup from '../../util/vendor/yup';
+import { useParams } from 'react-router';
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -20,7 +22,7 @@ const validationSchema = yup.object().shape({
         .max(255)
 });
 
-const Form = () => {
+export const Form = () => {
 
     const classes = useStyles();
 
@@ -31,20 +33,40 @@ const Form = () => {
         //size: "medium"    // this is the default
     };
 
-    const { register, handleSubmit, getValues, errors } = useForm({
+    const { register, handleSubmit, getValues, errors, reset } = useForm({
         validationSchema,
         defaultValues: {
-            name: '',
+            name: '',       // added here to avoid error!
             is_active: true
         }
     });
 
+    const { id } = useParams<{ id }>();
+    const [category, setCategory] = useState<{ id: string } | null>(null);
+
+    useEffect(() => {
+        if (!id) {
+            return;
+        }
+
+        categoryHttp
+            .get(id)
+            .then(({ data }) => {
+                setCategory(data.data)
+                reset(data.data);
+            })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     function onSubmit(formData, event) {
+        const http = !category
+            ? categoryHttp.create(formData)
+            : categoryHttp.update(category.id, formData);
+
         console.log(event);
         // save & edit
         // save
-        categoryHttp
-            .create(formData)
+        http
             .then((response) => console.log(response));
     }
 
@@ -67,6 +89,7 @@ const Form = () => {
                 // })}
                 error={errors.name !== undefined}
                 helperText={errors.name && errors.name.message}
+                InputLabelProps={{ shrink: true }}
             />
             {/* {
                 errors.name && errors.name.type === 'required' &&
@@ -81,11 +104,12 @@ const Form = () => {
                 variant={"outlined"}
                 margin={"normal"}
                 inputRef={register}
+                InputLabelProps={{ shrink: true }}
             />
             <Checkbox
                 name="is_active"
                 color={"primary"}
-                inputRef={register} //('is_active').ref} version 7?
+                inputRef={register}
                 defaultChecked
             />
             Ativo?
@@ -109,4 +133,4 @@ const Form = () => {
     );
 }
 
-export default Form;
+//export default Form;
