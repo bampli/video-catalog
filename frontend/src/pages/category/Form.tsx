@@ -26,13 +26,6 @@ export const Form = () => {
 
     const classes = useStyles();
 
-    const buttonProps: ButtonProps = {
-        className: classes.submit,
-        color: 'secondary',
-        variant: 'contained'
-        //size: "medium"    // this is the default
-    };
-
     const {
         register,
         handleSubmit,
@@ -51,6 +44,15 @@ export const Form = () => {
 
     const { id } = useParams<{ id }>();
     const [category, setCategory] = useState<{ id: string } | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const buttonProps: ButtonProps = {
+        className: classes.submit,
+        color: 'secondary',
+        variant: 'contained',
+        disabled: loading
+        //size: "medium"    // this is the default
+    };
 
     useEffect(() => {
         register({ name: "is_active" })
@@ -60,6 +62,7 @@ export const Form = () => {
         if (!id) {
             return;
         }
+        setLoading(true);
 
         categoryHttp
             .get(id)
@@ -68,10 +71,12 @@ export const Form = () => {
                 reset(data.data);
                 console.log(data.data);
             })
+            .finally(() => setLoading(false))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function onSubmit(formData, event) {
+        setLoading(true);
         const http = !category
             ? categoryHttp.create(formData)
             : categoryHttp.update(category.id, formData);
@@ -80,7 +85,8 @@ export const Form = () => {
         // save & edit
         // save
         http
-            .then((response) => console.log(response));
+            .then((response) => console.log(response))
+            .finally(() => setLoading(false));
     }
 
     //console.log(errors);
@@ -100,6 +106,7 @@ export const Form = () => {
                 //         message: 'O máximo caracteres é 2'
                 //     }
                 // })}
+                disabled={loading}
                 error={errors.name !== undefined}
                 helperText={errors.name && errors.name.message}
                 InputLabelProps={{ shrink: true }}
@@ -117,9 +124,11 @@ export const Form = () => {
                 variant={"outlined"}
                 margin={"normal"}
                 inputRef={register}
+                disabled={loading}
                 InputLabelProps={{ shrink: true }}
             />
             <FormControlLabel
+                disabled={loading}
                 control={
                     <Checkbox
                         name="is_active"
