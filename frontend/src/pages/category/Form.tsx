@@ -4,7 +4,7 @@ import { ButtonProps } from "@material-ui/core/Button"
 import { useForm } from "react-hook-form";
 import categoryHttp from '../../util/http/category-http';
 import * as yup from '../../util/vendor/yup';
-import { useParams } from 'react-router';
+import { useParams, useHistory } from 'react-router';
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) => {
@@ -34,15 +34,15 @@ export const Form = () => {
         errors,
         reset,
         watch
-    } = useForm({
+    } = useForm<{name, is_active}>({
         validationSchema,
         defaultValues: {
-            name: '',       // added here to avoid error!
             is_active: true
         }
     });
 
-    const { id } = useParams<{ id }>();
+    const history = useHistory();
+    const { id } = useParams<{ id:string }>();
     const [category, setCategory] = useState<{ id: string } | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -85,7 +85,19 @@ export const Form = () => {
         // save & edit
         // save
         http
-            .then((response) => console.log(response))
+            .then(({ data }) => {
+                setTimeout( () => {     //avoid no-op warning about side effect
+                    event
+                    ? ( //save & edit
+                        id
+                            ? history.replace(`/categories/${data.data.id}/edit`)   //categories/<id>/edit
+                            : history.push(`/categories/${data.data.id}/edit`)      //categories/create
+                    )
+                    : ( //categories
+                        history.push('/categories')
+                    )
+                })
+            })
             .finally(() => setLoading(false));
     }
 
