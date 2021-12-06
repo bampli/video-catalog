@@ -6,6 +6,7 @@ import categoryHttp from '../../util/http/category-http';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import { useEffect, useState } from "react";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -34,15 +35,16 @@ export const Form = () => {
         errors,
         reset,
         watch
-    } = useForm<{name, is_active}>({
+    } = useForm<{ name, is_active }>({
         validationSchema,
         defaultValues: {
             is_active: true
         }
     });
 
+    const snackBar = useSnackbar();
     const history = useHistory();
-    const { id } = useParams<{ id:string }>();
+    const { id } = useParams<{ id: string }>();
     const [category, setCategory] = useState<{ id: string } | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -78,7 +80,7 @@ export const Form = () => {
     function onSubmit(formData, event) {
         setLoading(true);
         const http = !category
-            ? categoryHttp.create(formData)
+            ? categoryHttp.create({formData})
             : categoryHttp.update(category.id, formData);
 
         console.log(event);
@@ -86,17 +88,28 @@ export const Form = () => {
         // save
         http
             .then(({ data }) => {
-                setTimeout( () => {     //avoid no-op warning about side effect
+                snackBar.enqueueSnackbar(
+                    'Categoria salva com sucesso',
+                    {variant: 'success'}
+                );
+                setTimeout(() => {     //avoid no-op warning about side effect
                     event
-                    ? ( //save & edit
-                        id
-                            ? history.replace(`/categories/${data.data.id}/edit`)   //categories/<id>/edit
-                            : history.push(`/categories/${data.data.id}/edit`)      //categories/create
-                    )
-                    : ( //categories
-                        history.push('/categories')
-                    )
+                        ? ( //save & edit
+                            id
+                                ? history.replace(`/categories/${data.data.id}/edit`)   //categories/<id>/edit
+                                : history.push(`/categories/${data.data.id}/edit`)      //categories/create
+                        )
+                        : ( //categories
+                            history.push('/categories')
+                        )
                 })
+            })
+            .catch((error) => {
+                console.log(error);
+                snackBar.enqueueSnackbar(
+                    'Não foi possível salvar categoria',
+                    {variant: 'error'}
+                );
             })
             .finally(() => setLoading(false));
     }

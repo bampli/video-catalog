@@ -8,19 +8,23 @@ import { BrowserRouter } from "react-router-dom";
 import { AppRouter } from './routes/AppRouter';
 import Breadcrumbs from './components/Breadcrumbs';
 import theme from './theme';
+import { SnackbarProvider } from './components/SnackbarProvider';
+
 
 const App: React.FC = () => {
   return (
     <React.Fragment>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <BrowserRouter>
-          <Navbar />
-          <Box paddingTop={'70px'}>
-            <Breadcrumbs />
-            <AppRouter />
-          </Box>
-        </BrowserRouter>
+        <SnackbarProvider>
+          <BrowserRouter>
+            <Navbar />
+            <Box paddingTop={'70px'}>
+              <Breadcrumbs />
+              <AppRouter />
+            </Box>
+          </BrowserRouter>
+        </SnackbarProvider>
       </ThemeProvider>
     </React.Fragment>
   );
