@@ -71,7 +71,14 @@ export const Form = () => {
             .then(({ data }) => {
                 setCategory(data.data)
                 reset(data.data);
-                console.log(data.data);
+                //console.log(data.data);
+            })
+            .catch((error) => {
+                console.log(error);
+                snackBar.enqueueSnackbar(
+                    'Não foi possível carregar categoria',
+                    {variant: 'error'}
+                );
             })
             .finally(() => setLoading(false))
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,10 +87,10 @@ export const Form = () => {
     function onSubmit(formData, event) {
         setLoading(true);
         const http = !category
-            ? categoryHttp.create({formData})
+            ? categoryHttp.create(formData)
             : categoryHttp.update(category.id, formData);
 
-        console.log(event);
+        //console.log(event);
         // save & edit
         // save
         http
@@ -124,6 +131,10 @@ export const Form = () => {
                 fullWidth
                 variant={"outlined"}
                 inputRef={register}
+                disabled={loading}
+                error={errors.name !== undefined}
+                helperText={errors.name && errors.name.message}
+                InputLabelProps={{ shrink: true }}
                 // inputRef={register({
                 //     required: "O campo nome é requerido",
                 //     maxLength: {
@@ -131,10 +142,6 @@ export const Form = () => {
                 //         message: 'O máximo caracteres é 2'
                 //     }
                 // })}
-                disabled={loading}
-                error={errors.name !== undefined}
-                helperText={errors.name && errors.name.message}
-                InputLabelProps={{ shrink: true }}
             />
             {/* {
                 errors.name && errors.name.type === 'required' &&
@@ -187,5 +194,3 @@ export const Form = () => {
         </form>
     );
 }
-
-//export default Form;
