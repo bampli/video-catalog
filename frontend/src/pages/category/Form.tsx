@@ -53,7 +53,6 @@ export const Form = () => {
         color: 'secondary',
         variant: 'contained',
         disabled: loading
-        //size: "medium"    // this is the default
     };
 
     useEffect(() => {
@@ -77,7 +76,7 @@ export const Form = () => {
                 console.log(error);
                 snackBar.enqueueSnackbar(
                     'Não foi possível carregar categoria',
-                    {variant: 'error'}
+                    { variant: 'error' }
                 );
             })
             .finally(() => setLoading(false))
@@ -97,7 +96,7 @@ export const Form = () => {
             .then(({ data }) => {
                 snackBar.enqueueSnackbar(
                     'Categoria salva com sucesso',
-                    {variant: 'success'}
+                    { variant: 'success' }
                 );
                 setTimeout(() => {     //avoid no-op warning about side effect
                     event
@@ -115,14 +114,12 @@ export const Form = () => {
                 console.log(error);
                 snackBar.enqueueSnackbar(
                     'Não foi possível salvar categoria',
-                    {variant: 'error'}
+                    { variant: 'error' }
                 );
             })
             .finally(() => setLoading(false));
     }
-
     //console.log(errors);
-
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
@@ -135,18 +132,7 @@ export const Form = () => {
                 error={errors.name !== undefined}
                 helperText={errors.name && errors.name.message}
                 InputLabelProps={{ shrink: true }}
-                // inputRef={register({
-                //     required: "O campo nome é requerido",
-                //     maxLength: {
-                //         value: 2,
-                //         message: 'O máximo caracteres é 2'
-                //     }
-                // })}
             />
-            {/* {
-                errors.name && errors.name.type === 'required' &&
-                (<p>{errors.name.message} </p>)
-            } */}
             <TextField
                 name="description"
                 label="Descrição"
@@ -165,7 +151,6 @@ export const Form = () => {
                     <Checkbox
                         name="is_active"
                         color={"primary"}
-                        //inputRef={register} // with manual control you should disable here
                         onChange={
                             () => setValue('is_active', !getValues()['is_active'])
                         }
