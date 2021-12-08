@@ -20,7 +20,10 @@ const validationSchema = yup.object().shape({
     name: yup.string()
         .label('Nome')
         .required()
-        .max(255)
+        .max(255),
+    type: yup.number()
+        .label('Tipo')
+        .required()
 });
 
 export const Form = () => {
@@ -94,7 +97,7 @@ export const Form = () => {
         http
             .then(({ data }) => {
                 snackBar.enqueueSnackbar(
-                    'Categoria salva com sucesso',
+                    'Membro de elenco salvo com sucesso',
                     { variant: 'success' }
                 );
                 setTimeout(() => {     //avoid no-op warning about side effect
@@ -147,6 +150,7 @@ export const Form = () => {
                             <Radio color={"primary"} />
                         }
                         label="Diretor"
+                        checked={watch('type') === 1}
                     />
                     <FormControlLabel
                         disabled={loading}
@@ -155,6 +159,7 @@ export const Form = () => {
                             <Radio color={"primary"} />
                         }
                         label="Ator"
+                        checked={watch('type') === 2}
                     />
                 </RadioGroup>
             </FormControl>
