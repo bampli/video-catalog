@@ -101,11 +101,11 @@ export const Form = () => {
                     event
                         ? ( //save & edit
                             id
-                                ? history.replace(`/cast_members/${data.data.id}/edit`)   //cast_members/<id>/edit
-                                : history.push(`/cast_members/${data.data.id}/edit`)      //cast_members/create
+                                ? history.replace(`/cast-members/${data.data.id}/edit`)   //cast_members/<id>/edit
+                                : history.push(`/cast-members/${data.data.id}/edit`)      //cast_members/create
                         )
                         : ( //cast_members
-                            history.push('/cast_members')
+                            history.push('/cast-members')
                         )
                 })
             })

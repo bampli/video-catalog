@@ -58,7 +58,7 @@ const routes: myRouteProps[]= [
     {
         name: 'cast_members.edit',
         label: 'Editar membro de elencos',
-        path: '/cast_members/:id/edit',
+        path: '/cast-members/:id/edit',
         component: CastMemberForm,
         exact: true
     },
