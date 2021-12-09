@@ -8,6 +8,7 @@ import categoryHttp from '../../util/http/category-http';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import { useSnackbar } from "notistack";
+import { promises } from 'fs';
 
 interface Category {
     id: string;
@@ -43,9 +44,6 @@ const validationSchema = yup.object().shape({
 
 
 const Form = () => {
-
-    const classes = useStyles();
-
     const {
         register,
         handleSubmit,
@@ -62,6 +60,7 @@ const Form = () => {
         }
     });
 
+    const classes = useStyles();
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
@@ -77,77 +76,74 @@ const Form = () => {
     };
 
     useEffect(() => {
+        async function loadData() {
+            setLoading(true);
+            const promises = [categoryHttp.list()];
+            if (id) {
+                promises.push(genreHttp.get(id));
+            }
+            try {
+                const [categoriesResponse, genreResponse] = await Promise.all(promises);
+                setCategories(categoriesResponse.data.data);
+                if (id) {
+                    setGenre(genreResponse.data.data);
+                    reset({
+                        ...genreResponse.data.data,
+                        categories_id: genreResponse.data.data.categories.map(category => category.id)
+                    })
+                }
+            } catch (error) {
+                console.error(error);
+                snackBar.enqueueSnackbar(
+                    'Não foi possível carregar as informações',
+                    { variant: 'error' }
+                );
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
         register({ name: "is_active" });
         register({ name: "categories_id" })
     }, [register]);
 
-    useEffect(() => {
-        if (!id) {
-            categoryHttp
-                .list<{ data: Category[] }>()
-                .then(({ data }) => setCategories(data.data))
-            return;
+    async function onSubmit(formData, event) {
+        setLoading(true);
+        try {
+            const http = !genre
+                ? genreHttp.create(formData)
+                : genreHttp.update(genre.id, formData);
+            const { data } = await http;
+            snackBar.enqueueSnackbar(
+                'Gênero salvo com sucesso',
+                { variant: 'success' }
+            );
+            setTimeout(() => {     //avoid no-op warning about side effect
+                event
+                    ? ( //save & edit
+                        id
+                            ? history.replace(`/genres/${data.data.id}/edit`)   //genres/<id>/edit
+                            : history.push(`/genres/${data.data.id}/edit`)      //genres/create
+                    )
+                    : ( //genres
+                        history.push('/genres')
+                    )
+            })
+        } catch (error) {
+            console.error(error);
+            snackBar.enqueueSnackbar(
+                'Não foi possível salvar gênero',
+                { variant: 'error' }
+            );
+        } finally {
+            setLoading(false);
         }
-        setLoading(true);
-
-        genreHttp
-            .get<{ data: Genre }>(id)
-            .then(({ data }) => {
-                setGenre(data.data);
-                setCategories(data.data.categories);
-                const categories_id = data.data.categories.map(category => category.id);
-                reset({
-                    ...data.data,
-                    categories_id
-                });
-                //console.log(data.data);
-            })
-            .catch((error) => {
-                console.log(error);
-                snackBar.enqueueSnackbar(
-                    'Não foi possível carregar gênero',
-                    { variant: 'error' }
-                );
-            })
-            .finally(() => setLoading(false))
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    function onSubmit(formData, event) {
-        setLoading(true);
-        const http = !genre
-            ? genreHttp.create(formData)
-            : genreHttp.update(genre.id, formData);
-
-        //console.log(event, formData);
-        // save & edit
-        // save
-        http
-            .then(({ data }) => {
-                snackBar.enqueueSnackbar(
-                    'Gênero salvo com sucesso',
-                    { variant: 'success' }
-                );
-                setTimeout(() => {     //avoid no-op warning about side effect
-                    event
-                        ? ( //save & edit
-                            id
-                                ? history.replace(`/genres/${data.data.id}/edit`)   //genres/<id>/edit
-                                : history.push(`/genres/${data.data.id}/edit`)      //genres/create
-                        )
-                        : ( //genres
-                            history.push('/genres')
-                        )
-                })
-            })
-            .catch((error) => {
-                console.log(error);
-                snackBar.enqueueSnackbar(
-                    'Não foi possível salvar gênero',
-                    { variant: 'error' }
-                );
-            })
-            .finally(() => setLoading(false));
     }
     //console.log(errors);
     return (
@@ -178,8 +174,11 @@ const Form = () => {
                 SelectProps={{
                     multiple: true
                 }}
+                error={errors.categories_id !== undefined}
+                helperText={errors.categories_id && errors.categories_id.message}
+                InputLabelProps={{ shrink: true }}
             >
-                <MenuItem value="">
+                <MenuItem value="" disabled>
                     <em>Selecione Categorias</em>
                 </MenuItem>
                 {
@@ -207,14 +206,12 @@ const Form = () => {
             />
             <Box dir={"rtl"}>
                 <Button
-                    color={"primary"}
                     {...buttonProps}
                     onClick={() => onSubmit(getValues(), null)}
                 >
                     Salvar
                 </Button>
                 <Button
-                    color={"primary"}
                     {...buttonProps}
                     type="submit"
                 >

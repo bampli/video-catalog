@@ -24,9 +24,6 @@ const validationSchema = yup.object().shape({
 });
 
 export const Form = () => {
-
-    const classes = useStyles();
-
     const {
         register,
         handleSubmit,
@@ -42,12 +39,13 @@ export const Form = () => {
         }
     });
 
+    const classes = useStyles();
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
     const [category, setCategory] = useState<{ id: string } | null>(null);
-    
+
     const buttonProps: ButtonProps = {
         className: classes.submit,
         color: 'secondary',
@@ -56,68 +54,114 @@ export const Form = () => {
     };
 
     useEffect(() => {
-        register({ name: "is_active" })
-    }, [register]);
-
-    useEffect(() => {
         if (!id) {
             return;
         }
-        setLoading(true);
 
-        categoryHttp
-            .get(id)
-            .then(({ data }) => {
+        async function getCategory() {
+            setLoading(true);
+            try {
+                const { data } = await categoryHttp.get(id);
                 setCategory(data.data);
                 reset(data.data);
                 //console.log(data.data);
-            })
-            .catch((error) => {
-                console.log(error);
+            } catch (error) {
+                console.error(error);
                 snackBar.enqueueSnackbar(
                     'Não foi possível carregar categoria',
                     { variant: 'error' }
                 );
-            })
-            .finally(() => setLoading(false))
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        getCategory();
+
+        // setLoading(true);
+        // categoryHttp
+        //     .get(id)
+        //     .then(({ data }) => {
+        //         setCategory(data.data);
+        //         reset(data.data);
+        //         //console.log(data.data);
+        //     })
+        //     .catch((error) => {
+        //         console.log(error);
+        //         snackBar.enqueueSnackbar(
+        //             'Não foi possível carregar categoria',
+        //             { variant: 'error' }
+        //         );
+        //     })
+        //     .finally(() => setLoading(false))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    function onSubmit(formData, event) {
+    useEffect(() => {
+        register({ name: "is_active" })
+    }, [register]);
+
+    async function onSubmit(formData, event) {
         setLoading(true);
-        const http = !category
-            ? categoryHttp.create(formData)
-            : categoryHttp.update(category.id, formData);
+        try {
+            const http = !category
+                ? categoryHttp.create(formData)
+                : categoryHttp.update(category.id, formData);
+            const { data } = await http;
+            snackBar.enqueueSnackbar(
+                'Categoria salva com sucesso',
+                { variant: 'success' }
+            );
+            setTimeout(() => {     //avoid no-op warning about side effect
+                event
+                    ? ( //save & edit
+                        id
+                            ? history.replace(`/categories/${data.data.id}/edit`)   //categories/<id>/edit
+                            : history.push(`/categories/${data.data.id}/edit`)      //categories/create
+                    )
+                    : ( //categories
+                        history.push('/categories')
+                    )
+            })
+        } catch (error) {
+            console.error(error);
+            snackBar.enqueueSnackbar(
+                'Não foi possível salvar categoria',
+                { variant: 'error' }
+            );
+        } finally {
+            setLoading(false)
+        }
 
         //console.log(event);
         // save & edit
         // save
-        http
-            .then(({ data }) => {
-                snackBar.enqueueSnackbar(
-                    'Categoria salva com sucesso',
-                    { variant: 'success' }
-                );
-                setTimeout(() => {     //avoid no-op warning about side effect
-                    event
-                        ? ( //save & edit
-                            id
-                                ? history.replace(`/categories/${data.data.id}/edit`)   //categories/<id>/edit
-                                : history.push(`/categories/${data.data.id}/edit`)      //categories/create
-                        )
-                        : ( //categories
-                            history.push('/categories')
-                        )
-                })
-            })
-            .catch((error) => {
-                console.log(error);
-                snackBar.enqueueSnackbar(
-                    'Não foi possível salvar categoria',
-                    { variant: 'error' }
-                );
-            })
-            .finally(() => setLoading(false));
+        // http
+        //     .then(({ data }) => {
+        //         snackBar.enqueueSnackbar(
+        //             'Categoria salva com sucesso',
+        //             { variant: 'success' }
+        //         );
+        //         setTimeout(() => {     //avoid no-op warning about side effect
+        //             event
+        //                 ? ( //save & edit
+        //                     id
+        //                         ? history.replace(`/categories/${data.data.id}/edit`)   //categories/<id>/edit
+        //                         : history.push(`/categories/${data.data.id}/edit`)      //categories/create
+        //                 )
+        //                 : ( //categories
+        //                     history.push('/categories')
+        //                 )
+        //         })
+        //     })
+        //     .catch((error) => {
+        //         console.log(error);
+        //         snackBar.enqueueSnackbar(
+        //             'Não foi possível salvar categoria',
+        //             { variant: 'error' }
+        //         );
+        //     })
+        //     .finally(() => setLoading(false));
     }
     //console.log(errors);
     return (

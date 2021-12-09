@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Button, FormControl, FormControlLabel, FormLabel, makeStyles, Radio, RadioGroup, TextField, Theme } from "@material-ui/core";
+import { Box, Button, FormControl, FormControlLabel, FormHelperText, FormLabel, makeStyles, Radio, RadioGroup, TextField, Theme } from "@material-ui/core";
 import { ButtonProps } from "@material-ui/core/Button"
 import { useForm } from "react-hook-form";
 import castMemberHttp from '../../util/http/cast-member-http';
@@ -27,9 +27,6 @@ const validationSchema = yup.object().shape({
 });
 
 export const Form = () => {
-
-    const classes = useStyles();
-
     const {
         register,
         handleSubmit,
@@ -44,12 +41,13 @@ export const Form = () => {
         // }
     });
 
+    const classes = useStyles();
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
     const [castMember, setCastMember] = useState<{ id: string } | null>(null);
-    
+
     const buttonProps: ButtonProps = {
         className: classes.submit,
         color: 'secondary',
@@ -58,68 +56,69 @@ export const Form = () => {
     };
 
     useEffect(() => {
-        register({ name: "type" })
-    }, [register]);
-
-    useEffect(() => {
         if (!id) {
             return;
         }
-        setLoading(true);
 
-        castMemberHttp
-            .get(id)
-            .then(({ data }) => {
+        async function getCastMember() {
+            setLoading(true);
+            try {
+                const { data } = await castMemberHttp.get(id);
                 setCastMember(data.data)
                 reset(data.data);
                 //console.log(data.data);
-            })
-            .catch((error) => {
-                console.log(error);
+            } catch (error) {
+                console.error(error);
                 snackBar.enqueueSnackbar(
                     'Não foi possível carregar membro de elenco',
                     { variant: 'error' }
                 );
-            })
-            .finally(() => setLoading(false))
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        getCastMember();
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    function onSubmit(formData, event) {
-        setLoading(true);
-        const http = !castMember
-            ? castMemberHttp.create(formData)
-            : castMemberHttp.update(castMember.id, formData);
+    useEffect(() => {
+        register({ name: "type" })
+    }, [register]);
 
+    async function onSubmit(formData, event) {
+        setLoading(true);
+        try {
+            const http = !castMember
+                ? castMemberHttp.create(formData)
+                : castMemberHttp.update(castMember.id, formData);
+            const { data } = await http;
+            snackBar.enqueueSnackbar(
+                'Membro de elenco salvo com sucesso',
+                { variant: 'success' }
+            );
+            setTimeout(() => {     //avoid no-op warning about side effect
+                event
+                    ? ( //save & edit
+                        id
+                            ? history.replace(`/cast-members/${data.data.id}/edit`)   //cast_members/<id>/edit
+                            : history.push(`/cast-members/${data.data.id}/edit`)      //cast_members/create
+                    )
+                    : ( //cast_members
+                        history.push('/cast-members')
+                    )
+            });
+        } catch (error) {
+            console.log(error);
+            snackBar.enqueueSnackbar(
+                'Não foi possível salvar membro de elenco',
+                { variant: 'error' }
+            );
+        } finally {
+            setLoading(false);
+        }
         //console.log(event);
-        // save & edit
-        // save
-        http
-            .then(({ data }) => {
-                snackBar.enqueueSnackbar(
-                    'Membro de elenco salvo com sucesso',
-                    { variant: 'success' }
-                );
-                setTimeout(() => {     //avoid no-op warning about side effect
-                    event
-                        ? ( //save & edit
-                            id
-                                ? history.replace(`/cast-members/${data.data.id}/edit`)   //cast_members/<id>/edit
-                                : history.push(`/cast-members/${data.data.id}/edit`)      //cast_members/create
-                        )
-                        : ( //cast_members
-                            history.push('/cast-members')
-                        )
-                })
-            })
-            .catch((error) => {
-                console.log(error);
-                snackBar.enqueueSnackbar(
-                    'Não foi possível salvar membro de elenco',
-                    { variant: 'error' }
-                );
-            })
-            .finally(() => setLoading(false));
     }
     //console.log(errors);
     return (
@@ -135,33 +134,25 @@ export const Form = () => {
                 helperText={errors.name && errors.name.message}
                 InputLabelProps={{ shrink: true }}
             />
-            <FormControl margin={"normal"}>
+            <FormControl
+                margin={"normal"}
+                error={errors.type !== undefined}
+                disabled={loading}
+            >
                 <FormLabel component="legend">Tipo</FormLabel>
                 <RadioGroup
                     name="type"
                     onChange={(e) => {
                         setValue('type', parseInt(e.target.value));
                     }}
+                    value={watch('type') + ""} // GRANDE MACETE: CONVERTE PARA STRING & EVITA ERRO!
                 >
-                    <FormControlLabel
-                        disabled={loading}
-                        value="1"
-                        control={
-                            <Radio color={"primary"} />
-                        }
-                        label="Diretor"
-                        checked={watch('type') === 1}
-                    />
-                    <FormControlLabel
-                        disabled={loading}
-                        value="2"
-                        control={
-                            <Radio color={"primary"} />
-                        }
-                        label="Ator"
-                        checked={watch('type') === 2}
-                    />
+                    <FormControlLabel value="1" control={<Radio color={"primary"} />} label="Diretor" />
+                    <FormControlLabel value="2" control={<Radio color={"primary"} />} label="Ator" />
                 </RadioGroup>
+                {
+                    errors.type && <FormHelperText id="type-helper-text">{errors.type.message}</FormHelperText>
+                }
             </FormControl>
             <Box dir={"rtl"}>
                 <Button
@@ -179,6 +170,6 @@ export const Form = () => {
                     Salvar e continuar editando
                 </Button>
             </Box>
-        </form>
+        </form >
     );
 }
