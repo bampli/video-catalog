@@ -47,9 +47,9 @@ export const Form = () => {
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
-    const [castMember, setCastMember] = useState<{ id: string } | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-
+    const [castMember, setCastMember] = useState<{ id: string } | null>(null);
+    
     const buttonProps: ButtonProps = {
         className: classes.submit,
         color: 'secondary',

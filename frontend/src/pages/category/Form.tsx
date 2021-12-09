@@ -45,9 +45,9 @@ export const Form = () => {
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
-    const [category, setCategory] = useState<{ id: string } | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-
+    const [category, setCategory] = useState<{ id: string } | null>(null);
+    
     const buttonProps: ButtonProps = {
         className: classes.submit,
         color: 'secondary',
@@ -68,7 +68,7 @@ export const Form = () => {
         categoryHttp
             .get(id)
             .then(({ data }) => {
-                setCategory(data.data)
+                setCategory(data.data);
                 reset(data.data);
                 //console.log(data.data);
             })

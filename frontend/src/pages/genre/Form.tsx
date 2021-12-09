@@ -1,10 +1,13 @@
 import * as React from 'react';
-import { Box, Button, Checkbox, makeStyles, MenuItem, TextField, Theme } from "@material-ui/core";
+import { Box, Button, Checkbox, FormControlLabel, makeStyles, MenuItem, TextField, Theme } from "@material-ui/core";
 import { ButtonProps } from "@material-ui/core/Button"
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from 'react';
-import categoryHttp from '../../util/http/category-http';
 import genreHttp from '../../util/http/genre-http';
+import categoryHttp from '../../util/http/category-http';
+import * as yup from '../../util/vendor/yup';
+import { useParams, useHistory } from 'react-router';
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -14,47 +17,123 @@ const useStyles = makeStyles((theme: Theme) => {
     }
 });
 
+const validationSchema = yup.object().shape({
+    name: yup.string()
+        .label('Nome')
+        .required()
+        .max(255)
+});
+
+
 const Form = () => {
 
     const classes = useStyles();
-    const buttonProps: ButtonProps = {
-        className: classes.submit,
-        color: 'secondary',
-        variant: 'contained'
-    };
 
-    const [categories, setCategories] = useState<any[]>([]);
     const {
         register,
         handleSubmit,
         getValues,
         setValue,
+        errors,
+        reset,
         watch
-    } = useForm<{ name, categories_id }>({
+    } = useForm<{ name, is_active, categories }>({
+        validationSchema,
         defaultValues: {
-            categories_id: []
+            is_active: true,
+            categories: []
         }
     });
 
+    interface Category {
+        id: string;
+        name: string;
+    };
+
+    const snackBar = useSnackbar();
+    const history = useHistory();
+    const { id } = useParams<{ id: string }>();
+    const [loading, setLoading] = useState<boolean>(false);
+    const [genre, setGenre] = useState<{ id: string, categories: Category[] } | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
+
+    const buttonProps: ButtonProps = {
+        className: classes.submit,
+        color: 'secondary',
+        variant: 'contained',
+        disabled: loading
+    };
+
     useEffect(() => {
-        register({ name: "categories_id" })
+        register({ name: "is_active" });
+        register({ name: "categories" })
     }, [register]);
 
     useEffect(() => {
-        categoryHttp
-            .list()
-            .then(({ data }) => setCategories(data.data))
+        if (!id) {
+            categoryHttp
+                .list<{ data: Category[] }>()
+                .then(({ data }) => setCategories(data.data))
+            return;
+        }
+        setLoading(true);
+
+        genreHttp
+            .get(id)
+            .then(({ data }) => {
+                setGenre(data.data);
+                setCategories(data.data.categories);
+                reset(data.data);
+                //console.log(data.data);
+            })
+            .catch((error) => {
+                console.log(error);
+                snackBar.enqueueSnackbar(
+                    'Não foi possível carregar gênero',
+                    { variant: 'error' }
+                );
+            })
+            .finally(() => setLoading(false))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function onSubmit(formData, event) {
-        console.log(event);
+        setLoading(true);
+        const http = !genre
+            ? genreHttp.create(formData)
+            : genreHttp.update(genre.id, formData);
+
+        //console.log(event);
         // save & edit
         // save
-        genreHttp
-            .create(formData)
-            .then((response) => console.log(response));
+        http
+            .then(({ data }) => {
+                snackBar.enqueueSnackbar(
+                    'Gênero salvo com sucesso',
+                    { variant: 'success' }
+                );
+                setTimeout(() => {     //avoid no-op warning about side effect
+                    event
+                        ? ( //save & edit
+                            id
+                                ? history.replace(`/genres/${data.data.id}/edit`)   //genres/<id>/edit
+                                : history.push(`/genres/${data.data.id}/edit`)      //genres/create
+                        )
+                        : ( //genres
+                            history.push('/genres')
+                        )
+                })
+            })
+            .catch((error) => {
+                console.log(error);
+                snackBar.enqueueSnackbar(
+                    'Não foi possível salvar gênero',
+                    { variant: 'error' }
+                );
+            })
+            .finally(() => setLoading(false));
     }
-
+    //console.log(errors);
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
@@ -63,17 +142,22 @@ const Form = () => {
                 fullWidth
                 variant={"outlined"}
                 inputRef={register}     // register => react-hook applies to field by name
+                disabled={loading}
+                error={errors.name !== undefined}
+                helperText={errors.name && errors.name.message}
+                InputLabelProps={{ shrink: true }}
             />
             <TextField
                 select
-                name="categories_id"
-                value={watch('categories_id')}
+                name="categories"
+                value={watch('categories')}
                 label="Categorias"
                 margin={"normal"}
                 variant={"outlined"}
+                disabled={loading}
                 fullWidth
                 onChange={(e) => {
-                    setValue('categories_id', e.target.value, true);
+                    setValue('categories', e.target.value, true);
                 }}
                 SelectProps={{
                     multiple: true
@@ -90,15 +174,36 @@ const Form = () => {
                     )
                 }
             </TextField>
-            <Checkbox
-                name="is_active"
-                inputRef={register}
-                defaultChecked
+            <FormControlLabel
+                disabled={loading}
+                control={
+                    <Checkbox
+                        name="is_active"
+                        color={"primary"}
+                        onChange={
+                            () => setValue('is_active', !getValues()['is_active'])
+                        }
+                        checked={watch('is_active')}
+                    />
+                }
+                label={'Ativo?'}
+                labelPlacement={'end'}
             />
-            Ativo?
             <Box dir={"rtl"}>
-                <Button {...buttonProps} onClick={() => onSubmit(getValues(), null)}>Salvar</Button>
-                <Button {...buttonProps} type="submit">Salvar e continuar editando</Button>
+                <Button
+                    color={"primary"}
+                    {...buttonProps}
+                    onClick={() => onSubmit(getValues(), null)}
+                >
+                    Salvar
+                </Button>
+                <Button
+                    color={"primary"}
+                    {...buttonProps}
+                    type="submit"
+                >
+                    Salvar e continuar editando
+                </Button>
             </Box>
         </form>
     );

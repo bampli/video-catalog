@@ -76,6 +76,14 @@ const routes: myRouteProps[]= [
         component: GenreForm,
         exact: true
     },
+    {
+        name: 'genres.edit',
+        label: 'Editar gênero',
+        path: '/genres/:id/edit',
+        component: GenreForm,
+        exact: true
+    },
+    
     
 ]
 
