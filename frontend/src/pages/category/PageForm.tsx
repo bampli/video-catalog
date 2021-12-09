@@ -4,7 +4,7 @@ import { Page } from "../../components/Page";
 import { useParams } from 'react-router';
 
 const PageForm = () => {
-    const { id } = useParams<{id}>();
+    const { id } = useParams<{ id }>();
     return (
         <Page title={!id ? 'Criar categoria' : 'Editar categoria'}>
             <Form />

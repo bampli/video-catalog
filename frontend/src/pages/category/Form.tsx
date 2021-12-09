@@ -45,15 +45,14 @@ export const Form = () => {
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
-    const [category, setCategory] = useState<{ id: string } | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-
+    const [category, setCategory] = useState<{ id: string } | null>(null);
+    
     const buttonProps: ButtonProps = {
         className: classes.submit,
         color: 'secondary',
         variant: 'contained',
         disabled: loading
-        //size: "medium"    // this is the default
     };
 
     useEffect(() => {
@@ -69,9 +68,16 @@ export const Form = () => {
         categoryHttp
             .get(id)
             .then(({ data }) => {
-                setCategory(data.data)
+                setCategory(data.data);
                 reset(data.data);
-                console.log(data.data);
+                //console.log(data.data);
+            })
+            .catch((error) => {
+                console.log(error);
+                snackBar.enqueueSnackbar(
+                    'Não foi possível carregar categoria',
+                    { variant: 'error' }
+                );
             })
             .finally(() => setLoading(false))
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,17 +86,17 @@ export const Form = () => {
     function onSubmit(formData, event) {
         setLoading(true);
         const http = !category
-            ? categoryHttp.create({formData})
+            ? categoryHttp.create(formData)
             : categoryHttp.update(category.id, formData);
 
-        console.log(event);
+        //console.log(event);
         // save & edit
         // save
         http
             .then(({ data }) => {
                 snackBar.enqueueSnackbar(
                     'Categoria salva com sucesso',
-                    {variant: 'success'}
+                    { variant: 'success' }
                 );
                 setTimeout(() => {     //avoid no-op warning about side effect
                     event
@@ -108,14 +114,12 @@ export const Form = () => {
                 console.log(error);
                 snackBar.enqueueSnackbar(
                     'Não foi possível salvar categoria',
-                    {variant: 'error'}
+                    { variant: 'error' }
                 );
             })
             .finally(() => setLoading(false));
     }
-
     //console.log(errors);
-
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
@@ -124,22 +128,11 @@ export const Form = () => {
                 fullWidth
                 variant={"outlined"}
                 inputRef={register}
-                // inputRef={register({
-                //     required: "O campo nome é requerido",
-                //     maxLength: {
-                //         value: 2,
-                //         message: 'O máximo caracteres é 2'
-                //     }
-                // })}
                 disabled={loading}
                 error={errors.name !== undefined}
                 helperText={errors.name && errors.name.message}
                 InputLabelProps={{ shrink: true }}
             />
-            {/* {
-                errors.name && errors.name.type === 'required' &&
-                (<p>{errors.name.message} </p>)
-            } */}
             <TextField
                 name="description"
                 label="Descrição"
@@ -158,7 +151,6 @@ export const Form = () => {
                     <Checkbox
                         name="is_active"
                         color={"primary"}
-                        //inputRef={register} // with manual control you should disable here
                         onChange={
                             () => setValue('is_active', !getValues()['is_active'])
                         }
@@ -187,5 +179,3 @@ export const Form = () => {
         </form>
     );
 }
-
-//export default Form;

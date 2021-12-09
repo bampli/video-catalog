@@ -10,11 +10,11 @@ const columnsDefinition: MUIDataTableColumn[] = [
         label: "Nome"
     },
     {
-        name: "genres",
-        label: "Gêneros",
+        name: "categories",
+        label: "Categorias",
         options: {
             customBodyRender: (value, tableMeta, updateValue) => {
-                return value; //.map(value => value.name).join(", ");
+                return value.map(value => value.name).join(", ");
             }
         }
     },
