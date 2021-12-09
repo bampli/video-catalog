@@ -9,6 +9,20 @@ import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import { useSnackbar } from "notistack";
 
+interface Category {
+    id: string;
+    name: string;
+    description: string;
+    is_active: boolean;
+}
+
+interface Genre {
+    id: string;
+    name: string;
+    is_active: number;
+    categories: Category[];
+}
+
 const useStyles = makeStyles((theme: Theme) => {
     return {
         submit: {
@@ -21,7 +35,10 @@ const validationSchema = yup.object().shape({
     name: yup.string()
         .label('Nome')
         .required()
-        .max(255)
+        .max(255),
+    categories_id: yup.array()
+        .label('Categorias')
+        .required()
 });
 
 
@@ -37,24 +54,19 @@ const Form = () => {
         errors,
         reset,
         watch
-    } = useForm<{ name, is_active, categories }>({
+    } = useForm<{ name, is_active, categories_id }>({
         validationSchema,
         defaultValues: {
             is_active: true,
-            categories: []
+            categories_id: []
         }
     });
-
-    interface Category {
-        id: string;
-        name: string;
-    };
 
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
-    const [genre, setGenre] = useState<{ id: string, categories: Category[] } | null>(null);
+    const [genre, setGenre] = useState<Genre | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
 
     const buttonProps: ButtonProps = {
@@ -66,7 +78,7 @@ const Form = () => {
 
     useEffect(() => {
         register({ name: "is_active" });
-        register({ name: "categories" })
+        register({ name: "categories_id" })
     }, [register]);
 
     useEffect(() => {
@@ -79,11 +91,15 @@ const Form = () => {
         setLoading(true);
 
         genreHttp
-            .get(id)
+            .get<{ data: Genre }>(id)
             .then(({ data }) => {
                 setGenre(data.data);
                 setCategories(data.data.categories);
-                reset(data.data);
+                const categories_id = data.data.categories.map(category => category.id);
+                reset({
+                    ...data.data,
+                    categories_id
+                });
                 //console.log(data.data);
             })
             .catch((error) => {
@@ -103,7 +119,7 @@ const Form = () => {
             ? genreHttp.create(formData)
             : genreHttp.update(genre.id, formData);
 
-        //console.log(event);
+        //console.log(event, formData);
         // save & edit
         // save
         http
@@ -149,15 +165,15 @@ const Form = () => {
             />
             <TextField
                 select
-                name="categories"
-                value={watch('categories')}
+                name="categories_id"
+                value={watch('categories_id')}
                 label="Categorias"
                 margin={"normal"}
                 variant={"outlined"}
                 disabled={loading}
                 fullWidth
                 onChange={(e) => {
-                    setValue('categories', e.target.value, true);
+                    setValue('categories_id', e.target.value, true);
                 }}
                 SelectProps={{
                     multiple: true
