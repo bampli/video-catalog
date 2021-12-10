@@ -59,8 +59,7 @@ export const Form = () => {
         if (!id) {
             return;
         }
-
-        async function getCastMember() {
+        (async function () {    //iife
             setLoading(true);
             try {
                 const { data } = await castMemberHttp.get(id);
@@ -76,10 +75,7 @@ export const Form = () => {
             } finally {
                 setLoading(false);
             }
-        }
-
-        getCastMember();
-
+        })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

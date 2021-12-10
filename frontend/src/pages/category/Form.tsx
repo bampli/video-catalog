@@ -57,8 +57,10 @@ export const Form = () => {
         if (!id) {
             return;
         }
-
-        async function getCategory() {
+        //using iife: immediate invoked function expression
+        //instead of: async function getCategory() {
+        //avoid call: getCategory();
+        (async function () {
             setLoading(true);
             try {
                 const { data } = await categoryHttp.get(id);
@@ -74,9 +76,7 @@ export const Form = () => {
             } finally {
                 setLoading(false);
             }
-        }
-
-        getCategory();
+        })();
 
         // setLoading(true);
         // categoryHttp

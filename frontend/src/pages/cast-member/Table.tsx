@@ -45,9 +45,10 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        castMemberHttp
-            .list<{ data: CastMember[] }>()     // {data: [], meta}
-            .then(({ data }) => setData(data.data));
+        (async function () {    //iife
+            const { data } = await castMemberHttp.list<{ data: CastMember[] }>();
+            setData(data.data);
+        })();
     }, []);
 
     return (

@@ -8,7 +8,6 @@ import categoryHttp from '../../util/http/category-http';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import { useSnackbar } from "notistack";
-import { promises } from 'fs';
 
 interface Category {
     id: string;
@@ -76,7 +75,7 @@ const Form = () => {
     };
 
     useEffect(() => {
-        async function loadData() {
+        (async function () {    //iife
             setLoading(true);
             const promises = [categoryHttp.list()];
             if (id) {
@@ -101,10 +100,7 @@ const Form = () => {
             } finally {
                 setLoading(false);
             }
-        }
-
-        loadData();
-
+        })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

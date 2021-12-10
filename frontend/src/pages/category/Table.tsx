@@ -41,12 +41,16 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        categoryHttp
-            .list<{ data: Category[] }>()     // {data: [], meta}
-            .then(({ data }) => setData(data.data));
-        // httpVideo.get('categories').then(
-        //     response => setData(response.data.data)
-        // )
+        (async function () {
+            const { data } = await categoryHttp.list<{ data: Category[] }>();
+            setData(data.data);
+        })();
+        //2 categoryHttp
+        //2     .list<{ data: Category[] }>()     // {data: [], meta}
+        //2     .then(({ data }) => setData(data.data));
+        //1 httpVideo.get('categories').then(
+        //1     response => setData(response.data.data)
+        //1 )
     }, []);
 
     return (
