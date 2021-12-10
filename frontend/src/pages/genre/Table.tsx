@@ -50,10 +50,17 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        (async () => {    //iife
+        let isSubscribed = true;
+        (async () => {
             const {data} = await genreHttp.list<{ data: Genre[] }>();
-            setData(data.data);
+            if (isSubscribed) {
+                setData(data.data);
+            }
         })();
+
+        return () => {
+            isSubscribed = false;
+        }
     }, []);
 
     return (

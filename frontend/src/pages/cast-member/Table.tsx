@@ -45,10 +45,17 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        (async () => {    //iife
+        let isSubscribed = true;
+        (async () => {
             const { data } = await castMemberHttp.list<{ data: CastMember[] }>();
-            setData(data.data);
+            if (isSubscribed) {
+                setData(data.data);
+            }
         })();
+        return () => {
+            isSubscribed = false;
+        }
+        
     }, []);
 
     return (

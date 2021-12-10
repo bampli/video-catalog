@@ -41,10 +41,17 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
+        let isSubscribed = true;    // flag for critical region required by async
         (async () => {
             const { data } = await categoryHttp.list<{ data: Category[] }>();
-            setData(data.data);
+            if (isSubscribed) {
+                setData(data.data); // do not change when dismounting
+            }
         })();
+
+        return () => {              // flag that component already dismounted
+            isSubscribed = false;
+        }
         //3 (async function () {
         //3     const { data } = await categoryHttp.list<{ data: Category[] }>();
         //3     setData(data.data);
