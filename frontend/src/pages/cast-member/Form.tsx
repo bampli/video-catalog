@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Box, Button, FormControl, FormControlLabel, FormHelperText, FormLabel, makeStyles, Radio, RadioGroup, TextField, Theme } from "@material-ui/core";
-import { ButtonProps } from "@material-ui/core/Button"
+import { FormControl, FormControlLabel, FormHelperText, FormLabel, Radio, RadioGroup, TextField } from "@material-ui/core";
 import { useForm } from "react-hook-form";
 import castMemberHttp from '../../util/http/cast-member-http';
 import * as yup from '../../util/vendor/yup';
@@ -8,14 +7,7 @@ import { useParams, useHistory } from 'react-router';
 import { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
 import { CastMember } from '../../util/models';
-
-const useStyles = makeStyles((theme: Theme) => {
-    return {
-        submit: {
-            margin: theme.spacing(1)
-        }
-    }
-});
+import SubmitActions from '../../components/SubmitActions';
 
 const validationSchema = yup.object().shape({
     name: yup.string()
@@ -35,26 +27,19 @@ export const Form = () => {
         setValue,
         errors,
         reset,
-        watch
+        watch,
+        triggerValidation
     } = useForm<{ name, type }>({
         validationSchema,
         // defaultValues: {
         // }
     });
 
-    const classes = useStyles();
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
     const [castMember, setCastMember] = useState<CastMember | null>(null);
-
-    const buttonProps: ButtonProps = {
-        className: classes.submit,
-        color: 'secondary',
-        variant: 'contained',
-        disabled: loading
-    };
 
     useEffect(() => {
         if (!id) {
@@ -158,22 +143,14 @@ export const Form = () => {
                     errors.type && <FormHelperText id="type-helper-text">{errors.type.message}</FormHelperText>
                 }
             </FormControl>
-            <Box dir={"rtl"}>
-                <Button
-                    color={"primary"}
-                    {...buttonProps}
-                    onClick={() => onSubmit(getValues(), null)}
-                >
-                    Salvar
-                </Button>
-                <Button
-                    color={"primary"}
-                    {...buttonProps}
-                    type="submit"
-                >
-                    Salvar e continuar editando
-                </Button>
-            </Box>
+            <SubmitActions
+                disabledButtons={loading}
+                handleSave={() =>
+                    triggerValidation().then(isValid => {
+                        isValid && onSubmit(getValues(), null)
+                    })
+                }
+            />
         </form >
     );
 }

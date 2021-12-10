@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Box, Button, Checkbox, FormControlLabel, makeStyles, MenuItem, TextField, Theme } from "@material-ui/core";
-import { ButtonProps } from "@material-ui/core/Button"
+import { Checkbox, FormControlLabel, MenuItem, TextField } from "@material-ui/core";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from 'react';
 import genreHttp from '../../util/http/genre-http';
@@ -9,14 +8,7 @@ import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import { useSnackbar } from "notistack";
 import { Category, Genre } from "../../util/models";
-
-const useStyles = makeStyles((theme: Theme) => {
-    return {
-        submit: {
-            margin: theme.spacing(1)
-        }
-    }
-});
+import SubmitActions from '../../components/SubmitActions';
 
 const validationSchema = yup.object().shape({
     name: yup.string()
@@ -37,7 +29,8 @@ const Form = () => {
         setValue,
         errors,
         reset,
-        watch
+        watch,
+        triggerValidation
     } = useForm<{ name, is_active, categories_id }>({
         validationSchema,
         defaultValues: {
@@ -46,20 +39,12 @@ const Form = () => {
         }
     });
 
-    const classes = useStyles();
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
     const [genre, setGenre] = useState<Genre | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
-
-    const buttonProps: ButtonProps = {
-        className: classes.submit,
-        color: 'secondary',
-        variant: 'contained',
-        disabled: loading
-    };
 
     useEffect(() => {
         let isSubscribed = true;
@@ -195,20 +180,14 @@ const Form = () => {
                 label={'Ativo?'}
                 labelPlacement={'end'}
             />
-            <Box dir={"rtl"}>
-                <Button
-                    {...buttonProps}
-                    onClick={() => onSubmit(getValues(), null)}
-                >
-                    Salvar
-                </Button>
-                <Button
-                    {...buttonProps}
-                    type="submit"
-                >
-                    Salvar e continuar editando
-                </Button>
-            </Box>
+            <SubmitActions
+                disabledButtons={loading}
+                handleSave={() =>
+                    triggerValidation().then(isValid => {
+                        isValid && onSubmit(getValues(), null)
+                    })
+                }
+            />
         </form>
     );
 }
