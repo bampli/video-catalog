@@ -59,13 +59,16 @@ export const Form = () => {
         if (!id) {
             return;
         }
-        (async () => {    //iife
+        let isSubscribed = true;
+        (async () => {
             setLoading(true);
             try {
                 const { data } = await castMemberHttp.get(id);
-                setCastMember(data.data)
-                reset(data.data);
-                //console.log(data.data);
+                if (isSubscribed) {
+                    setCastMember(data.data)
+                    reset(data.data);
+                    //console.log(data.data);
+                }
             } catch (error) {
                 console.error(error);
                 snackBar.enqueueSnackbar(
@@ -76,6 +79,10 @@ export const Form = () => {
                 setLoading(false);
             }
         })();
+
+        return () => {
+            isSubscribed = false;
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

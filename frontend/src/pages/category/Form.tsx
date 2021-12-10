@@ -57,6 +57,7 @@ export const Form = () => {
         if (!id) {
             return;
         }
+        let isSubscribed = true;
         //using iife: immediate invoked function expression
         //instead of: async function getCategory() {
         //avoid call: getCategory();
@@ -64,9 +65,11 @@ export const Form = () => {
             setLoading(true);
             try {
                 const { data } = await categoryHttp.get(id);
-                setCategory(data.data);
-                reset(data.data);
-                //console.log(data.data);
+                if (isSubscribed) {
+                    setCategory(data.data);
+                    reset(data.data);
+                    //console.log(data.data);
+                }
             } catch (error) {
                 console.error(error);
                 snackBar.enqueueSnackbar(
@@ -77,6 +80,10 @@ export const Form = () => {
                 setLoading(false);
             }
         })();
+
+        return () => {
+            isSubscribed = false;
+        }
 
         // setLoading(true);
         // categoryHttp
