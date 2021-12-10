@@ -3,6 +3,7 @@ import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
 import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
+import { Category, ListResponse } from "../../util/models";
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -29,11 +30,6 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-interface Category {
-    id: string;
-    name: string;
-};
-
 type Props = {};
 const Table = (props: Props) => {
 
@@ -43,7 +39,7 @@ const Table = (props: Props) => {
     useEffect(() => {
         let isSubscribed = true;    // flag for critical region required by async
         (async () => {
-            const { data } = await categoryHttp.list<{ data: Category[] }>();
+            const { data } = await categoryHttp.list<ListResponse<Category>>();
             if (isSubscribed) {
                 setData(data.data); // do not change when dismounting
             }

@@ -7,6 +7,7 @@ import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
+import { Category } from "../../util/models";
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -44,7 +45,7 @@ export const Form = () => {
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
-    const [category, setCategory] = useState<{ id: string } | null>(null);
+    const [category, setCategory] = useState<Category | null>(null);
 
     const buttonProps: ButtonProps = {
         className: classes.submit,

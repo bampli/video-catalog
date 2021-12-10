@@ -8,20 +8,7 @@ import categoryHttp from '../../util/http/category-http';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import { useSnackbar } from "notistack";
-
-interface Category {
-    id: string;
-    name: string;
-    description: string;
-    is_active: boolean;
-}
-
-interface Genre {
-    id: string;
-    name: string;
-    is_active: number;
-    categories: Category[];
-}
+import { Category, Genre } from "../../util/models";
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -88,9 +75,10 @@ const Form = () => {
                     setCategories(categoriesResponse.data.data);
                     if (id) {
                         setGenre(genreResponse.data.data);
+                        const categories_id = genreResponse.data.data.categories.map(category => category.id);
                         reset({
                             ...genreResponse.data.data,
-                            categories_id: genreResponse.data.data.categories.map(category => category.id)
+                            categories_id //: categories_id
                         })
                     }
                 }
