@@ -59,7 +59,7 @@ export const Form = () => {
         if (!id) {
             return;
         }
-        (async function () {    //iife
+        (async () => {    //iife
             setLoading(true);
             try {
                 const { data } = await castMemberHttp.get(id);

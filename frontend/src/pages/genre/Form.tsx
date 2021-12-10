@@ -75,7 +75,7 @@ const Form = () => {
     };
 
     useEffect(() => {
-        (async function () {    //iife
+        (async () => {    //iife
             setLoading(true);
             const promises = [categoryHttp.list()];
             if (id) {

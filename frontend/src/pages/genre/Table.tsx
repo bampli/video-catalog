@@ -50,7 +50,7 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        (async function () {    //iife
+        (async () => {    //iife
             const {data} = await genreHttp.list<{ data: Genre[] }>();
             setData(data.data);
         })();

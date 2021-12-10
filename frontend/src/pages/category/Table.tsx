@@ -41,10 +41,14 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        (async function () {
+        (async () => {
             const { data } = await categoryHttp.list<{ data: Category[] }>();
             setData(data.data);
         })();
+        //3 (async function () {
+        //3     const { data } = await categoryHttp.list<{ data: Category[] }>();
+        //3     setData(data.data);
+        //3 })();
         //2 categoryHttp
         //2     .list<{ data: Category[] }>()     // {data: [], meta}
         //2     .then(({ data }) => setData(data.data));

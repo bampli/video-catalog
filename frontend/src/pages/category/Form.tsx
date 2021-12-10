@@ -60,7 +60,7 @@ export const Form = () => {
         //using iife: immediate invoked function expression
         //instead of: async function getCategory() {
         //avoid call: getCategory();
-        (async function () {
+        (async () => {
             setLoading(true);
             try {
                 const { data } = await categoryHttp.get(id);
