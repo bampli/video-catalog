@@ -2,11 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
 import FormatISODate from "../../util/FormatISODate";
 import castMemberHttp from '../../util/http/cast-member-http';
-
-const CastMemberTypeMap = {
-    1: 'Diretor',
-    2: 'Ator'
-}
+import { CastMember, CastMemberTypeMap, ListResponse } from "../../util/models";
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -33,11 +29,6 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-interface CastMember {
-    id: string;
-    name: string;
-};
-
 type Props = {};
 const Table = (props: Props) => {
 
@@ -45,9 +36,17 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        castMemberHttp
-            .list<{ data: CastMember[] }>()     // {data: [], meta}
-            .then(({ data }) => setData(data.data));
+        let isSubscribed = true;
+        (async () => {
+            const { data } = await castMemberHttp.list<ListResponse<CastMember>>();
+            if (isSubscribed) {
+                setData(data.data);
+            }
+        })();
+        return () => {
+            isSubscribed = false;
+        }
+        
     }, []);
 
     return (

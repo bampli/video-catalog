@@ -3,6 +3,7 @@ import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
 import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
+import { Category, ListResponse } from "../../util/models";
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -29,11 +30,6 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-interface Category {
-    id: string;
-    name: string;
-};
-
 type Props = {};
 const Table = (props: Props) => {
 
@@ -41,12 +37,27 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        categoryHttp
-            .list<{ data: Category[] }>()     // {data: [], meta}
-            .then(({ data }) => setData(data.data));
-        // httpVideo.get('categories').then(
-        //     response => setData(response.data.data)
-        // )
+        let isSubscribed = true;    // flag for critical region required by async
+        (async () => {
+            const { data } = await categoryHttp.list<ListResponse<Category>>();
+            if (isSubscribed) {
+                setData(data.data); // do not change when dismounting
+            }
+        })();
+
+        return () => {              // flag that component already dismounted
+            isSubscribed = false;
+        }
+        //3 (async function () {
+        //3     const { data } = await categoryHttp.list<{ data: Category[] }>();
+        //3     setData(data.data);
+        //3 })();
+        //2 categoryHttp
+        //2     .list<{ data: Category[] }>()     // {data: [], meta}
+        //2     .then(({ data }) => setData(data.data));
+        //1 httpVideo.get('categories').then(
+        //1     response => setData(response.data.data)
+        //1 )
     }, []);
 
     return (

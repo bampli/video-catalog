@@ -3,6 +3,7 @@ import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
 import FormatISODate from "../../util/FormatISODate";
 import genreHttp from '../../util/http/genre-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
+import { Genre, ListResponse } from "../../util/models";
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -38,11 +39,6 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-interface Genre {
-    id: string;
-    name: string;
-};
-
 type Props = {};
 const Table = (props: Props) => {
 
@@ -50,9 +46,17 @@ const Table = (props: Props) => {
 
     //componentDidMount
     useEffect(() => {
-        genreHttp
-            .list<{ data: Genre[] }>()     // {data: [], meta}
-            .then(({ data }) => setData(data.data));
+        let isSubscribed = true;
+        (async () => {
+            const {data} = await genreHttp.list<ListResponse<Genre>>();
+            if (isSubscribed) {
+                setData(data.data);
+            }
+        })();
+
+        return () => {
+            isSubscribed = false;
+        }
     }, []);
 
     return (

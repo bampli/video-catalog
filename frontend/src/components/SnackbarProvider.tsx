@@ -2,6 +2,7 @@ import * as React from 'react';
 import { SnackbarProvider as NotistackProvider, SnackbarProviderProps } from 'notistack';
 import { IconButton, makeStyles, Theme } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
+import App from '../App';
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -24,6 +25,7 @@ export const SnackbarProvider: React.FC<SnackbarProviderProps> = (props) => {
     const classes = useStyles();
 
     const defaultProps: SnackbarProviderProps = {
+        children: App,
         classes,
         autoHideDuration: 3000,
         maxSnack: 3,
@@ -31,6 +33,7 @@ export const SnackbarProvider: React.FC<SnackbarProviderProps> = (props) => {
             horizontal: 'right',
             vertical: 'top'
         },
+        preventDuplicate: true,
         ref: (el) => snackbarProviderRef = el,
         action: (key) => (
             <IconButton
