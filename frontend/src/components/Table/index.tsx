@@ -96,9 +96,9 @@ const Table = React.forwardRef<MuiDataTableRefComponent, TableProps>((props, ref
             : textLabels.body.noMatch;
     }
 
-    // function applyResponsive() {
-    //     newProps.options.responsive = isSmOrDown ? 'scrollMaxHeight' : 'stacked';
-    // }
+    function applyResponsive() {
+        newProps.options.responsive = isSmOrDown ? 'simple' : 'standard';
+    }
 
     function getOriginalMuiDataTableProps() {
         return {
@@ -108,7 +108,10 @@ const Table = React.forwardRef<MuiDataTableRefComponent, TableProps>((props, ref
     }
 
     const theme = cloneDeep<Theme>(useTheme());
-    //const isSmOrDown = useMediaQuery(theme.breakpoints.down('sm'));
+
+    // useMediaQuery hook detects size changes and restarts screen rendering
+    // available sizes: xs, sm, md, lg, xl
+    const isSmOrDown = useMediaQuery(theme.breakpoints.down('sm'));
 
     const defaultOptions = makeDefaultOptions(props.debouncedSearchTime);
 
@@ -119,7 +122,7 @@ const Table = React.forwardRef<MuiDataTableRefComponent, TableProps>((props, ref
     );
 
     applyLoading();
-    //applyResponsive();
+    applyResponsive();
 
     const originalProps = getOriginalMuiDataTableProps();
 

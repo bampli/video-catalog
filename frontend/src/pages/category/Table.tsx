@@ -88,6 +88,7 @@ const Table = (props: Props) => {
         //1 httpVideo.get('categories').then(
         //1     response => setData(response.data.data)
         //1 )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
