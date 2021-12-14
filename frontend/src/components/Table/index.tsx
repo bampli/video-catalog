@@ -74,11 +74,11 @@ export interface TableProps extends MUIDataTableProps, RefAttributes<MuiDataTabl
 const Table = React.forwardRef<MuiDataTableRefComponent, TableProps>((props, ref) => {
 
     function extractMuiDataTableColumns(columns: TableColumn[]): MUIDataTableColumn[] {
-        setColumnsWith(columns);
+        setColumnsWidth(columns);
         return columns.map(column => omit(column, 'width'))
     }
 
-    function setColumnsWith(columns: TableColumn[]) {
+    function setColumnsWidth(columns: TableColumn[]) {
         columns.forEach((column, key) => {
             if (column.width) {
                 const overrides = theme.overrides as any;
