@@ -108,7 +108,7 @@ const Table = React.forwardRef<MuiDataTableRefComponent, TableProps>((props, ref
     }
 
     const theme = cloneDeep<Theme>(useTheme());
-    const isSmOrDown = useMediaQuery(theme.breakpoints.down('sm'));
+    //const isSmOrDown = useMediaQuery(theme.breakpoints.down('sm'));
 
     const defaultOptions = makeDefaultOptions(props.debouncedSearchTime);
 
