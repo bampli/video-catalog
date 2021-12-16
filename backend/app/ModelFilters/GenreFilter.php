@@ -2,7 +2,7 @@
 
 namespace App\ModelFilters;
 
-class CategoryFilter extends DefaultModelFilter
+class GenreFilter extends DefaultModelFilter
 {
     protected $sortable = ['name', 'is_active', 'created_at'];
 

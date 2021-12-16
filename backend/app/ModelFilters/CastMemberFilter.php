@@ -2,9 +2,11 @@
 
 namespace App\ModelFilters;
 
-class CategoryFilter extends DefaultModelFilter
+use EloquentFilter\ModelFilter;
+
+class CastMemberFilter extends ModelFilter
 {
-    protected $sortable = ['name', 'is_active', 'created_at'];
+    protected $sortable = ['name', 'type', 'created_at'];
 
     public function search($search)
     {
