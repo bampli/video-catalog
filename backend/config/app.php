@@ -161,11 +161,11 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        //EloquentFilter\ServiceProvider::class,
 
         /*
          * Package Service Providers...
          */
+        EloquentFilter\ServiceProvider::class,
 
         /*
          * Application Service Providers...
