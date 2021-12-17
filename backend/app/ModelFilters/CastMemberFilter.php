@@ -2,9 +2,7 @@
 
 namespace App\ModelFilters;
 
-use EloquentFilter\ModelFilter;
-
-class CastMemberFilter extends ModelFilter
+class CastMemberFilter extends DefaultModelFilter
 {
     protected $sortable = ['name', 'type', 'created_at'];
 
