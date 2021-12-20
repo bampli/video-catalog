@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CategoryResource;
+use EloquentFilter\Filterable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
@@ -21,9 +23,20 @@ abstract class BasicCrudController extends Controller
 
     protected abstract function resourceCollection();
 
-    public function index()
+    public function index(Request $request)
     {
-        $data = !$this->paginationSize ? $this->model()::all() : $this->model()::paginate($this->paginationSize);
+        $hasFilter = in_array(Filterable::class, class_uses($this->model()));
+
+        $query = $this->queryBuilder();
+
+        if($hasFilter){
+            $query = $query->filter($request->all());
+        }
+
+        $data = $request->has('all') || !$this->paginationSize
+            ? $query->get()
+            : $query->paginate($this->paginationSize);
+        
         $resourceCollectionClass = $this->resourceCollection();
         $refClass = new \ReflectionClass($resourceCollectionClass);
         return $refClass->isSubclassOf(ResourceCollection::class)
@@ -71,5 +84,9 @@ abstract class BasicCrudController extends Controller
         $obj = $this->findOrFail($id);
         $obj->delete();
         return response()->noContent(); // status 204 - No content
+    }
+
+    protected function queryBuilder(): Builder{
+        return $this->model()::query();
     }
 }
