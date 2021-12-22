@@ -3,7 +3,7 @@ import DefaultTable, { makeActionStyles, TableColumn } from "../../components/Ta
 import FormatISODate from "../../util/FormatISODate";
 import castMemberHttp from '../../util/http/cast-member-http';
 import { CastMember, CastMemberTypeMap, ListResponse } from "../../util/models";
-import { IconButton, MuiThemeProvider, Theme } from "@material-ui/core";
+import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
 

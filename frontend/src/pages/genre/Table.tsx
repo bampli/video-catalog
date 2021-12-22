@@ -4,7 +4,7 @@ import genreHttp from '../../util/http/genre-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
 import { Genre, ListResponse } from "../../util/models";
 import DefaultTable, { makeActionStyles, TableColumn } from "../../components/Table";
-import { IconButton, MuiThemeProvider, Theme } from "@material-ui/core";
+import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
 

@@ -5,8 +5,8 @@ import { BadgeNo, BadgeYes } from '../../components/Badge';
 import { Category, ListResponse } from "../../util/models";
 import DefaultTable, { makeActionStyles, TableColumn } from "../../components/Table";
 import { useSnackbar } from 'notistack';
-import { cloneDeep } from 'lodash';
-import { IconButton, MuiThemeProvider, Theme } from "@material-ui/core";
+//import { cloneDeep } from 'lodash';
+import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
 
