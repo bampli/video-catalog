@@ -3,8 +3,12 @@ import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
 import { Category, ListResponse } from "../../util/models";
-import DefaultTable, { TableColumn } from "../../components/Table";
+import DefaultTable, { makeActionStyles, TableColumn } from "../../components/Table";
 import { useSnackbar } from 'notistack';
+import { cloneDeep } from 'lodash';
+import { IconButton, MuiThemeProvider, Theme } from "@material-ui/core";
+import { Link } from "react-router-dom";
+import EditIcon from '@material-ui/icons/Edit';
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -43,7 +47,22 @@ const columnsDefinition: TableColumn[] = [
     {
         name: "actions",
         label: "Ações",
-        width: "13%"
+        width: "13%",
+        options: {
+            sort: false,
+            customBodyRender: (value, tableMeta) => {
+                //console.log(tableMeta);
+                return (
+                    <IconButton
+                        color={'secondary'}
+                        component={Link}
+                        to={`/categories/${tableMeta.rowData[0]}/edit`}
+                    >
+                        <EditIcon />
+                    </IconButton>
+                )
+            }
+        }
     },
 ];
 
@@ -88,16 +107,18 @@ const Table = (props: Props) => {
         //1 httpVideo.get('categories').then(
         //1     response => setData(response.data.data)
         //1 )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
-        <DefaultTable
-            title="Listagem categorias"
-            columns={columnsDefinition}
-            data={data}
-            loading={loading}
-        />
+        <MuiThemeProvider theme={makeActionStyles(columnsDefinition.length - 1)}>
+            <DefaultTable
+                title="Lista categorias"
+                columns={columnsDefinition}
+                data={data}
+                loading={loading}
+            />
+        </MuiThemeProvider>
     );
 }
 
