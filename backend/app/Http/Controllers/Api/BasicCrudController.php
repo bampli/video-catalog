@@ -11,7 +11,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 abstract class BasicCrudController extends Controller
 {
-    protected $paginationSize = 15;
+    protected $defaultPerPage = 15;
 
     protected abstract function model();
 
@@ -25,6 +25,7 @@ abstract class BasicCrudController extends Controller
 
     public function index(Request $request)
     {
+        $perPage = (int) $request->get('per_page', $this->defaultPerPage);
         $hasFilter = in_array(Filterable::class, class_uses($this->model()));
 
         $query = $this->queryBuilder();
@@ -33,9 +34,9 @@ abstract class BasicCrudController extends Controller
             $query = $query->filter($request->all());
         }
 
-        $data = $request->has('all') || !$this->paginationSize
+        $data = $request->has('all') || !$this->defaultPerPage
             ? $query->get()
-            : $query->paginate($this->paginationSize);
+            : $query->paginate($perPage);
         
         $resourceCollectionClass = $this->resourceCollection();
         $refClass = new \ReflectionClass($resourceCollectionClass);
@@ -47,7 +48,7 @@ abstract class BasicCrudController extends Controller
     public function store(Request $request)
     {
         $validatedData = $this->validate($request, $this->rulesStore());
-        $obj = $this->model()::create($validatedData);        
+        $obj = $this->queryBuilder()->create($validatedData);        
         $obj->refresh();
         //return $obj;
         $resource = $this->resource();
@@ -58,7 +59,7 @@ abstract class BasicCrudController extends Controller
     {
         $model = $this->model();
         $keyName = (new $model)->getRouteKeyName();
-        return $this->model()::where($keyName, $id)->firstOrFail();
+        return $this->queryBuilder()->where($keyName, $id)->firstOrFail();
     }
 
     public function show($id)
