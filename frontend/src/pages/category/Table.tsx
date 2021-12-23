@@ -18,7 +18,7 @@ interface Pagination {
 
 interface Order {
     sort: string | null;
-    dir: string | null;
+    direction: string | null;
 }
 
 interface SearchState {
@@ -102,7 +102,7 @@ const Table = (props: Props) => {
         },
         order: {
             sort: null,
-            dir: null
+            direction: null
         }
     });
 
@@ -112,7 +112,7 @@ const Table = (props: Props) => {
                 ...column,
                 options: {
                     ...column.options,
-                    sortDirection: searchState.order.dir as any
+                    sortOrder: searchState.order
                 }
             }
             : column;
@@ -141,7 +141,7 @@ const Table = (props: Props) => {
                     page: searchState.pagination.page,
                     per_page: searchState.pagination.per_page,
                     sort: searchState.order.sort,
-                    dir: searchState.order.dir,
+                    direction: searchState.order.direction,
                 }
             });
             if (subscribed.current) {
@@ -156,6 +156,9 @@ const Table = (props: Props) => {
             }
         } catch (error) {
             console.error(error);
+            if (categoryHttp.isCancelledRequest(error)) {
+                return;
+            }
             snackbar.enqueueSnackbar(
                 'Não foi possível carregar as informações',
                 { variant: 'error' }
@@ -202,7 +205,7 @@ const Table = (props: Props) => {
                         ...prevState,
                         order: {
                             sort: changedColumn,
-                            dir: direction.includes('desc') ? 'desc' : 'asc',
+                            direction: direction.includes('desc') ? 'desc' : 'asc',
                         }
                     })))
                 }}
