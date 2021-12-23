@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
@@ -9,6 +9,10 @@ import { useSnackbar } from 'notistack';
 import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
+
+interface SearchState {
+    search: string;
+}
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -70,45 +74,40 @@ type Props = {};
 const Table = (props: Props) => {
 
     const snackbar = useSnackbar();
+    const subscribed = useRef(true);
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [searchState, setSearchState] = useState<SearchState>({ search: '' });
 
-    //componentDidMount
     useEffect(() => {
-        let isSubscribed = true;    // flag for critical region required by async
-        (async () => {
-            setLoading(true);
-            try {
-                const { data } = await categoryHttp.list<ListResponse<Category>>();
-                if (isSubscribed) {
-                    setData(data.data); // do not change when dismounting
-                }
-            } catch (error) {
-                console.error(error);
-                snackbar.enqueueSnackbar(
-                    'Não foi possível carregar as informações',
-                    { variant: 'error' }
-                );
-            } finally {
-                setLoading(false);
-            }
-        })();
-
-        return () => {              // flag that component already dismounted
-            isSubscribed = false;
+        getData();
+        return () => {
+            subscribed.current = false;
         }
-        //3 (async function () {
-        //3     const { data } = await categoryHttp.list<{ data: Category[] }>();
-        //3     setData(data.data);
-        //3 })();
-        //2 categoryHttp
-        //2     .list<{ data: Category[] }>()     // {data: [], meta}
-        //2     .then(({ data }) => setData(data.data));
-        //1 httpVideo.get('categories').then(
-        //1     response => setData(response.data.data)
-        //1 )
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [searchState]);
+
+    async function getData() {
+        setLoading(true);
+        try {
+            const { data } = await categoryHttp.list<ListResponse<Category>>({
+                queryParams: {
+                    search: searchState.search
+                }
+            });
+            if (subscribed.current) {
+                setData(data.data); // do not change when dismounting
+            }
+        } catch (error) {
+            console.error(error);
+            snackbar.enqueueSnackbar(
+                'Não foi possível carregar as informações',
+                { variant: 'error' }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <MuiThemeProvider theme={makeActionStyles(columnsDefinition.length - 1)}>
@@ -117,9 +116,37 @@ const Table = (props: Props) => {
                 columns={columnsDefinition}
                 data={data}
                 loading={loading}
+                options={{
+                    responsive: "standard",
+                    searchText: searchState.search,
+                    onSearchChange:
+                        (value) => value !== null
+                            ? setSearchState({ search: value })
+                            : setSearchState({ search: '' })
+                    // onSearchChange: (value) => console.log(value)
+                }}
             />
         </MuiThemeProvider>
     );
 }
 
 export default Table;
+
+    // //componentDidMount
+    // useEffect(() => {
+    //     getData();
+    //     return () => {              // flag that component already dismounted
+    //         subscribed.current = false;
+    //     }
+    //     //3 (async function () {
+    //     //3     const { data } = await categoryHttp.list<{ data: Category[] }>();
+    //     //3     setData(data.data);
+    //     //3 })();
+    //     //2 categoryHttp
+    //     //2     .list<{ data: Category[] }>()     // {data: [], meta}
+    //     //2     .then(({ data }) => setData(data.data));
+    //     //1 httpVideo.get('categories').then(
+    //     //1     response => setData(response.data.data)
+    //     //1 )
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
