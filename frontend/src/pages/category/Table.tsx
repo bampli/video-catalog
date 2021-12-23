@@ -16,9 +16,15 @@ interface Pagination {
     per_page: number;
 }
 
+interface Order {
+    sort: string | null;
+    dir: string | null;
+}
+
 interface SearchState {
     search: string;
     pagination: Pagination;
+    order: Order;
 }
 
 const columnsDefinition: TableColumn[] = [
@@ -34,6 +40,9 @@ const columnsDefinition: TableColumn[] = [
         name: "name",
         label: "Nome",
         width: "43%",
+        // options: {
+        //     sortDirection: 'desc'
+        // }
     },
     {
         name: "is_active",
@@ -90,8 +99,24 @@ const Table = (props: Props) => {
             page: 1,
             total: 0,
             per_page: 10
+        },
+        order: {
+            sort: null,
+            dir: null
         }
     });
+
+    const columns = columnsDefinition.map(column => {
+        return column.name === searchState.order.sort
+            ? {
+                ...column,
+                options: {
+                    ...column.options,
+                    sortDirection: searchState.order.dir as any
+                }
+            }
+            : column;
+    })
 
     useEffect(() => {
         subscribed.current = true;
@@ -103,7 +128,8 @@ const Table = (props: Props) => {
     }, [
         searchState.search,
         searchState.pagination.page,
-        searchState.pagination.per_page
+        searchState.pagination.per_page,
+        searchState.order
     ]);
 
     async function getData() {
@@ -113,7 +139,9 @@ const Table = (props: Props) => {
                 queryParams: {
                     search: searchState.search,
                     page: searchState.pagination.page,
-                    per_page: searchState.pagination.per_page
+                    per_page: searchState.pagination.per_page,
+                    sort: searchState.order.sort,
+                    dir: searchState.order.dir,
                 }
             });
             if (subscribed.current) {
@@ -141,7 +169,7 @@ const Table = (props: Props) => {
         <MuiThemeProvider theme={makeActionStyles(columnsDefinition.length - 1)}>
             <DefaultTable
                 title="Lista categorias"
-                columns={columnsDefinition}
+                columns={columns}
                 data={data}
                 loading={loading}
                 options={{
@@ -168,6 +196,13 @@ const Table = (props: Props) => {
                         pagination: {
                             ...prevState.pagination,
                             per_page: perPage
+                        }
+                    }))),
+                    onColumnSortChange: (changedColumn: string, direction: string) => setSearchState((prevState => ({
+                        ...prevState,
+                        order: {
+                            sort: changedColumn,
+                            dir: direction.includes('desc') ? 'desc' : 'asc',
                         }
                     })))
                 }}
