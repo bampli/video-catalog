@@ -10,8 +10,15 @@ import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
 
+interface Pagination {
+    page: number;
+    total: number;
+    per_page: number;
+}
+
 interface SearchState {
     search: string;
+    pagination: Pagination;
 }
 
 const columnsDefinition: TableColumn[] = [
@@ -77,26 +84,47 @@ const Table = (props: Props) => {
     const subscribed = useRef(true);
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [searchState, setSearchState] = useState<SearchState>({ search: '' });
+    const [searchState, setSearchState] = useState<SearchState>({
+        search: '',
+        pagination: {
+            page: 1,
+            total: 0,
+            per_page: 10
+        }
+    });
 
     useEffect(() => {
+        subscribed.current = true;
         getData();
         return () => {
             subscribed.current = false;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchState]);
+    }, [
+        searchState.search,
+        searchState.pagination.page,
+        searchState.pagination.per_page
+    ]);
 
     async function getData() {
         setLoading(true);
         try {
             const { data } = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: searchState.search
+                    search: searchState.search,
+                    page: searchState.pagination.page,
+                    per_page: searchState.pagination.per_page
                 }
             });
             if (subscribed.current) {
                 setData(data.data); // do not change when dismounting
+                setSearchState((prevState => ({
+                    ...prevState,
+                    pagination: {
+                        ...prevState.pagination,
+                        total: data.meta.total
+                    }
+                })))
             }
         } catch (error) {
             console.error(error);
@@ -117,13 +145,31 @@ const Table = (props: Props) => {
                 data={data}
                 loading={loading}
                 options={{
+                    serverSide: true,
                     responsive: "standard",
                     searchText: searchState.search,
+                    page: searchState.pagination.page - 1,
+                    rowsPerPage: searchState.pagination.per_page,
+                    count: searchState.pagination.total,
                     onSearchChange:
                         (value) => value !== null
-                            ? setSearchState({ search: value })
-                            : setSearchState({ search: '' })
-                    // onSearchChange: (value) => console.log(value)
+                            ? setSearchState((prevState) => ({ ...prevState, search: value }))
+                            : setSearchState((prevState) => ({ ...prevState, search: '' })),
+                    // onSearchChange: (value) => console.log(value),
+                    onChangePage: (page) => setSearchState((prevState => ({
+                        ...prevState,
+                        pagination: {
+                            ...prevState.pagination,
+                            page: page + 1
+                        }
+                    }))),
+                    onChangeRowsPerPage: (perPage) => setSearchState((prevState => ({
+                        ...prevState,
+                        pagination: {
+                            ...prevState.pagination,
+                            per_page: perPage
+                        }
+                    })))
                 }}
             />
         </MuiThemeProvider>
