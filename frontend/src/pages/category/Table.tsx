@@ -18,7 +18,7 @@ interface Pagination {
 
 interface Order {
     sort: string | null;
-    direction: string | null;
+    dir: string | null;
 }
 
 interface SearchState {
@@ -102,7 +102,7 @@ const Table = (props: Props) => {
         },
         order: {
             sort: null,
-            direction: null
+            dir: null
         }
     });
 
@@ -141,7 +141,7 @@ const Table = (props: Props) => {
                     page: searchState.pagination.page,
                     per_page: searchState.pagination.per_page,
                     sort: searchState.order.sort,
-                    direction: searchState.order.direction,
+                    dir: searchState.order.dir,
                 }
             });
             if (subscribed.current) {
@@ -182,11 +182,10 @@ const Table = (props: Props) => {
                     page: searchState.pagination.page - 1,
                     rowsPerPage: searchState.pagination.per_page,
                     count: searchState.pagination.total,
-                    onSearchChange:
-                        (value) => value !== null
-                            ? setSearchState((prevState) => ({ ...prevState, search: value }))
-                            : setSearchState((prevState) => ({ ...prevState, search: '' })),
-                    // onSearchChange: (value) => console.log(value),
+                    onSearchChange: (value) => setSearchState((prevState) => ({
+                        ...prevState,
+                        search: value !== null ? value : ''
+                    })),
                     onChangePage: (page) => setSearchState((prevState => ({
                         ...prevState,
                         pagination: {
@@ -201,11 +200,11 @@ const Table = (props: Props) => {
                             per_page: perPage
                         }
                     }))),
-                    onColumnSortChange: (changedColumn: string, direction: string) => setSearchState((prevState => ({
+                    onColumnSortChange: (changedColumn: string, dir: string) => setSearchState((prevState => ({
                         ...prevState,
                         order: {
                             sort: changedColumn,
-                            direction: direction.includes('desc') ? 'desc' : 'asc',
+                            dir: dir.includes('desc') ? 'desc' : 'asc',
                         }
                     })))
                 }}
