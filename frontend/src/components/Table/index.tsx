@@ -50,7 +50,7 @@ const makeDefaultOptions = (debouncedSearchTime?): MUIDataTableOptions => ({
             onSearch={handleSearch}
             onHide={hideSearch}
             options={options}
-            //debounceTime={debouncedSearchTime}
+            debounceTime={debouncedSearchTime}
         />
     }
 });

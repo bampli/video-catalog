@@ -1,59 +1,76 @@
-import React, { useEffect, useState } from "react";
-import Grow from "@material-ui/core/Grow";
-import TextField from "@material-ui/core/TextField";
-import SearchIcon from "@material-ui/icons/Search";
-import IconButton from "@material-ui/core/IconButton";
-import ClearIcon from "@material-ui/icons/Clear";
-import { makeStyles } from "@material-ui/core/styles";
-import {debounce} from 'lodash';
+import React, { useEffect, useRef, useState } from "react";
+import Grow from '@material-ui/core/Grow';
+import TextField from '@material-ui/core/TextField';
+import SearchIcon from '@material-ui/icons/Search';
+import IconButton from '@material-ui/core/IconButton';
+import ClearIcon from '@material-ui/icons/Clear';
+import { makeStyles } from '@material-ui/core/styles';
+import { debounce } from 'lodash';
+
+// Component based on release 3.8.2
+// MUI-Datatables built on Material-UI
+// https://raw.githubusercontent.com/gregnb/mui-datatables/3.8.2/src/components/TableSearch.js
 
 const useStyles = makeStyles(
-  (theme) => ({
+  theme => ({
     main: {
-      display: "flex",
-      flex: "1 0 auto",
+      display: 'flex',
+      flex: '1 0 auto',
     },
     searchIcon: {
       color: theme.palette.text.secondary,
-      marginTop: "10px",
-      marginRight: "8px",
+      marginTop: '10px',
+      marginRight: '8px',
     },
     searchText: {
-      flex: "0.8 0",
+      flex: '0.8 0',
     },
     clearIcon: {
-      "&:hover": {
+      '&:hover': {
         color: theme.palette.error.main,
       },
     },
   }),
-  { name: "MUIDataTableSearch" }
+  { name: 'MUIDataTableSearch' },
 );
 
-const TableSearch = ({ options, searchText, onSearch, onHide }) => {
+const DebouncedTableSearch = ({ options, searchText, onSearch, onHide, debounceTime }) => {
   const classes = useStyles();
 
-  const [state, setState] = useState<{text: string}>({text: searchText});
+  const [state, setState] = useState<{ text: string }>(
+    { text: searchText }
+  );
+  const dispatchOnSearch = useRef(
+    debounce(async (value) => onSearch(value), 400)
+  ).current;
 
   useEffect(() => {
-    if (searchText && searchText.value !== undefined) {
-      setState(searchText.value);
+    return () => {
+      dispatchOnSearch.cancel();
     }
-  }, [searchText]);
+  }, [dispatchOnSearch]);
 
-  const handleTextChange = (event) => {
-    const value = event.target.value;
-    setState({text: value});
-    onSearch(value);
+  const handleTextChange = event => {
+    value = event.target.value;
+    setState({
+      text: value
+    });
+    //console.log(value, state);
+    dispatchOnSearch(value);
   };
 
-  const onKeyDown = (event) => {
-    if (event.key === "Escape") {
+  const onKeyDown = event => {
+    if (event.key === 'Escape') {
       onHide();
     }
   };
 
-  const clearIconVisibility = options.searchAlwaysOpen ? "hidden" : "visible";
+  const clearIconVisibility = options.searchAlwaysOpen ? 'hidden' : 'visible';
+
+  let value = state.text;
+  if (searchText && searchText.value !== undefined) {
+    value = searchText.value;
+  };
 
   return (
     <Grow appear in={true} timeout={300}>
@@ -63,23 +80,19 @@ const TableSearch = ({ options, searchText, onSearch, onHide }) => {
           className={classes.searchText}
           autoFocus={true}
           InputProps={{
-            "data-test-id": options.textLabels.toolbar.search,
+            'data-test-id': options.textLabels.toolbar.search,
           }}
           inputProps={{
-            "aria-label": options.textLabels.toolbar.search,
+            'aria-label': options.textLabels.toolbar.search,
           }}
-          value={state.text || ""}
+          value={value || ''}
           onKeyDown={onKeyDown}
           onChange={handleTextChange}
           fullWidth={true}
           placeholder={options.searchPlaceholder}
           {...(options.searchProps ? options.searchProps : {})}
         />
-        <IconButton
-          className={classes.clearIcon}
-          style={{ visibility: clearIconVisibility }}
-          onClick={onHide}
-        >
+        <IconButton className={classes.clearIcon} style={{ visibility: clearIconVisibility }} onClick={onHide}>
           <ClearIcon />
         </IconButton>
       </div>
@@ -87,4 +100,4 @@ const TableSearch = ({ options, searchText, onSearch, onHide }) => {
   );
 };
 
-export default TableSearch;
+export default DebouncedTableSearch;
