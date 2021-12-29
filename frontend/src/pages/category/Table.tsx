@@ -140,7 +140,7 @@ const Table = (props: Props) => {
         try {
             const { data } = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: searchState.search,
+                    search: cleanSearchText(searchState.search),
                     page: searchState.pagination.page,
                     per_page: searchState.pagination.per_page,
                     sort: searchState.order.sort,
@@ -178,6 +178,7 @@ const Table = (props: Props) => {
                 columns={columns}
                 data={data}
                 loading={loading}
+                debouncedSearchTime={400}
                 options={{
                     serverSide: true,
                     responsive: "standard",
@@ -188,7 +189,13 @@ const Table = (props: Props) => {
                     customToolbar: () => (
                         <FilterResetButton
                             handleClick={() => {
-                                setSearchState(initialState);
+                                setSearchState({
+                                    ...initialState,
+                                    search: {
+                                        value: initialState.search,
+                                        update: true
+                                    } as any
+                                });
                             }}
                         />
                     ),
@@ -225,6 +232,15 @@ const Table = (props: Props) => {
             />
         </MuiThemeProvider>
     );
+}
+
+// May receive text | object
+function cleanSearchText(text) {
+    let newText = text;
+    if (text && text.value !== undefined) {
+        newText = text.value;
+    }
+    return newText;
 }
 
 export default Table;

@@ -41,7 +41,7 @@ const DebouncedTableSearch = ({ options, searchText, onSearch, onHide, debounceT
     { text: searchText }
   );
   const dispatchOnSearch = useRef(
-    debounce(async (value) => onSearch(value), 400)
+    debounce(async (value) => onSearch(value), debounceTime)
   ).current;
 
   useEffect(() => {
