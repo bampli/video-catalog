@@ -41,7 +41,19 @@ class BasicCrudControllerTest extends TestCase
     {
         /** @var CategoryStub $category */
         $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description']);
-        $result = $this->controller->index()->toArray($category);
+
+        /** @var \Mockery\MockInterface|\Mockery\LegacyMockInterface $request */
+        $request = \Mockery::mock(Request::class);
+        $request
+            ->shouldReceive('get')
+            ->once()
+            ->andReturn([]);
+        $request
+            ->shouldReceive('has')
+            ->once()
+            ->andReturn(false);
+
+        $result = $this->controller->index($request)->toArray($category);
         $this->assertEquals([$category->toArray()], $result);
     }
 
@@ -77,7 +89,7 @@ class BasicCrudControllerTest extends TestCase
     {
         /** @var CategoryStub $category */
         $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description']);
-        
+
         $reflectionClass = new \ReflectionClass(BasicCrudController::class);
         $reflectionMethod = $reflectionClass->getMethod('findOrFail');
         $reflectionMethod->setAccessible(true);
@@ -89,7 +101,7 @@ class BasicCrudControllerTest extends TestCase
     public function testIfFindOrFailThrowExceptionWhenIdInvalid()
     {
         $this->expectException(ModelNotFoundException::class);
-        
+
         $reflectionClass = new \ReflectionClass(BasicCrudController::class);
         $reflectionMethod = $reflectionClass->getMethod('findOrFail');
         $reflectionMethod->setAccessible(true);
@@ -110,7 +122,7 @@ class BasicCrudControllerTest extends TestCase
     {
         /** @var CategoryStub $category */
         $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description']);
-        
+
         /** @var \Mockery\MockInterface|\Mockery\LegacyMockInterface $request */
         $request = \Mockery::mock(Request::class);
         $request
@@ -130,6 +142,6 @@ class BasicCrudControllerTest extends TestCase
         $this
             ->createTestResponse($response)
             ->assertStatus((204));
-        $this->assertCount(0, CategoryStub::all());        
+        $this->assertCount(0, CategoryStub::all());
     }
 }
