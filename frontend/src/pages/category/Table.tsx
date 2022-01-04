@@ -72,8 +72,10 @@ const columnsDefinition: TableColumn[] = [
     },
 ];
 
-type Props = {};
-const Table = (props: Props) => {
+const debounceTime = 300;
+const debounceSearchTime = 300;
+
+const Table = () => {
 
     const snackbar = useSnackbar();
     const subscribed = useRef(true);
@@ -83,12 +85,13 @@ const Table = (props: Props) => {
         columns,
         filterManager,
         filterState,
+        debouncedFilterState,
         dispatch,
         totalRecords,
         setTotalRecords,
     } = useFilter({
         columns: columnsDefinition,
-        debounceTime: 500,
+        debounceTime: debounceTime,
         rowsPerPage: 10,
         rowsPerPageOptions: [10, 25, 50]
     });
@@ -101,10 +104,11 @@ const Table = (props: Props) => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
-        filterState.search,
-        filterState.pagination.page,
-        filterState.pagination.per_page,
-        filterState.order
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        filterManager.cleanSearchText(debouncedFilterState.search),
+        debouncedFilterState.pagination.page,
+        debouncedFilterState.pagination.per_page,
+        debouncedFilterState.order
     ]);
 
     async function getData() {
@@ -112,7 +116,7 @@ const Table = (props: Props) => {
         try {
             const { data } = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: cleanSearchText(filterState.search),
+                    search: filterManager.cleanSearchText(filterState.search),
                     page: filterState.pagination.page,
                     per_page: filterState.pagination.per_page,
                     sort: filterState.order.sort,
@@ -144,7 +148,7 @@ const Table = (props: Props) => {
                 columns={columns}
                 data={data}
                 loading={loading}
-                debouncedSearchTime={400}
+                debouncedSearchTime={debounceSearchTime}
                 options={{
                     serverSide: true,
                     responsive: "standard",
@@ -168,15 +172,6 @@ const Table = (props: Props) => {
             />
         </MuiThemeProvider>
     );
-}
-
-// May receive text | object
-function cleanSearchText(text) {
-    let newText = text;
-    if (text && text.value !== undefined) {
-        newText = text.value;
-    }
-    return newText;
 }
 
 export default Table;
