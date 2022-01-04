@@ -10,23 +10,7 @@ import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
-
-// interface Pagination {
-//     page: number;
-//     total: number;
-//     per_page: number;
-// }
-
-// interface Order {
-//     sort: string | null;
-//     dir: string | null;
-// }
-
-// interface SearchState {
-//     search: string;
-//     pagination: Pagination;
-//     order: Order;
-// }
+import reducer, { INITIAL_STATE, Creators } from "../../store/search";
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -86,60 +70,6 @@ const columnsDefinition: TableColumn[] = [
         }
     },
 ];
-
-const INITIAL_STATE = {
-    search: '',
-    pagination: {
-        page: 1,
-        total: 0,
-        per_page: 10
-    },
-    order: {
-        sort: null,
-        dir: null
-    }
-};
-
-function reducer(state, action) {
-    switch (action.type) {
-        case 'search':
-            return {
-                ...state,
-                search: action.search || '',
-                pagination: {
-                    ...state.pagination,
-                    page: 1
-                }
-            }
-        case 'page':
-            return {
-                ...state,
-                pagination: {
-                    ...state.pagination,
-                    page: action.page
-                }
-            };
-        case 'per_page':
-            return {
-                ...state,
-                pagination: {
-                    ...state.pagination,
-                    per_page: action.per_page
-                }
-            };
-        case 'order':
-            return {
-                ...state,
-                order: {
-                    sort: action.sort,
-                    dir: action.dir,
-                }
-            };
-        case 'reset':
-        case 'default':
-            return INITIAL_STATE;
-    }
-}
 
 type Props = {};
 const Table = (props: Props) => {
@@ -224,24 +154,24 @@ const Table = (props: Props) => {
                 options={{
                     serverSide: true,
                     responsive: "standard",
-                    searchText: searchState.search,
+                    searchText: searchState.search as any,
                     page: searchState.pagination.page - 1,
                     rowsPerPage: searchState.pagination.per_page,
                     count: searchState.pagination.total,
                     customToolbar: () => (
                         <FilterResetButton
-                            handleClick={() => {dispatch({type: 'reset'});
+                            handleClick={() => {
+                                dispatch({ type: 'reset' });
                             }}
                         />
                     ),
-                    onSearchChange: (value) => dispatch({ type: 'search', search: value }),
-                    onChangePage: (page) => dispatch({ type: 'page', page: page + 1 }),
-                    onChangeRowsPerPage: (perPage) => dispatch({ type: 'per_page', per_page: perPage }),
-                    onColumnSortChange: (changedColumn: string, direction: string) => dispatch({
-                        type: 'order',
+                    onSearchChange: (value) => dispatch(Creators.setSearch({ search: value as any })),
+                    onChangePage: (page) => dispatch(Creators.setPage({ page: page + 1 })),
+                    onChangeRowsPerPage: (perPage) => dispatch(Creators.setPerPage({ per_page: perPage })),
+                    onColumnSortChange: (changedColumn: string, direction: string) => dispatch(Creators.setOrder({
                         sort: changedColumn,
                         dir: direction.includes('desc') ? 'desc' : 'asc'
-                    })
+                    }))
                 }}
             />
         </MuiThemeProvider>
