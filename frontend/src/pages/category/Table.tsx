@@ -120,16 +120,9 @@ const Table = (props: Props) => {
                     dir: searchState.order.dir,
                 }
             });
-            if (subscribed.current) {
-                setData(data.data); // do not change when dismounting
+            if (subscribed.current) {   // do not change when dismounting
+                setData(data.data);
                 setTotalRecords(data.meta.total);
-                // setSearchState((prevState => ({
-                //     ...prevState,
-                //     pagination: {
-                //         ...prevState.pagination,
-                //         total: data.meta.total
-                //     }
-                // })))
             }
         } catch (error) {
             console.error(error);
@@ -170,10 +163,11 @@ const Table = (props: Props) => {
                     onSearchChange: (value) => dispatch(Creators.setSearch({ search: value })),
                     onChangePage: (page) => dispatch(Creators.setPage({ page: page + 1 })),
                     onChangeRowsPerPage: (perPage) => dispatch(Creators.setPerPage({ per_page: perPage })),
-                    onColumnSortChange: (changedColumn: string, direction: string) => dispatch(Creators.setOrder({
-                        sort: changedColumn,
-                        dir: direction.includes('desc') ? 'desc' : 'asc'
-                    }))
+                    onColumnSortChange: (changedColumn: string, direction: string) => dispatch(
+                        Creators.setOrder({
+                            sort: changedColumn,
+                            dir: direction.includes('desc') ? 'desc' : 'asc'
+                        }))
                 }}
             />
         </MuiThemeProvider>
