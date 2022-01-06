@@ -1,11 +1,13 @@
-import { Dispatch, Reducer, useReducer, useState } from "react";
-import reducer, { Creators, INITIAL_STATE } from "../store/filter";
+import { Dispatch, Reducer, useEffect, useReducer, useState } from "react";
+//import reducer, { Creators, INITIAL_STATE } from "../store/filter";
+import reducer, { Creators } from "../store/filter";
 import { Actions as FilterActions, State as FilterState } from "../store/filter/types";
 import { MUIDataTableColumn } from "mui-datatables";
 import { useDebounce } from "use-debounce/lib";
 import { useHistory } from "react-router";
 import { History } from 'history';
 import { isEqual } from 'lodash';
+import * as yup from '../util/vendor/yup';
 
 interface FilterManagerOptions {
   columns: MUIDataTableColumn[];
@@ -24,6 +26,7 @@ export default function useFilter(options: UseFilterOptions) {
   const filterManager = new FilterManager({ ...options, history });
 
   // get state from url
+  const INITIAL_STATE = filterManager.getStateFromURL();
 
   const [filterState, dispatch] = useReducer<Reducer<FilterState, FilterActions>>(reducer, INITIAL_STATE);
   const [debouncedFilterState] = useDebounce(filterState, options.debounceTime);
@@ -32,6 +35,11 @@ export default function useFilter(options: UseFilterOptions) {
   filterManager.state = filterState;
   filterManager.dispatch = dispatch;
   filterManager.applyOrderInColumns();
+
+  useEffect(() => {
+    filterManager.replaceHistory()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     columns: filterManager.columns,
@@ -45,6 +53,7 @@ export default function useFilter(options: UseFilterOptions) {
 }
 
 export class FilterManager {
+  schema;
   state: FilterState = null as any;
   dispatch: Dispatch<FilterActions> = null as any;
   columns: MUIDataTableColumn[];
@@ -58,6 +67,7 @@ export class FilterManager {
     this.rowsPerPage = rowsPerPage;
     this.rowsPerPageOptions = rowsPerPageOptions;
     this.history = history;
+    this.createValidationSchema();
   }
 
   changeSearch(value) {
@@ -103,9 +113,22 @@ export class FilterManager {
     return newText;
   }
 
+  replaceHistory() {
+    this.history.replace({
+      pathname: this.history.location.pathname,
+      search: "?" + new URLSearchParams(this.formatSearchParams()),
+      state: this.state
+    })
+  }
+
   pushHistory() {
+    console.log('push history');
+    // protection to avoid duplicated states at history
     const oldState = this.history.location.state;
-    if (isEqual(oldState, this.state)) return;  // protection to avoid duplicated states at history
+    if (isEqual(oldState, this.state)) {
+      console.log('is equal')
+      return
+    };
 
     const newLocation = {
       pathname: this.history.location.pathname,
@@ -131,6 +154,59 @@ export class FilterManager {
         }
       )
     }
+  }
+
+  getStateFromURL() {
+    const queryParams = new URLSearchParams(this.history.location.search.substr(1));
+    return this.schema.cast({
+      search: queryParams.get('search'),
+      pagination: {
+        page: queryParams.get('page'),
+        per_page: queryParams.get('per_page')
+      },
+      order: {
+        sort: queryParams.get('sort'),
+        dir: queryParams.get('dir')
+      },
+    })
+  }
+
+  private createValidationSchema() {
+    this.schema = yup.object().shape({
+      search: yup
+        .string()
+        .transform((value) => (!value ? undefined : value))
+        .default(""),
+      pagination: yup.object().shape({
+        page: yup
+          .number()
+          .transform((value) =>
+            isNaN(value) || parseInt(value) < 1 ? undefined : value
+          )
+          .default(1),
+        per_page: yup
+          .number()
+          .oneOf(this.rowsPerPageOptions)
+          .transform((value) => (isNaN(value) ? undefined : value))
+          .default(this.rowsPerPage),
+      }),
+      order: yup.object().shape({
+        sort: yup
+          .string()
+          .nullable()
+          .transform((value) => {
+            const columnsName = this.columns
+              .filter((column) => !column.options || column.options.sort !== false)
+              .map((column) => column.name);
+            return columnsName.includes(value) ? value : undefined;
+          })
+          .default(null),
+        dir: yup.string()
+          .nullable()
+          .transform(value => !value || !['asc', 'desc'].includes(value.toLowerCase()) ? undefined : value)
+          .default(null)
+      }),
+    });
   }
 
 }

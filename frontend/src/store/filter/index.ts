@@ -28,7 +28,7 @@ export const INITIAL_STATE: Typings.State = {
   search: "",
   pagination: {
     page: 1,
-    per_page: 10,
+    per_page: 15,
   },
   order: {
     sort: null,
