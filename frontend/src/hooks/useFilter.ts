@@ -5,6 +5,7 @@ import { MUIDataTableColumn } from "mui-datatables";
 import { useDebounce } from "use-debounce/lib";
 import { useHistory } from "react-router";
 import { History } from 'history';
+import { isEqual } from 'lodash';
 
 interface FilterManagerOptions {
   columns: MUIDataTableColumn[];
@@ -14,13 +15,13 @@ interface FilterManagerOptions {
   history: History;
 }
 
-interface UseFilterOptions extends Omit<FilterManagerOptions, 'history'> {}
+interface UseFilterOptions extends Omit<FilterManagerOptions, 'history'> { }
 
 export default function useFilter(options: UseFilterOptions) {
   //console.log("useFilter");
 
   const history = useHistory();
-  const filterManager = new FilterManager({...options, history});
+  const filterManager = new FilterManager({ ...options, history });
 
   // get state from url
 
@@ -103,6 +104,9 @@ export class FilterManager {
   }
 
   pushHistory() {
+    const oldState = this.history.location.state;
+    if (isEqual(oldState, this.state)) return;  // protection to avoid duplicated states at history
+
     const newLocation = {
       pathname: this.history.location.pathname,
       search: "?" + new URLSearchParams(this.formatSearchParams()),
@@ -117,9 +121,9 @@ export class FilterManager {
   private formatSearchParams() {
     const search = this.cleanSearchText(this.state.search);
     return {  // saving if's, return null | obj
-      ...(search && search !== '' && {search: search}),
-      ...(this.state.pagination.page !== 1 && {page: this.state.pagination.page}),
-      ...(this.state.pagination.per_page !== 15 && {per_page: this.state.pagination.per_page}),
+      ...(search && search !== '' && { search: search }),
+      ...(this.state.pagination.page !== 1 && { page: this.state.pagination.page }),
+      ...(this.state.pagination.per_page !== 15 && { per_page: this.state.pagination.per_page }),
       ...(
         this.state.order.sort && {
           sort: this.state.order.sort,
