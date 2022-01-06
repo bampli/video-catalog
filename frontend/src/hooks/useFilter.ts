@@ -122,11 +122,12 @@ export class FilterManager {
   }
 
   pushHistory() {
-    console.log('push history');
-    // protection to avoid duplicated states at history
+    //console.log('push history');
+    
     const oldState = this.history.location.state;
     if (isEqual(oldState, this.state)) {
-      console.log('is equal')
+      // avoid duplicated states at history
+      //console.log('is equal')
       return
     };
 
