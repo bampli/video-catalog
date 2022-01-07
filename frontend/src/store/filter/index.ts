@@ -7,21 +7,24 @@ export const { Types, Creators } = createActions<
     SET_PAGE: string,
     SET_PER_PAGE: string,
     SET_ORDER: string,
-    SET_RESET: string
+    SET_RESET: string,
+    UPDATE_EXTRA_FILTER: string
   },
   {
-    setSearch( payload: Typings.SetSearchAction["payload"]): Typings.SetSearchAction,
+    setSearch(payload: Typings.SetSearchAction["payload"]): Typings.SetSearchAction,
     setPage(payload: Typings.SetPageAction["payload"]): Typings.SetPageAction,
     setPerPage(payload: Typings.SetPerPageAction["payload"]): Typings.SetPerPageAction,
     setOrder(payload: Typings.SetOrderAction["payload"]): Typings.SetOrderAction,
-    setReset(),
+    setReset(payload: Typings.SetResetAction["payload"]): Typings.SetResetAction,
+    updateExtraFilter(payload: Typings.UpdateExtraFilterAction["payload"]): Typings.UpdateExtraFilterAction
   }
 >({
   setSearch: ["payload"],
   setPage: ["payload"],
   setPerPage: ["payload"],
   setOrder: ["payload"],
-  setReset: [],
+  setReset: ["payload"],
+  updateExtraFilter: ["payload"],
 });
 
 export const INITIAL_STATE: Typings.State = {
@@ -42,11 +45,12 @@ const reducer = createReducer(INITIAL_STATE, {
   [Types.SET_PER_PAGE]: setPerPage,
   [Types.SET_ORDER]: setOrder,
   [Types.SET_RESET]: setReset,
+  [Types.UPDATE_EXTRA_FILTER]: updateExtraFilter
 });
 
 export default reducer;
 
-function setSearch(state = INITIAL_STATE, action: Typings.SetSearchAction) : Typings.State {
+function setSearch(state = INITIAL_STATE, action: Typings.SetSearchAction): Typings.State {
   return {
     ...state,
     search: action.payload.search || "",
@@ -57,7 +61,7 @@ function setSearch(state = INITIAL_STATE, action: Typings.SetSearchAction) : Typ
   };
 }
 
-function setPage(state = INITIAL_STATE, action: Typings.SetPageAction) : Typings.State  {
+function setPage(state = INITIAL_STATE, action: Typings.SetPageAction): Typings.State {
   return {
     ...state,
     pagination: {
@@ -67,7 +71,7 @@ function setPage(state = INITIAL_STATE, action: Typings.SetPageAction) : Typings
   };
 }
 
-function setPerPage(state = INITIAL_STATE, action: Typings.SetPerPageAction) : Typings.State  {
+function setPerPage(state = INITIAL_STATE, action: Typings.SetPerPageAction): Typings.State {
   return {
     ...state,
     pagination: {
@@ -77,20 +81,38 @@ function setPerPage(state = INITIAL_STATE, action: Typings.SetPerPageAction) : T
   };
 }
 
-function setOrder(state = INITIAL_STATE, action: Typings.SetOrderAction) : Typings.State  {
-    return {
-        ...state,
-        pagination: {
-            ...state.pagination,
-            page: 1
-        },
-        order: {
-            sort: action.payload.sort,
-            dir: action.payload.dir,
-        }
-    };
-  }
+function setOrder(state = INITIAL_STATE, action: Typings.SetOrderAction): Typings.State {
+  return {
+    ...state,
+    pagination: {
+      ...state.pagination,
+      page: 1
+    },
+    order: {
+      sort: action.payload.sort,
+      dir: action.payload.dir,
+    }
+  };
+}
 
-  function setReset(state = INITIAL_STATE, action) {
-    return {...INITIAL_STATE, search: {value: null, update:true}};
-  }
+function setReset(state = INITIAL_STATE, action: Typings.SetResetAction) {
+  return action.payload.state;
+  //return { ...INITIAL_STATE, search: { value: null, update: true } };
+}
+
+function updateExtraFilter(state = INITIAL_STATE, action: Typings.UpdateExtraFilterAction) {
+  return {
+    ...state,
+    extraFilter: {
+      ...state.extraFilter,
+      ...action.payload       // {type: 'Director'}
+    }
+  };
+}
+
+// extraFilter: {type: 'Director', key: value, key1: value1}
+// extraFilter: {categories: [category-name-1, ]}
+// payload: {type: 'Actor'}
+// payload: {categories: ['category-name-1', '2121212]}
+
+// Creators.updateExtraFilter({type: 'Director'})
