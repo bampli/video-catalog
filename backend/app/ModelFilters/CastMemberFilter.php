@@ -19,6 +19,5 @@ class CastMemberFilter extends DefaultModelFilter
         if (in_array($type_, CastMember::$types)) {
             $this->orWhere('type', $type_);
         }
-        //$this->where('type', (int)$type);
     }
 }
