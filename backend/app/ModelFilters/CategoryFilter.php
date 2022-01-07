@@ -8,6 +8,6 @@ class CategoryFilter extends DefaultModelFilter
 
     public function search($search)
     {
-        $this->query->where('name', 'LIKE', "%$search%");
+        $this->where('name', 'LIKE', "%$search%");
     }
 }
