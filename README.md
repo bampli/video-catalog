@@ -51,5 +51,8 @@ php artisan model:filter CategoryFilter
 material-ui/core @4.12.3
 material-ui/icons @4.11.2
 notistack @1.0.10
+redux @4.1.2
+reduxsauce @1.2.1
+use-debounce @7.0.1
 
 ```

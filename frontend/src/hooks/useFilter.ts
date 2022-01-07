@@ -117,7 +117,7 @@ export class FilterManager {
         dir: direction.includes("desc") ? "desc" : "asc",
       })
     );
-    this.resetTablePagination();
+    //this.resetTablePagination();
   }
 
   changeExtraFilter(data) {
@@ -129,9 +129,7 @@ export class FilterManager {
       ...this.schema.cast({}),
       search: { value: null, update: true }
     };
-    this.dispatch(Creators.setReset({
-      state: INITIAL_STATE
-    }));
+    this.dispatch(Creators.setReset({state: INITIAL_STATE}));
     this.resetTablePagination();
   }
 

@@ -3,7 +3,7 @@ import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
 import { Category, ListResponse } from "../../util/models";
-import DefaultTable, { makeActionStyles, TableColumn } from "../../components/Table";
+import DefaultTable, { makeActionStyles, MuiDataTableRefComponent, TableColumn } from "../../components/Table";
 import { useSnackbar } from 'notistack';
 //import { cloneDeep } from 'lodash';
 import { IconButton, MuiThemeProvider } from "@material-ui/core";
@@ -83,6 +83,7 @@ const Table = () => {
     const subscribed = useRef(true);
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
     const {
         columns,
         filterManager,
@@ -95,7 +96,8 @@ const Table = () => {
         columns: columnsDefinition,
         debounceTime: debounceTime,
         rowsPerPage,
-        rowsPerPageOptions
+        rowsPerPageOptions,
+        tableRef,
     });
 
     useEffect(() => {
@@ -163,7 +165,7 @@ const Table = () => {
                     customToolbar: () => (
                         <FilterResetButton
                             handleClick={() => {
-                                dispatch(Creators.setReset());
+                                dispatch(Creators.setReset({state: filterState}));
                             }}
                         />
                     ),

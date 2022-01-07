@@ -1,5 +1,6 @@
 import * as Typings from "./types";
 import { createActions, createReducer } from "reduxsauce";
+import {SetOrderAction, SetPerPageAction, SetResetAction, UpdateExtraFilterAction} from "./types";
 
 export const { Types, Creators } = createActions<
   {
@@ -71,7 +72,7 @@ function setPage(state = INITIAL_STATE, action: Typings.SetPageAction): Typings.
   };
 }
 
-function setPerPage(state = INITIAL_STATE, action: Typings.SetPerPageAction): Typings.State {
+function setPerPage(state = INITIAL_STATE, action: SetPerPageAction): Typings.State {
   return {
     ...state,
     pagination: {
@@ -81,7 +82,7 @@ function setPerPage(state = INITIAL_STATE, action: Typings.SetPerPageAction): Ty
   };
 }
 
-function setOrder(state = INITIAL_STATE, action: Typings.SetOrderAction): Typings.State {
+function setOrder(state = INITIAL_STATE, action: SetOrderAction): Typings.State {
   return {
     ...state,
     pagination: {
@@ -95,12 +96,12 @@ function setOrder(state = INITIAL_STATE, action: Typings.SetOrderAction): Typing
   };
 }
 
-function setReset(state = INITIAL_STATE, action: Typings.SetResetAction) {
+function setReset(state = INITIAL_STATE, action: SetResetAction) {
   return action.payload.state;
   //return { ...INITIAL_STATE, search: { value: null, update: true } };
 }
 
-function updateExtraFilter(state = INITIAL_STATE, action: Typings.UpdateExtraFilterAction) {
+function updateExtraFilter(state = INITIAL_STATE, action: UpdateExtraFilterAction) {
   return {
     ...state,
     extraFilter: {
