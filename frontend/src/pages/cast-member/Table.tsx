@@ -4,14 +4,14 @@ import { useSnackbar } from 'notistack';
 import FormatISODate from "../../util/FormatISODate";
 import castMemberHttp from '../../util/http/cast-member-http';
 import { CastMember, CastMemberTypeMap, ListResponse } from "../../util/models";
-import { IconButton, MuiThemeProvider } from "@material-ui/core";
+import { Button, IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
 import * as yup from '../../util/vendor/yup';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import { Creators } from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
-//import {invert} from 'lodash';
+import { invert } from 'lodash';
 
 const castMemberNames = Object.values(CastMemberTypeMap);
 
@@ -21,19 +21,26 @@ const columnsDefinition: TableColumn[] = [
         label: "ID",
         width: "30%",
         options: {
-            sort: false
+            sort: false,
+            filter: false
         }
     },
     {
         name: "name",
         label: "Nome",
         width: "37%",
+        options: {
+            filter: false
+        }
     },
     {
         name: "type",
         label: "Tipo",
         width: "20%",
         options: {
+            filterOptions: {
+                names: castMemberNames
+            },
             customBodyRender(value, tableMeta, updateValue) {
                 return CastMemberTypeMap[value];
             }
@@ -46,7 +53,8 @@ const columnsDefinition: TableColumn[] = [
         options: {
             customBodyRender(value, tableMeta, updateValue) {
                 return <span>{FormatISODate(value)}</span>;
-            }
+            },
+            filter: false
         }
     },
     {
@@ -55,6 +63,7 @@ const columnsDefinition: TableColumn[] = [
         width: "13%",
         options: {
             sort: false,
+            filter: false,
             customBodyRender: (value, tableMeta) => {
                 //console.log(tableMeta);
                 return (
@@ -75,6 +84,34 @@ const debounceTime = 300;
 const debounceSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
+
+const extraFilter = {
+    createValidationSchema: () => {
+        return yup.object().shape({
+            type: yup.string()  // na URL: ?type=Director
+                .nullable()
+                .transform(value => {
+                    return !value || !castMemberNames.includes(value) ? undefined : value;
+                })
+                .default(null)
+        })
+    },
+    formatSearchParams: (debouncedState) => {
+        return debouncedState.extraFilter
+            ? {
+                ...(
+                    debouncedState.extraFilter.type &&
+                    { type: debouncedState.extraFilter.type }
+                ),
+            }
+            : undefined
+    },
+    getStateFromURL: (queryParams) => {
+        return {
+            type: queryParams.get('type')
+        }
+    }
+};
 
 const Table = () => {
 
@@ -98,35 +135,27 @@ const Table = () => {
         rowsPerPage,
         rowsPerPageOptions,
         tableRef,
-        extraFilter: {
-            createValidationSchema: () => {
-                return yup.object().shape({
-                    type: yup.string()  // ?type=Director
-                        .nullable()
-                        .transform(value => {
-                            return !value || !castMemberNames.includes(value) ? undefined : value;
-                        })
-                        .default(null)
-                })
-            },
-            formatSearchParams: (debouncedState) => {
-                return debouncedState.extraFilter
-                    ? {
-                        ...(
-                            debouncedState.extraFilter.type &&
-                            { type: debouncedState.extraFilter.type }
-                        ),
-                    }
-                    : undefined
-            },
-            getStateFromURL: (queryParams) => {
-                return {
-                    type: queryParams.get('type')
-                }
-            }
-        }
+        extraFilter
     });
-    
+
+    const indexColumnType = columns.findIndex(c => c.name === 'type');
+    const columnType = columns[indexColumnType];
+    const typeFilterValue = filterState.extraFilter && filterState.extraFilter.type; //as never;
+    (columnType.options as any).filterList = typeFilterValue ? [typeFilterValue] : [];
+
+    // const serverSideFilterList = columns.map(column => []);
+    // if (typeFilterValue) serverSideFilterList[indexColumnType] = typeFilterValue;
+    // console.log(
+    //     "typeFilterValue", typeFilterValue,
+    //     "serverSideFilterList", serverSideFilterList,
+    //     "filterList", (columnType.options as any).filterList
+    // );
+    // typeFilterValue Diretor
+    // serverSideFilterList 
+    // (5) [Array(0), Array(0), 'Diretor', Array(0), Array(0)]
+    //  filterList 
+    // ['Diretor']
+
     useEffect(() => {
         subscribed.current = true;
         filterManager.pushHistory();
@@ -140,7 +169,9 @@ const Table = () => {
         filterManager.cleanSearchText(debouncedFilterState.search),
         debouncedFilterState.pagination.page,
         debouncedFilterState.pagination.per_page,
-        debouncedFilterState.order
+        debouncedFilterState.order,
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        JSON.stringify(debouncedFilterState.extraFilter), //"{"type": "Diretor"}"
     ]);
 
     async function getData() {
@@ -148,11 +179,15 @@ const Table = () => {
         try {
             const { data } = await castMemberHttp.list<ListResponse<CastMember>>({
                 queryParams: {
-                    search: filterManager.cleanSearchText(filterState.search),
-                    page: filterState.pagination.page,
-                    per_page: filterState.pagination.per_page,
-                    sort: filterState.order.sort,
-                    dir: filterState.order.dir,
+                    search: filterManager.cleanSearchText(debouncedFilterState.search),
+                    page: debouncedFilterState.pagination.page,
+                    per_page: debouncedFilterState.pagination.per_page,
+                    sort: debouncedFilterState.order.sort,
+                    dir: debouncedFilterState.order.dir,
+                    ...(debouncedFilterState.extraFilter &&
+                        debouncedFilterState.extraFilter.type && {
+                        type: invert(CastMemberTypeMap)[debouncedFilterState.extraFilter.type],
+                    })
                 }
             });
             if (subscribed.current) {   // do not change when dismounting
@@ -165,7 +200,7 @@ const Table = () => {
                 return;
             }
             snackbar.enqueueSnackbar(
-                'Não foi possível carregar as informações',
+                'Não foi possível carregar membros do elenco',
                 { variant: 'error' }
             );
         } finally {
@@ -181,7 +216,9 @@ const Table = () => {
                 data={data}
                 loading={loading}
                 debouncedSearchTime={debounceSearchTime}
+                ref={tableRef}
                 options={{
+                    //serverSideFilterList: serverSideFilterList,
                     serverSide: true,
                     responsive: "standard",
                     searchText: filterState.search as any,
@@ -189,6 +226,13 @@ const Table = () => {
                     rowsPerPage: filterState.pagination.per_page,
                     rowsPerPageOptions,
                     count: totalRecords,
+                    onFilterChange: (column, filterList) => {
+                        const columnIndex = columns.findIndex(c => c.name === column);
+                        console.dir("onFilterChange filterList", filterList);
+                        filterManager.changeExtraFilter({
+                            [column as string]: filterList[columnIndex].length ? filterList[columnIndex] : null
+                        })
+                    },
                     customToolbar: () => (
                         <FilterResetButton
                             handleClick={() => {
@@ -200,7 +244,7 @@ const Table = () => {
                     onChangePage: (page) => filterManager.changePage(page),
                     onChangeRowsPerPage: (perPage) => filterManager.changeRowsPerPage(perPage),
                     onColumnSortChange: (changedColumn: string, direction: string) =>
-                        filterManager.changeColumnSort(changedColumn, direction)
+                        filterManager.changeColumnSort(changedColumn, direction),
                 }}
             />
         </MuiThemeProvider>

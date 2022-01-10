@@ -110,17 +110,27 @@ const theme = createTheme({
         color: (palette.primary as SimplePaletteColorOptions).main,
       },
     },
-    // MuiFormLabel: {
-    //   root: {
-    //     fontSize: '1.2rem',
-    //     fontWeight: 500,
-    //   },
-    // },
-    // MuiInputBase: {
-    //     input: {
+    MUIDataTableFilterList: {
+      root: {
+        marginBottom: '8px',
+      },
+    },
+    MuiFormControl: {
+      root: {
+        minWidth: '120px',
+      }
+    },
+    MuiFormLabel: {
+      root: {
+        fontSize: '1.2rem',
+        fontWeight: 500,
+      },
+    },
+    MuiInputBase: {
+        input: {
 
-    //     }
-    // }
+        }
+    }
   },
 });
 

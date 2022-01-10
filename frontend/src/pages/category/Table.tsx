@@ -19,21 +19,25 @@ const columnsDefinition: TableColumn[] = [
         label: "ID",
         width: "30%",
         options: {
-            sort: false
+            sort: false,
+            filter: false
         }
     },
     {
         name: "name",
         label: "Nome",
         width: "43%",
-        // options: {
-        //     sortDirection: 'desc'
-        // }
+        options: {
+            filter: false
+        }
     },
     {
         name: "is_active",
         label: "Ativo?",
         options: {
+            filterOptions: {
+                names: ['Sim', 'Não']
+            },
             customBodyRender(value, tableMeta, updateValue) {
                 return value ? <BadgeYes /> : <BadgeNo />;
             }
@@ -45,6 +49,7 @@ const columnsDefinition: TableColumn[] = [
         label: "Criado em",
         width: "10%",
         options: {
+            filter: false,
             customBodyRender(value, tableMeta, updateValue) {
                 return <span>{FormatISODate(value)}</span>;
             }
@@ -56,6 +61,7 @@ const columnsDefinition: TableColumn[] = [
         width: "13%",
         options: {
             sort: false,
+            filter: false,
             customBodyRender: (value, tableMeta) => {
                 //console.log(tableMeta);
                 return (
@@ -121,11 +127,11 @@ const Table = () => {
         try {
             const { data } = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: filterManager.cleanSearchText(filterState.search),
-                    page: filterState.pagination.page,
-                    per_page: filterState.pagination.per_page,
-                    sort: filterState.order.sort,
-                    dir: filterState.order.dir,
+                    search: filterManager.cleanSearchText(debouncedFilterState.search),
+                    page: debouncedFilterState.pagination.page,
+                    per_page: debouncedFilterState.pagination.per_page,
+                    sort: debouncedFilterState.order.sort,
+                    dir: debouncedFilterState.order.dir,
                 }
             });
             if (subscribed.current) {   // do not change when dismounting
@@ -155,6 +161,7 @@ const Table = () => {
                 loading={loading}
                 debouncedSearchTime={debounceSearchTime}
                 options={{
+                    //serverSideFilterList: [['ID=filtroId1', 'ID=filtroId2'], ['Name'], ['IsActive'], ['Created'], ['Actions']],
                     serverSide: true,
                     responsive: "standard",
                     searchText: filterState.search as any,
@@ -165,14 +172,14 @@ const Table = () => {
                     customToolbar: () => (
                         <FilterResetButton
                             handleClick={() => {
-                                dispatch(Creators.setReset({state: filterState}));
+                                dispatch(Creators.setReset({ state: filterState }));
                             }}
                         />
                     ),
                     onSearchChange: (value) => filterManager.changeSearch(value),
                     onChangePage: (page) => filterManager.changePage(page),
                     onChangeRowsPerPage: (perPage) => filterManager.changeRowsPerPage(perPage),
-                    onColumnSortChange: (changedColumn: string, direction: string) => 
+                    onColumnSortChange: (changedColumn: string, direction: string) =>
                         filterManager.changeColumnSort(changedColumn, direction)
                 }}
             />

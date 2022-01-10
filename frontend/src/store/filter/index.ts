@@ -1,6 +1,6 @@
 import * as Typings from "./types";
 import { createActions, createReducer } from "reduxsauce";
-import {SetOrderAction, SetPerPageAction, SetResetAction, UpdateExtraFilterAction} from "./types";
+//import {SetOrderAction, SetPerPageAction, SetResetAction, UpdateExtraFilterAction} from "./types";
 
 export const { Types, Creators } = createActions<
   {
@@ -72,7 +72,7 @@ function setPage(state = INITIAL_STATE, action: Typings.SetPageAction): Typings.
   };
 }
 
-function setPerPage(state = INITIAL_STATE, action: SetPerPageAction): Typings.State {
+function setPerPage(state = INITIAL_STATE, action: Typings.SetPerPageAction): Typings.State {
   return {
     ...state,
     pagination: {
@@ -82,7 +82,7 @@ function setPerPage(state = INITIAL_STATE, action: SetPerPageAction): Typings.St
   };
 }
 
-function setOrder(state = INITIAL_STATE, action: SetOrderAction): Typings.State {
+function setOrder(state = INITIAL_STATE, action: Typings.SetOrderAction): Typings.State {
   return {
     ...state,
     pagination: {
@@ -96,12 +96,12 @@ function setOrder(state = INITIAL_STATE, action: SetOrderAction): Typings.State 
   };
 }
 
-function setReset(state = INITIAL_STATE, action: SetResetAction) {
+function setReset(state = INITIAL_STATE, action: Typings.SetResetAction) {
   return action.payload.state;
   //return { ...INITIAL_STATE, search: { value: null, update: true } };
 }
 
-function updateExtraFilter(state = INITIAL_STATE, action: UpdateExtraFilterAction) {
+function updateExtraFilter(state = INITIAL_STATE, action: Typings.UpdateExtraFilterAction) {
   return {
     ...state,
     extraFilter: {
@@ -114,6 +114,6 @@ function updateExtraFilter(state = INITIAL_STATE, action: UpdateExtraFilterActio
 // extraFilter: {type: 'Director', key: value, key1: value1}
 // extraFilter: {categories: [category-name-1, ]}
 // payload: {type: 'Actor'}
-// payload: {categories: ['category-name-1', '2121212]}
+// payload: {categories: ['category-name-1', '2121212']}
 
 // Creators.updateExtraFilter({type: 'Director'})

@@ -117,10 +117,10 @@ export class FilterManager {
         dir: direction.includes("desc") ? "desc" : "asc",
       })
     );
-    //this.resetTablePagination();
+    this.resetTablePagination();
   }
 
-  changeExtraFilter(data) {
+  changeExtraFilter(data) { //{type: 'Director'}
     this.dispatch(Creators.updateExtraFilter(data));
   }
 
@@ -164,13 +164,12 @@ export class FilterManager {
   }
 
   pushHistory() {
-    //console.log('push history');    
     const oldState = this.history.location.state;
     if (isEqual(oldState, this.debouncedState)) { // avoid duplicates at history
-      //console.log('is equal')
+      //console.log('pushHistory skipped, it is equal')
       return
     };
-
+    //console.log('pushHistory a new location');    
     const newLocation = {
       pathname: this.history.location.pathname,
       search: "?" + new URLSearchParams(this.formatSearchParams()),
@@ -194,14 +193,11 @@ export class FilterManager {
           dir: this.debouncedState.order.dir
         }
       ),
-      ...(
+      ...( // extraFilter = {key1: val1, key2: val2} --> URL: ?key1=val1&key2=val2
         this.extraFilter && this.extraFilter.formatSearchParams(this.debouncedState)
       )
     }
   }
-
-  // extraFilter {key1: val1, key2: val2}
-  // ?key1=val1&key2=val2
 
   getStateFromURL() {
     const queryParams = new URLSearchParams(this.history.location.search.substr(1));
@@ -243,8 +239,7 @@ export class FilterManager {
           .default(this.rowsPerPage),
       }),
       order: yup.object().shape({
-        sort: yup
-          .string()
+        sort: yup.string()
           .nullable()
           .transform((value) => {
             const columnsName = this.columns
