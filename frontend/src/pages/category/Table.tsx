@@ -9,9 +9,17 @@ import { useSnackbar } from 'notistack';
 import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
+import * as yup from '../../util/vendor/yup';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import { Creators } from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
+import { invert } from 'lodash';
+
+const YesNoMap = {
+    1: 'Sim',
+    0: 'Não'
+};
+const yesNo = Object.values(YesNoMap);
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -36,7 +44,7 @@ const columnsDefinition: TableColumn[] = [
         label: "Ativo?",
         options: {
             filterOptions: {
-                names: ['Sim', 'Não']
+                names: yesNo
             },
             customBodyRender(value, tableMeta, updateValue) {
                 return value ? <BadgeYes /> : <BadgeNo />;
@@ -83,6 +91,34 @@ const debounceSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
 
+const extraFilter = {
+    createValidationSchema: () => {
+        return yup.object().shape({
+            is_active: yup.string()  // na URL: ?is_active=Sim
+                .nullable()
+                .transform(value => {
+                    return !value || !yesNo.includes(value) ? undefined : value;
+                })
+                .default(null)
+        })
+    },
+    formatSearchParams: (debouncedState) => {
+        return debouncedState.extraFilter
+            ? {
+                ...(
+                    debouncedState.extraFilter.is_active &&
+                    { is_active: debouncedState.extraFilter.is_active }
+                ),
+            }
+            : undefined
+    },
+    getStateFromURL: (queryParams) => {
+        return {
+            is_active: queryParams.get('is_active')
+        }
+    }
+};
+
 const Table = () => {
 
     const snackbar = useSnackbar();
@@ -90,6 +126,7 @@ const Table = () => {
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
+
     const {
         columns,
         filterManager,
@@ -104,7 +141,17 @@ const Table = () => {
         rowsPerPage,
         rowsPerPageOptions,
         tableRef,
+        extraFilter
     });
+
+    const indexColumnIsActive = columns.findIndex(c => c.name === 'is_active');
+    const columnIsActive = columns[indexColumnIsActive];
+    const isActiveFilterValue = filterState.extraFilter && filterState.extraFilter.is_active; //as never;
+    (columnIsActive.options as any).filterList = isActiveFilterValue ? [isActiveFilterValue] : [];
+    console.log(
+        "Table: isActiveFilterValue ", isActiveFilterValue,
+        "filterList", (columnIsActive.options as any).filterList
+    );
 
     useEffect(() => {
         subscribed.current = true;
@@ -119,12 +166,15 @@ const Table = () => {
         filterManager.cleanSearchText(debouncedFilterState.search),
         debouncedFilterState.pagination.page,
         debouncedFilterState.pagination.per_page,
-        debouncedFilterState.order
+        debouncedFilterState.order,
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        JSON.stringify(debouncedFilterState.extraFilter),
     ]);
 
     async function getData() {
         setLoading(true);
         try {
+            console.log("debouncedFilterState", debouncedFilterState);
             const { data } = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
                     search: filterManager.cleanSearchText(debouncedFilterState.search),
@@ -132,8 +182,26 @@ const Table = () => {
                     per_page: debouncedFilterState.pagination.per_page,
                     sort: debouncedFilterState.order.sort,
                     dir: debouncedFilterState.order.dir,
+                    ...(debouncedFilterState.extraFilter &&
+                        debouncedFilterState.extraFilter.is_active && {
+                        is_active: invert(YesNoMap)[debouncedFilterState.extraFilter.is_active]
+                    })
                 }
             });
+            console.log("getData: queryParams", {
+                queryParams: {
+                    search: filterManager.cleanSearchText(debouncedFilterState.search),
+                    page: debouncedFilterState.pagination.page,
+                    per_page: debouncedFilterState.pagination.per_page,
+                    sort: debouncedFilterState.order.sort,
+                    dir: debouncedFilterState.order.dir,
+                    ...(debouncedFilterState.extraFilter &&
+                        debouncedFilterState.extraFilter.is_active && {
+                        is_active: invert(YesNoMap)[debouncedFilterState.extraFilter.is_active]
+                    })
+                }
+            });
+
             if (subscribed.current) {   // do not change when dismounting
                 setData(data.data);
                 setTotalRecords(data.meta.total);
@@ -144,7 +212,7 @@ const Table = () => {
                 return;
             }
             snackbar.enqueueSnackbar(
-                'Não foi possível carregar as informações',
+                'Não foi possível carregar categorias',
                 { variant: 'error' }
             );
         } finally {
@@ -160,8 +228,9 @@ const Table = () => {
                 data={data}
                 loading={loading}
                 debouncedSearchTime={debounceSearchTime}
+                ref={tableRef}
                 options={{
-                    //serverSideFilterList: [['ID=filtroId1', 'ID=filtroId2'], ['Name'], ['IsActive'], ['Created'], ['Actions']],
+                    //serverSideFilterList: [],
                     serverSide: true,
                     responsive: "standard",
                     searchText: filterState.search as any,
@@ -169,6 +238,13 @@ const Table = () => {
                     rowsPerPage: filterState.pagination.per_page,
                     rowsPerPageOptions,
                     count: totalRecords,
+                    onFilterChange: (column, filterList) => {
+                        const columnIndex = columns.findIndex(c => c.name === column);
+                        console.log("onFilterChange:", "column", column, "filterList", filterList);
+                        filterManager.changeExtraFilter({
+                            [column as string]: filterList[columnIndex].length ? filterList[columnIndex] : null
+                        })
+                    },
                     customToolbar: () => (
                         <FilterResetButton
                             handleClick={() => {

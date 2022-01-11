@@ -1,5 +1,4 @@
 import React, { Dispatch, Reducer, useEffect, useReducer, useState } from "react";
-//import reducer, { Creators, INITIAL_STATE } from "../store/filter";
 import reducer, { Creators } from "../store/filter";
 import { Actions as FilterActions, State as FilterState } from "../store/filter/types";
 import { MUIDataTableColumn } from "mui-datatables";

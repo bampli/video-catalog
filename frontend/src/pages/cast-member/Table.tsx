@@ -4,7 +4,7 @@ import { useSnackbar } from 'notistack';
 import FormatISODate from "../../util/FormatISODate";
 import castMemberHttp from '../../util/http/cast-member-http';
 import { CastMember, CastMemberTypeMap, ListResponse } from "../../util/models";
-import { Button, IconButton, MuiThemeProvider } from "@material-ui/core";
+import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
 import * as yup from '../../util/vendor/yup';
@@ -51,10 +51,10 @@ const columnsDefinition: TableColumn[] = [
         label: "Criado em",
         width: "10%",
         options: {
+            filter: false,
             customBodyRender(value, tableMeta, updateValue) {
                 return <span>{FormatISODate(value)}</span>;
-            },
-            filter: false
+            }
         }
     },
     {
@@ -143,19 +143,6 @@ const Table = () => {
     const typeFilterValue = filterState.extraFilter && filterState.extraFilter.type; //as never;
     (columnType.options as any).filterList = typeFilterValue ? [typeFilterValue] : [];
 
-    // const serverSideFilterList = columns.map(column => []);
-    // if (typeFilterValue) serverSideFilterList[indexColumnType] = typeFilterValue;
-    // console.log(
-    //     "typeFilterValue", typeFilterValue,
-    //     "serverSideFilterList", serverSideFilterList,
-    //     "filterList", (columnType.options as any).filterList
-    // );
-    // typeFilterValue Diretor
-    // serverSideFilterList 
-    // (5) [Array(0), Array(0), 'Diretor', Array(0), Array(0)]
-    //  filterList 
-    // ['Diretor']
-
     useEffect(() => {
         subscribed.current = true;
         filterManager.pushHistory();
@@ -218,7 +205,6 @@ const Table = () => {
                 debouncedSearchTime={debounceSearchTime}
                 ref={tableRef}
                 options={{
-                    //serverSideFilterList: serverSideFilterList,
                     serverSide: true,
                     responsive: "standard",
                     searchText: filterState.search as any,
@@ -228,7 +214,7 @@ const Table = () => {
                     count: totalRecords,
                     onFilterChange: (column, filterList) => {
                         const columnIndex = columns.findIndex(c => c.name === column);
-                        console.dir("onFilterChange filterList", filterList);
+                        //console.dir("onFilterChange filterList", filterList);
                         filterManager.changeExtraFilter({
                             [column as string]: filterList[columnIndex].length ? filterList[columnIndex] : null
                         })
