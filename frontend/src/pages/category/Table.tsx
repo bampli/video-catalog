@@ -3,15 +3,27 @@ import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
 import { Category, ListResponse } from "../../util/models";
-import DefaultTable, { makeActionStyles, TableColumn } from "../../components/Table";
+import DefaultTable, { makeActionStyles, MuiDataTableRefComponent, TableColumn } from "../../components/Table";
 import { useSnackbar } from 'notistack';
 //import { cloneDeep } from 'lodash';
 import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
+import * as yup from '../../util/vendor/yup';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import { Creators } from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
+import { invert } from 'lodash';
+
+// NOTE: "is_active" filter uses an extraFilter, since mui-datatables version 3 deprecated
+// the "serverSideFilterList" in favor of the "confirmFilters" option. More details below.
+// https://github.com/gregnb/mui-datatables/blob/master/docs/v2_to_v3_guide.md#serversidefilterlist-is-deprecated-in-favor-of-the-confirmfilters-option
+
+const YesNoMap = {
+    1: 'Sim',
+    0: 'Não'
+};
+const yesNo = Object.values(YesNoMap);
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -19,21 +31,25 @@ const columnsDefinition: TableColumn[] = [
         label: "ID",
         width: "30%",
         options: {
-            sort: false
+            sort: false,
+            filter: false
         }
     },
     {
         name: "name",
         label: "Nome",
         width: "43%",
-        // options: {
-        //     sortDirection: 'desc'
-        // }
+        options: {
+            filter: false
+        }
     },
     {
         name: "is_active",
         label: "Ativo?",
         options: {
+            filterOptions: {
+                names: yesNo
+            },
             customBodyRender(value, tableMeta, updateValue) {
                 return value ? <BadgeYes /> : <BadgeNo />;
             }
@@ -45,6 +61,7 @@ const columnsDefinition: TableColumn[] = [
         label: "Criado em",
         width: "10%",
         options: {
+            filter: false,
             customBodyRender(value, tableMeta, updateValue) {
                 return <span>{FormatISODate(value)}</span>;
             }
@@ -56,6 +73,7 @@ const columnsDefinition: TableColumn[] = [
         width: "13%",
         options: {
             sort: false,
+            filter: false,
             customBodyRender: (value, tableMeta) => {
                 //console.log(tableMeta);
                 return (
@@ -77,12 +95,42 @@ const debounceSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
 
+const extraFilter = {
+    createValidationSchema: () => {
+        return yup.object().shape({
+            is_active: yup.string()  // na URL: ?is_active=Sim
+                .nullable()
+                .transform(value => {
+                    return !value || !yesNo.includes(value) ? undefined : value;
+                })
+                .default(null)
+        })
+    },
+    formatSearchParams: (debouncedState) => {
+        return debouncedState.extraFilter
+            ? {
+                ...(
+                    debouncedState.extraFilter.is_active &&
+                    { is_active: debouncedState.extraFilter.is_active }
+                ),
+            }
+            : undefined
+    },
+    getStateFromURL: (queryParams) => {
+        return {
+            is_active: queryParams.get('is_active')
+        }
+    }
+};
+
 const Table = () => {
 
     const snackbar = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
+
     const {
         columns,
         filterManager,
@@ -95,8 +143,19 @@ const Table = () => {
         columns: columnsDefinition,
         debounceTime: debounceTime,
         rowsPerPage,
-        rowsPerPageOptions
+        rowsPerPageOptions,
+        tableRef,
+        extraFilter
     });
+
+    const indexColumnIsActive = columns.findIndex(c => c.name === 'is_active');
+    const columnIsActive = columns[indexColumnIsActive];
+    const isActiveFilterValue = filterState.extraFilter && filterState.extraFilter.is_active; //as never;
+    (columnIsActive.options as any).filterList = isActiveFilterValue ? [isActiveFilterValue] : [];
+    // console.log(
+    //     "Table: isActiveFilterValue ", isActiveFilterValue,
+    //     "filterList", (columnIsActive.options as any).filterList
+    // );
 
     useEffect(() => {
         subscribed.current = true;
@@ -111,21 +170,42 @@ const Table = () => {
         filterManager.cleanSearchText(debouncedFilterState.search),
         debouncedFilterState.pagination.page,
         debouncedFilterState.pagination.per_page,
-        debouncedFilterState.order
+        debouncedFilterState.order,
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        JSON.stringify(debouncedFilterState.extraFilter),
     ]);
 
     async function getData() {
         setLoading(true);
         try {
+            //console.log("debouncedFilterState", debouncedFilterState);
             const { data } = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: filterManager.cleanSearchText(filterState.search),
-                    page: filterState.pagination.page,
-                    per_page: filterState.pagination.per_page,
-                    sort: filterState.order.sort,
-                    dir: filterState.order.dir,
+                    search: filterManager.cleanSearchText(debouncedFilterState.search),
+                    page: debouncedFilterState.pagination.page,
+                    per_page: debouncedFilterState.pagination.per_page,
+                    sort: debouncedFilterState.order.sort,
+                    dir: debouncedFilterState.order.dir,
+                    ...(debouncedFilterState.extraFilter &&
+                        debouncedFilterState.extraFilter.is_active && {
+                        is_active: invert(YesNoMap)[debouncedFilterState.extraFilter.is_active]
+                    })
                 }
             });
+            // console.log("getData: queryParams", {
+            //     queryParams: {
+            //         search: filterManager.cleanSearchText(debouncedFilterState.search),
+            //         page: debouncedFilterState.pagination.page,
+            //         per_page: debouncedFilterState.pagination.per_page,
+            //         sort: debouncedFilterState.order.sort,
+            //         dir: debouncedFilterState.order.dir,
+            //         ...(debouncedFilterState.extraFilter &&
+            //             debouncedFilterState.extraFilter.is_active && {
+            //             is_active: invert(YesNoMap)[debouncedFilterState.extraFilter.is_active]
+            //         })
+            //     }
+            // });
+
             if (subscribed.current) {   // do not change when dismounting
                 setData(data.data);
                 setTotalRecords(data.meta.total);
@@ -136,7 +216,7 @@ const Table = () => {
                 return;
             }
             snackbar.enqueueSnackbar(
-                'Não foi possível carregar as informações',
+                'Não foi possível carregar categorias',
                 { variant: 'error' }
             );
         } finally {
@@ -152,7 +232,9 @@ const Table = () => {
                 data={data}
                 loading={loading}
                 debouncedSearchTime={debounceSearchTime}
+                ref={tableRef}
                 options={{
+                    //serverSideFilterList: [], // see note at the top
                     serverSide: true,
                     responsive: "standard",
                     searchText: filterState.search as any,
@@ -160,17 +242,24 @@ const Table = () => {
                     rowsPerPage: filterState.pagination.per_page,
                     rowsPerPageOptions,
                     count: totalRecords,
+                    onFilterChange: (column, filterList, type) => {
+                        const columnIndex = columns.findIndex(c => c.name === column);
+                        //console.log("onFilterChange:", "column", column, "filterList", filterList);
+                        filterManager.changeExtraFilter({
+                            [column as string]: filterList[columnIndex].length ? filterList[columnIndex] : null
+                        })
+                    },
                     customToolbar: () => (
                         <FilterResetButton
                             handleClick={() => {
-                                dispatch(Creators.setReset());
+                                dispatch(Creators.setReset({ state: filterState }));
                             }}
                         />
                     ),
                     onSearchChange: (value) => filterManager.changeSearch(value),
                     onChangePage: (page) => filterManager.changePage(page),
                     onChangeRowsPerPage: (perPage) => filterManager.changeRowsPerPage(perPage),
-                    onColumnSortChange: (changedColumn: string, direction: string) => 
+                    onColumnSortChange: (changedColumn: string, direction: string) =>
                         filterManager.changeColumnSort(changedColumn, direction)
                 }}
             />
