@@ -6,6 +6,7 @@ use App\Models\CastMember;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PHPUnit\Framework\TestCase;
+use EloquentFilter\Filterable;
 
 class CastMemberUnitTest extends TestCase
 {
@@ -27,7 +28,8 @@ class CastMemberUnitTest extends TestCase
     {
         $traits = [
             SoftDeletes::class,
-            Uuid::class
+            Uuid::class,
+            Filterable::class
         ];
         $castMemberTraits = array_keys(class_uses(CastMember::class));
         $this->assertEquals($traits, $castMemberTraits);
