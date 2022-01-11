@@ -6,7 +6,6 @@ use App\ModelFilters\CastMemberFilter;
 use EloquentFilter\Filterable;
 use App\Models\Traits\SerializeDateToIso8601;
 use Illuminate\Database\Eloquent\Model;
-use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CastMember extends Model
