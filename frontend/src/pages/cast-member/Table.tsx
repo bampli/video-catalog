@@ -214,10 +214,10 @@ const Table = () => {
                     count: totalRecords,
                     onFilterChange: (column, filterList) => {
                         const columnIndex = columns.findIndex(c => c.name === column);
-                        //console.dir("onFilterChange filterList", filterList);
+                        //console.log("onFilterChange:", "column", column, "filterList", filterList);
                         filterManager.changeExtraFilter({
-                            [column as string]: filterList[columnIndex].length ? filterList[columnIndex] : null
-                        })
+                            [column as string]: filterList[columnIndex].length ? filterList[columnIndex][0] : null
+                        });
                     },
                     customToolbar: () => (
                         <FilterResetButton

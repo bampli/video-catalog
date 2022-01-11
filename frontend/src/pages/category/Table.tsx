@@ -15,6 +15,10 @@ import { Creators } from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
 import { invert } from 'lodash';
 
+// NOTE: "is_active" filter uses an extraFilter, since mui-datatables version 3 deprecated
+// the "serverSideFilterList" in favor of the "confirmFilters" option. More details below.
+// https://github.com/gregnb/mui-datatables/blob/master/docs/v2_to_v3_guide.md#serversidefilterlist-is-deprecated-in-favor-of-the-confirmfilters-option
+
 const YesNoMap = {
     1: 'Sim',
     0: 'Não'
@@ -174,7 +178,7 @@ const Table = () => {
     async function getData() {
         setLoading(true);
         try {
-            console.log("debouncedFilterState", debouncedFilterState);
+            //console.log("debouncedFilterState", debouncedFilterState);
             const { data } = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
                     search: filterManager.cleanSearchText(debouncedFilterState.search),
@@ -230,7 +234,7 @@ const Table = () => {
                 debouncedSearchTime={debounceSearchTime}
                 ref={tableRef}
                 options={{
-                    //serverSideFilterList: [],
+                    //serverSideFilterList: [], // see note at the top
                     serverSide: true,
                     responsive: "standard",
                     searchText: filterState.search as any,
@@ -238,7 +242,7 @@ const Table = () => {
                     rowsPerPage: filterState.pagination.per_page,
                     rowsPerPageOptions,
                     count: totalRecords,
-                    onFilterChange: (column, filterList) => {
+                    onFilterChange: (column, filterList, type) => {
                         const columnIndex = columns.findIndex(c => c.name === column);
                         //console.log("onFilterChange:", "column", column, "filterList", filterList);
                         filterManager.changeExtraFilter({

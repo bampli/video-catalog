@@ -50,6 +50,7 @@ const columnsDefinition: TableColumn[] = [
         name: "is_active",
         label: "Ativo?",
         options: {
+            filter: false,
             customBodyRender(value, tableMeta, updateValue) {
                 return value ? <BadgeYes /> : <BadgeNo />;
             }
@@ -153,13 +154,11 @@ const Table = () => {
     const indexColumnCategories = columns.findIndex(c => c.name === 'categories');
     const columnCategories = columns[indexColumnCategories];
     const categoriesFilterValue = filterState.extraFilter && filterState.extraFilter.categories;
-    (columnCategories.options as any).filterList = categoriesFilterValue
-        ? [...categoriesFilterValue]
-        : [];
-    const serverSideFilterList = columns.map(column => []);
-    if (categoriesFilterValue) {
-        serverSideFilterList[indexColumnCategories] = categoriesFilterValue;
-    }
+    (columnCategories.options as any).filterList = categoriesFilterValue ? categoriesFilterValue : [];
+    // console.log(
+    //     "Table: categoriesFilterValue ", categoriesFilterValue,
+    //     "filterList", (columnCategories.options as any).filterList
+    // );
 
     useEffect(() => {
         let isSubscribed = true;
@@ -207,6 +206,7 @@ const Table = () => {
     async function getData() {
         setLoading(true);
         try {
+            //console.log("debouncedFilterState", debouncedFilterState);
             const { data } = await genreHttp.list<ListResponse<Genre>>({
                 queryParams: {
                     search: filterManager.cleanSearchText(debouncedFilterState.search),
@@ -221,6 +221,21 @@ const Table = () => {
                     )
                 }
             });
+            // console.log("getData: queryParams", {
+            //     queryParams: {
+            //         search: filterManager.cleanSearchText(debouncedFilterState.search),
+            //         page: debouncedFilterState.pagination.page,
+            //         per_page: debouncedFilterState.pagination.per_page,
+            //         sort: debouncedFilterState.order.sort,
+            //         dir: debouncedFilterState.order.dir,
+            //         ...(
+            //             debouncedFilterState.extraFilter &&
+            //             debouncedFilterState.extraFilter.categories &&
+            //             {categories: debouncedFilterState.extraFilter.categories.join(',')}
+            //         )
+            //     }
+            // });
+            
             if (subscribed.current) {   // do not change when dismounting
                 setData(data.data);
                 setTotalRecords(data.meta.total);
@@ -247,6 +262,7 @@ const Table = () => {
                 data={data}
                 loading={loading}
                 debouncedSearchTime={debounceSearchTime}
+                ref={tableRef}
                 options={{
                     serverSide: true,
                     responsive: "standard",
@@ -257,9 +273,9 @@ const Table = () => {
                     count: totalRecords,
                     onFilterChange: (column, filterList, type) => {
                         const columnIndex = columns.findIndex(c => c.name === column);
-                        console.log(filterList);
+                        //console.log("onFilterChange:", "column", column, "filterList", filterList);
                         filterManager.changeExtraFilter({
-                            [type]: filterList[columnIndex].length ? filterList[columnIndex] : null
+                            [column as string]: filterList[columnIndex].length ? filterList[columnIndex] : null
                         })
                     },
                     customToolbar: () => (
