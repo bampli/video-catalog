@@ -23,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        //intercept and dump queries to DB
+        // \DB::listen(function($query){
+        //     dump($query->sql);
+        // });
     }
 }

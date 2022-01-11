@@ -1,5 +1,4 @@
-import { Dispatch, Reducer, useEffect, useReducer, useState } from "react";
-//import reducer, { Creators, INITIAL_STATE } from "../store/filter";
+import React, { Dispatch, Reducer, useEffect, useReducer, useState } from "react";
 import reducer, { Creators } from "../store/filter";
 import { Actions as FilterActions, State as FilterState } from "../store/filter/types";
 import { MUIDataTableColumn } from "mui-datatables";
@@ -8,6 +7,7 @@ import { useHistory } from "react-router";
 import { History } from 'history';
 import { isEqual } from 'lodash';
 import * as yup from '../util/vendor/yup';
+import { MuiDataTableRefComponent } from "../components/Table";
 
 interface FilterManagerOptions {
   columns: MUIDataTableColumn[];
@@ -15,6 +15,14 @@ interface FilterManagerOptions {
   rowsPerPageOptions: number[];
   debounceTime: number;
   history: History;
+  tableRef: React.MutableRefObject<MuiDataTableRefComponent>
+  extraFilter?: ExtraFilter
+}
+
+interface ExtraFilter {
+  getStateFromURL: (queryParams: URLSearchParams) => any,
+  formatSearchParams: (debouncedState: FilterState) => any,
+  createValidationSchema: () => any,
 }
 
 interface UseFilterOptions extends Omit<FilterManagerOptions, 'history'> { }
@@ -33,7 +41,9 @@ export default function useFilter(options: UseFilterOptions) {
   const [totalRecords, setTotalRecords] = useState<number>(0);
 
   filterManager.state = filterState;
+  filterManager.debouncedState = debouncedFilterState;
   filterManager.dispatch = dispatch;
+
   filterManager.applyOrderInColumns();
 
   useEffect(() => {
@@ -55,19 +65,36 @@ export default function useFilter(options: UseFilterOptions) {
 export class FilterManager {
   schema;
   state: FilterState = null as any;
+  debouncedState: FilterState = null as any;
   dispatch: Dispatch<FilterActions> = null as any;
   columns: MUIDataTableColumn[];
   rowsPerPage: number;
   rowsPerPageOptions: number[];
   history: History;
+  tableRef: React.MutableRefObject<MuiDataTableRefComponent>
+  extraFilter?: ExtraFilter
 
   constructor(options: FilterManagerOptions) {
-    const { columns, rowsPerPage, rowsPerPageOptions, history } = options;
+    const {
+      columns,
+      rowsPerPage,
+      rowsPerPageOptions,
+      history,
+      tableRef,
+      extraFilter
+    } = options;
     this.columns = columns;
     this.rowsPerPage = rowsPerPage;
     this.rowsPerPageOptions = rowsPerPageOptions;
     this.history = history;
+    this.tableRef = tableRef;
+    this.extraFilter = extraFilter;
     this.createValidationSchema();
+  }
+
+  private resetTablePagination() {
+    this.tableRef.current.changeRowsPerPage(this.rowsPerPage);
+    this.tableRef.current.changePage(0);
   }
 
   changeSearch(value) {
@@ -89,6 +116,20 @@ export class FilterManager {
         dir: direction.includes("desc") ? "desc" : "asc",
       })
     );
+    this.resetTablePagination();
+  }
+
+  changeExtraFilter(data) { //{type: 'Director'}
+    this.dispatch(Creators.updateExtraFilter(data));
+  }
+
+  resetFilter() {
+    const INITIAL_STATE = {
+      ...this.schema.cast({}),
+      search: { value: null, update: true }
+    };
+    this.dispatch(Creators.setReset({state: INITIAL_STATE}));
+    this.resetTablePagination();
   }
 
   applyOrderInColumns() {
@@ -117,41 +158,42 @@ export class FilterManager {
     this.history.replace({
       pathname: this.history.location.pathname,
       search: "?" + new URLSearchParams(this.formatSearchParams()),
-      state: this.state
+      state: this.debouncedState
     })
   }
 
   pushHistory() {
-    console.log('push history');
-    // protection to avoid duplicated states at history
     const oldState = this.history.location.state;
-    if (isEqual(oldState, this.state)) {
-      console.log('is equal')
+    if (isEqual(oldState, this.debouncedState)) { // avoid duplicates at history
+      //console.log('pushHistory skipped, it is equal')
       return
     };
-
+    //console.log('pushHistory a new location');    
     const newLocation = {
       pathname: this.history.location.pathname,
       search: "?" + new URLSearchParams(this.formatSearchParams()),
       state: {
-        ...this.state,
-        search: this.cleanSearchText(this.state.search)
+        ...this.debouncedState,
+        search: this.cleanSearchText(this.debouncedState.search)
       }
     };
     this.history.push(newLocation);
   }
 
   private formatSearchParams() {
-    const search = this.cleanSearchText(this.state.search);
+    const search = this.cleanSearchText(this.debouncedState.search);
     return {  // saving if's, return null | obj
       ...(search && search !== '' && { search: search }),
-      ...(this.state.pagination.page !== 1 && { page: this.state.pagination.page }),
-      ...(this.state.pagination.per_page !== 15 && { per_page: this.state.pagination.per_page }),
+      ...(this.debouncedState.pagination.page !== 1 && { page: this.debouncedState.pagination.page }),
+      ...(this.debouncedState.pagination.per_page !== 15 && { per_page: this.debouncedState.pagination.per_page }),
       ...(
-        this.state.order.sort && {
-          sort: this.state.order.sort,
-          dir: this.state.order.dir
+        this.debouncedState.order.sort && {
+          sort: this.debouncedState.order.sort,
+          dir: this.debouncedState.order.dir
         }
+      ),
+      ...( // extraFilter = {key1: val1, key2: val2} --> URL: ?key1=val1&key2=val2
+        this.extraFilter && this.extraFilter.formatSearchParams(this.debouncedState)
       )
     }
   }
@@ -168,6 +210,11 @@ export class FilterManager {
         sort: queryParams.get('sort'),
         dir: queryParams.get('dir')
       },
+      ...(
+        this.extraFilter && {
+          extraFilter: this.extraFilter.getStateFromURL(queryParams)
+        }
+      )
     })
   }
 
@@ -191,8 +238,7 @@ export class FilterManager {
           .default(this.rowsPerPage),
       }),
       order: yup.object().shape({
-        sort: yup
-          .string()
+        sort: yup.string()
           .nullable()
           .transform((value) => {
             const columnsName = this.columns
@@ -206,6 +252,11 @@ export class FilterManager {
           .transform(value => !value || !['asc', 'desc'].includes(value.toLowerCase()) ? undefined : value)
           .default(null)
       }),
+      ...(
+        this.extraFilter && {
+          extraFilter: this.extraFilter.createValidationSchema()
+        }
+      )
     });
   }
 
