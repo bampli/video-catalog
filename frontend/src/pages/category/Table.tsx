@@ -148,10 +148,10 @@ const Table = () => {
     const columnIsActive = columns[indexColumnIsActive];
     const isActiveFilterValue = filterState.extraFilter && filterState.extraFilter.is_active; //as never;
     (columnIsActive.options as any).filterList = isActiveFilterValue ? [isActiveFilterValue] : [];
-    console.log(
-        "Table: isActiveFilterValue ", isActiveFilterValue,
-        "filterList", (columnIsActive.options as any).filterList
-    );
+    // console.log(
+    //     "Table: isActiveFilterValue ", isActiveFilterValue,
+    //     "filterList", (columnIsActive.options as any).filterList
+    // );
 
     useEffect(() => {
         subscribed.current = true;
@@ -188,19 +188,19 @@ const Table = () => {
                     })
                 }
             });
-            console.log("getData: queryParams", {
-                queryParams: {
-                    search: filterManager.cleanSearchText(debouncedFilterState.search),
-                    page: debouncedFilterState.pagination.page,
-                    per_page: debouncedFilterState.pagination.per_page,
-                    sort: debouncedFilterState.order.sort,
-                    dir: debouncedFilterState.order.dir,
-                    ...(debouncedFilterState.extraFilter &&
-                        debouncedFilterState.extraFilter.is_active && {
-                        is_active: invert(YesNoMap)[debouncedFilterState.extraFilter.is_active]
-                    })
-                }
-            });
+            // console.log("getData: queryParams", {
+            //     queryParams: {
+            //         search: filterManager.cleanSearchText(debouncedFilterState.search),
+            //         page: debouncedFilterState.pagination.page,
+            //         per_page: debouncedFilterState.pagination.per_page,
+            //         sort: debouncedFilterState.order.sort,
+            //         dir: debouncedFilterState.order.dir,
+            //         ...(debouncedFilterState.extraFilter &&
+            //             debouncedFilterState.extraFilter.is_active && {
+            //             is_active: invert(YesNoMap)[debouncedFilterState.extraFilter.is_active]
+            //         })
+            //     }
+            // });
 
             if (subscribed.current) {   // do not change when dismounting
                 setData(data.data);
@@ -240,7 +240,7 @@ const Table = () => {
                     count: totalRecords,
                     onFilterChange: (column, filterList) => {
                         const columnIndex = columns.findIndex(c => c.name === column);
-                        console.log("onFilterChange:", "column", column, "filterList", filterList);
+                        //console.log("onFilterChange:", "column", column, "filterList", filterList);
                         filterManager.changeExtraFilter({
                             [column as string]: filterList[columnIndex].length ? filterList[columnIndex] : null
                         })
