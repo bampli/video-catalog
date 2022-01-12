@@ -26,22 +26,18 @@ Extracted from https://github.com/bampli/laravel-microservice-quickstart/tree/de
 
 ```
 php artisan make:model <model>
-php artisan make:migration create-category-video-table
-
 php artisan migrate:refresh --seed
-
-php artisan make:migration create-category-video-table
-php artisan make:migration create-genre-video-table
-php artisan make:migration create-category-genre-table
-
+php artisan make:migration create_category_video_table
+php artisan make:migration create_genre_video_table
+php artisan make:migration create_category_genre_table
+php artisan make:migration create_cast_member_video_table
 php artisan make:rule GenreHasCategoriesRule
-
-gcloud kms encrypt
-gcloud kms decrypt
-
 php artisan storage:link
 php artisan make:resource CategoryResource
 php artisan model:filter CategoryFilter
+
+gcloud kms encrypt
+gcloud kms decrypt
 
 ```
 
