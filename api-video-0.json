@@ -1,0 +1,97 @@
+{
+    "data": [
+        {
+            "id": "0a1cbf3b-d7be-48bc-b21b-d04382099b30",
+            "title": "Video-catalog template for video.",
+            "description": "Original video schema delivered by backend.",
+            "year_launched": 1921,
+            "opened": true,
+            "rating": "L",
+            "duration": 17,
+            "video_file": "lGe0lHiL5ymQlpwYMXmU7M505FRbWhayzZc2gehz.mp4",
+            "thumb_file": "LktKGxl0USwZym6FBw9WxQ6vMTNZkLYw5jfqQCGw.jpg",
+            "banner_file": "xGOG1L9OUXRgon9oS1Lj7uWhLzx2vl5uaqZOib1o.jpg",
+            "trailer_file": "MzxBUGuf9cykdrBun7AfdyItsTRSf7f7DQ0qRxns.jpg",
+            "deleted_at": null,
+            "created_at": "2022-01-12T18:14:51+0000",
+            "updated_at": "2022-01-12T18:14:51+0000",
+            "categories": [
+                {
+                    "id": "140c78b8-76d9-4eb1-a191-654245284c4c",
+                    "name": "DeepSkyBlue",
+                    "description": "Nulla mollitia voluptas vel ut quod.",
+                    "is_active": true,
+                    "deleted_at": null,
+                    "created_at": "2022-01-12T18:14:48+0000",
+                    "updated_at": "2022-01-12T18:14:48+0000",
+                    "pivot": {
+                        "video_id": "0a1cbf3b-d7be-48bc-b21b-d04382099b30",
+                        "category_id": "140c78b8-76d9-4eb1-a191-654245284c4c"
+                    }
+                }
+            ],
+            "genres": [
+                {
+                    "id": "006a3143-1f18-421b-93fa-8127aefe0509",
+                    "name": "Bouvet Island (Bouvetoya)",
+                    "is_active": true,
+                    "deleted_at": null,
+                    "created_at": "2022-01-12T18:14:48+0000",
+                    "updated_at": "2022-01-12T18:14:48+0000",
+                    "pivot": {
+                        "video_id": "0a1cbf3b-d7be-48bc-b21b-d04382099b30",
+                        "genre_id": "006a3143-1f18-421b-93fa-8127aefe0509"
+                    },
+                    "categories": [
+                        {
+                            "id": "1f637131-1cd5-4dc9-abca-9bc6549c47a0",
+                            "name": "DarkRed",
+                            "description": "Quia sed quidem perspiciatis nam.",
+                            "is_active": true,
+                            "deleted_at": null,
+                            "created_at": "2022-01-12T18:14:48+0000",
+                            "updated_at": "2022-01-12T18:14:48+0000",
+                            "pivot": {
+                                "genre_id": "006a3143-1f18-421b-93fa-8127aefe0509",
+                                "category_id": "1f637131-1cd5-4dc9-abca-9bc6549c47a0"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "cast_members": [
+                {
+                    "id": "1d48d009-9147-4e5d-ae59-cdef203240b5",
+                    "name": "Brown",
+                    "type": 2,
+                    "deleted_at": null,
+                    "created_at": "2022-01-12 18:14:48",
+                    "updated_at": "2022-01-12 18:14:48",
+                    "pivot": {
+                        "video_id": "0a1cbf3b-d7be-48bc-b21b-d04382099b30",
+                        "cast_member_id": "1d48d009-9147-4e5d-ae59-cdef203240b5"
+                    }
+                }
+            ],
+            "video_file_url": "http://localhost:8000/storage/videos/0a1cbf3b-d7be-48bc-b21b-d04382099b30/lGe0lHiL5ymQlpwYMXmU7M505FRbWhayzZc2gehz.mp4",
+            "thumb_file_url": "http://localhost:8000/storage/videos/0a1cbf3b-d7be-48bc-b21b-d04382099b30/LktKGxl0USwZym6FBw9WxQ6vMTNZkLYw5jfqQCGw.jpg",
+            "banner_file_url": "http://localhost:8000/storage/videos/0a1cbf3b-d7be-48bc-b21b-d04382099b30/xGOG1L9OUXRgon9oS1Lj7uWhLzx2vl5uaqZOib1o.jpg",
+            "trailer_file_url": "http://localhost:8000/storage/videos/0a1cbf3b-d7be-48bc-b21b-d04382099b30/MzxBUGuf9cykdrBun7AfdyItsTRSf7f7DQ0qRxns.jpg"
+        }
+    ],
+    "links": {
+        "first": "http://localhost:8000/api/videos?page=1",
+        "last": "http://localhost:8000/api/videos?page=2",
+        "prev": null,
+        "next": "http://localhost:8000/api/videos?page=2"
+    },
+    "meta": {
+        "current_page": 1,
+        "from": 1,
+        "last_page": 2,
+        "path": "http://localhost:8000/api/videos",
+        "per_page": 15,
+        "to": 15,
+        "total": 20
+    }
+}
