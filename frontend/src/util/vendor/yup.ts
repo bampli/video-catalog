@@ -5,6 +5,7 @@ import { LocaleObject } from 'yup/lib/locale';
 const ptBR: LocaleObject = {
   mixed: {
     required: "${path} é requerido",
+    notType: "${path} é inválido"
   },
   string: {
     max: "${path} deve ter no máximo ${max} caracteres",

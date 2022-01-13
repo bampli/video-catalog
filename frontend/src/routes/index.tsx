@@ -1,11 +1,13 @@
 import {RouteProps} from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
 import CategoryList from "../pages/category/PageList";
-import CastMemberList from "../pages/cast-member/PageList";
-import GenreList from "../pages/genre/PageList";
 import CategoryForm from "../pages/category/PageForm";
-import CastMemberForm from "../pages/cast-member/PageForm";
+import GenreList from "../pages/genre/PageList";
 import GenreForm from "../pages/genre/PageForm";
+import CastMemberList from "../pages/cast-member/PageList";
+import CastMemberForm from "../pages/cast-member/PageForm";
+import VideoList from "../pages/video/PageList";
+import VideoForm from "../pages/video/PageForm";
 
 export interface myRouteProps extends RouteProps{
     name:string;
@@ -83,7 +85,27 @@ const routes: myRouteProps[]= [
         component: GenreForm,
         exact: true
     },
-    
+    {
+        name: 'videos.list',
+        label: 'Listar vídeos',
+        path: '/videos',
+        component: VideoList,
+        exact: true
+    },
+    {
+        name: 'videos.create',
+        label: 'Criar vídeo',
+        path: '/videos/create',
+        component: VideoForm,
+        exact: true
+    },
+    {
+        name: 'videos.edit',
+        label: 'Editar vídeo',
+        path: '/videos/:id/edit',
+        component: VideoForm,
+        exact: true
+    },    
     
 ]
 

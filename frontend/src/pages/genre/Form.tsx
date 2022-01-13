@@ -49,7 +49,7 @@ const Form = () => {
 
     useEffect(() => {
         let isSubscribed = true;
-        (async () => {    //iife
+        (async () => {    //iife: Immediately Invoked Function Expression 
             setLoading(true);
             const promises = [categoryHttp.list({queryParams: {all: ''}})];
             if (id) {
