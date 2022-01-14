@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Checkbox, FormControlLabel, Grid, TextField, Typography } from "@material-ui/core";
+import { Checkbox, FormControlLabel, Grid, TextField, Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from 'react';
 import videoHttp from '../../../util/http/video-http';
@@ -51,6 +51,8 @@ const Form = () => {
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
     const [video, setVideo] = useState<Video | null>(null);
+    const theme = useTheme();
+    const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
 
     useEffect(() => {
         ['rating', 'opened'].forEach(name => register(name));
@@ -193,6 +195,9 @@ const Form = () => {
                         setValue={(value) => setValue('rating', value, true)}
                         disabled={loading}
                         error={errors.rating}
+                        FormControlProps={{
+                            margin: isGreaterMd ? 'none' : 'normal'
+                        }}
                     />
                     <br />
                     Uploads
