@@ -1,14 +1,15 @@
 import * as React from 'react';
-import { Checkbox, FormControlLabel, Grid, MenuItem, TextField, Typography } from "@material-ui/core";
+import { Checkbox, FormControlLabel, Grid, TextField, Typography } from "@material-ui/core";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from 'react';
-import videoHttp from '../../util/http/video-http';
-import * as yup from '../../util/vendor/yup';
+import videoHttp from '../../../util/http/video-http';
+import * as yup from '../../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import { useSnackbar } from "notistack";
-import { Video } from "../../util/models";
-import SubmitActions from '../../components/SubmitActions';
-import { DefaultForm } from "../../components/DefaultForm";
+import { Video } from "../../../util/models";
+import SubmitActions from '../../../components/SubmitActions';
+import { DefaultForm } from "../../../components/DefaultForm";
+import RatingField from './RatingField';
 
 const validationSchema = yup.object().shape({
     title: yup.string()
@@ -39,7 +40,7 @@ const Form = () => {
         reset,
         watch,
         triggerValidation
-    } = useForm<{ title, description, year_launched, duration }>({
+    } = useForm<{ title, description, year_launched, rating, duration }>({
         validationSchema,
         defaultValues: {
         }
@@ -50,6 +51,10 @@ const Form = () => {
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
     const [video, setVideo] = useState<Video | null>(null);
+
+    useEffect(() => {
+        ['rating', 'opened'].forEach(name => register(name));
+    }, [register]);
 
     useEffect(() => {
         if (!id) {
@@ -183,7 +188,12 @@ const Form = () => {
                     Gêneros e Categorias
                 </Grid>
                 <Grid item xs={12} md={6}>
-                    Classificação
+                    <RatingField
+                        value={watch('rating')}
+                        setValue={(value) => setValue('rating', value, true)}
+                        disabled={loading}
+                        error={errors.rating}
+                    />
                     <br />
                     Uploads
                     <br />
