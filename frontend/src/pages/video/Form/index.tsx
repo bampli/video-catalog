@@ -1,15 +1,29 @@
 import * as React from 'react';
-import { Checkbox, FormControlLabel, Grid, TextField, Typography, useMediaQuery, useTheme } from "@material-ui/core";
+import {
+    Card, CardContent, Checkbox,
+    FormControlLabel, Grid, makeStyles,
+    TextField, Theme, Typography,
+    useMediaQuery, useTheme
+} from "@material-ui/core";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from 'react';
 import videoHttp from '../../../util/http/video-http';
 import * as yup from '../../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import { useSnackbar } from "notistack";
-import { Video } from "../../../util/models";
+import { Video, VideoFileFieldsMap } from "../../../util/models";
 import SubmitActions from '../../../components/SubmitActions';
 import { DefaultForm } from "../../../components/DefaultForm";
 import RatingField from './RatingField';
+import UploadField from './UploadField';
+
+const useStyles = makeStyles((theme: Theme) => ({
+    cardUpload: {
+        borderRadius: "4px",
+        backgroundColor: "#f5f5f5",
+        margin: theme.spacing(2, 0)
+    }
+}));
 
 const validationSchema = yup.object().shape({
     title: yup.string()
@@ -30,6 +44,8 @@ const validationSchema = yup.object().shape({
         .required(),
 });
 
+const fileFields = Object.keys(VideoFileFieldsMap);
+
 const Form = () => {
     const {
         register,
@@ -46,6 +62,7 @@ const Form = () => {
         }
     });
 
+    const classes = useStyles();
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
@@ -55,7 +72,7 @@ const Form = () => {
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
 
     useEffect(() => {
-        ['rating', 'opened'].forEach(name => register(name));
+        ['rating', 'opened', ...fileFields].forEach(name => register(name));
     }, [register]);
 
     useEffect(() => {
@@ -200,7 +217,44 @@ const Form = () => {
                         }}
                     />
                     <br />
-                    Uploads
+                    <Card className={classes.cardUpload}>
+                        <CardContent>
+                            <Typography color="primary" variant="h6">
+                                Imagens
+                            </Typography>
+                            <UploadField
+                                accept={'image/*'}
+                                label={'Thumb'}
+                                setValue={(value) => setValue('thumb_file', value)}
+                            />
+                            <UploadField
+                                accept={'image/*'}
+                                label={'Banner'}
+                                setValue={(value) => setValue('banner_file', value)}
+                            />
+                        </CardContent>
+                    </Card>
+                    <Card className={classes.cardUpload}>
+                        <CardContent>
+                            <Typography color="primary" variant="h6">
+                                Videos
+                            </Typography>
+                            <UploadField
+                                accept={'video/mp4'}
+                                label={'Trailer'}
+                                setValue={(value) => setValue('trailer_file', value)}
+                            />
+                            <UploadField
+                                accept={'video/mp4'}
+                                label={'Principal'}
+                                setValue={ (value) => {
+                                    setValue('video_file', value);
+                                    console.log(getValues());
+                                }}
+                            />
+                        </CardContent>
+                    </Card>
+
                     <br />
                     <FormControlLabel
                         disabled={loading}
