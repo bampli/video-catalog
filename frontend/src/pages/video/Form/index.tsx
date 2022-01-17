@@ -217,7 +217,7 @@ const Form = () => {
                         }
                         label={
                             <Typography color="primary" variant={"subtitle2"}>
-                                Quero que este conteúdo apareça em lançamentos
+                                Incluir este conteúdo em lançamentos
                             </Typography>
                         }
                         labelPlacement={'end'}

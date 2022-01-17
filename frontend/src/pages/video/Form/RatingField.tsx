@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, FormControl, FormControlLabel, FormControlLabelProps, FormControlProps, FormHelperText, FormLabel, Radio, RadioGroup, useMediaQuery } from '@material-ui/core';
+import { Box, FormControl, FormControlLabel, FormControlLabelProps, FormControlProps, FormHelperText, FormLabel, Radio, RadioGroup } from '@material-ui/core';
 import Rating from '../../../components/Rating';
 
 type RatingFieldProps = {
