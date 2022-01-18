@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Autocomplete, AutocompleteProps } from '@material-ui/lab';
-import { TextField } from '@material-ui/core';
+import { CircularProgress, TextField } from '@material-ui/core';
 import { TextFieldProps } from '@material-ui/core';
 
 interface AsyncAutocompleteProps {
@@ -11,6 +11,9 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
 
     const [open, setOpen] = useState(false);
     const [searchText, setsearchText] = useState("");
+    const [loading, setloading] = useState(false);
+    const [options, setoptions] = useState([]);
+
     const textFieldProps: TextFieldProps = {
         margin: 'normal',
         variant: 'outlined',
@@ -21,6 +24,10 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
 
     const autocompleteProps: AutocompleteProps<any, false, false, false> = {
         open,
+        options,
+        loading: loading,
+        loadingText: 'Carregando...',
+        noOptionsText: 'Nenhum item encontrado',
         onOpen() {
             setOpen(true);
         },
@@ -30,13 +37,23 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
         onInputChange(event, value) {
             setsearchText(value)
         },
-        renderInput: (params) => (
-            <TextField
-                {...params}
-                {...textFieldProps}
-            />
-        ),
-        options: []
+        renderInput: (params) => {
+            return (
+                <TextField
+                    {...params}
+                    {...textFieldProps}
+                    InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                            <>
+                                {loading && <CircularProgress color={'inherit'} size={20} />}
+                                {params.InputProps.endAdornment}
+                            </>
+                        )
+                    }}
+                />
+            )
+        },
     };
 
     return (
