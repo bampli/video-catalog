@@ -14,6 +14,7 @@ import { useSnackbar } from "notistack";
 import { Video, VideoFileFieldsMap } from "../../../util/models";
 import SubmitActions from '../../../components/SubmitActions';
 import { DefaultForm } from "../../../components/DefaultForm";
+import AsyncAutocomplete from "../../../components/AsyncAutocomplete";
 import RatingField from './RatingField';
 import UploadField from './UploadField';
 
@@ -204,7 +205,7 @@ const Form = () => {
                     </Grid>
                     Elenco
                     <br />
-                    Gêneros e Categorias
+                    <AsyncAutocomplete />
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <RatingField
@@ -247,7 +248,7 @@ const Form = () => {
                             <UploadField
                                 accept={'video/mp4'}
                                 label={'Principal'}
-                                setValue={ (value) => {
+                                setValue={(value) => {
                                     setValue('video_file', value);
                                     console.log(getValues());
                                 }}
