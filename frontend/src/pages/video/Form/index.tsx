@@ -214,6 +214,11 @@ const Form = () => {
                     <br />
                     <AsyncAutocomplete
                         fetchOptions={fetchOptions}
+                        AutocompleteProps={{
+                            freeSolo: true,
+                            getOptionLabel: option => option.name,
+                            options: []
+                        }}
                         TextFieldProps={{
                             label: 'Gêneros'
                         }}

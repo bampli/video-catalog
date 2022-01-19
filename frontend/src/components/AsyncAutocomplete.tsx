@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, AutocompleteProps } from '@material-ui/lab';
 import { CircularProgress, TextField } from '@material-ui/core';
-import { TextFieldProps } from '@material-ui/core';
+import { TextFieldProps } from '@material-ui/core/TextField';
 import { useSnackbar } from "notistack";
 
-interface AsyncAutocompleteProps {
+interface AsyncAutocompleteProps<
+    T,
+    Multiple extends boolean | undefined,
+    DisableClearable extends boolean | undefined,
+    FreeSolo extends boolean | undefined
+    > {
     fetchOptions: (searchText) => Promise<any>
     TextFieldProps?: TextFieldProps
+    AutocompleteProps?: Omit<AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>, 'renderInput'>
 }
 
-const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
+const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefined, boolean>> = (props) => {
 
+    const { AutocompleteProps } = props;
+    const { freeSolo, onOpen, onClose, onInputChange } = AutocompleteProps as any;
     const [open, setOpen] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [loading, setLoading] = useState(false);
     const [options, setOptions] = useState([]);
+
     const snackBar = useSnackbar();
 
     const textFieldProps: TextFieldProps = {
@@ -25,21 +34,25 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
         ...(props.TextFieldProps && { ...props.TextFieldProps })
     };
 
-    const autocompleteProps: AutocompleteProps<any, false, false, true> = {
+    const autocompleteProps: AutocompleteProps<any, undefined, undefined, boolean> = {
+        loadingText: 'Carregando...',
+        noOptionsText: 'Nenhum item encontrado',
+        ...(AutocompleteProps && { ...AutocompleteProps }),
         open,
         options,
         loading: loading,
-        inputValue: searchText,
-        loadingText: 'Carregando...',
-        noOptionsText: 'Nenhum item encontrado',
+        // inputValue: searchText,
         onOpen() {
             setOpen(true);
+            onOpen && onOpen(); // allow override by caller
         },
         onClose() {
             setOpen(false);
+            onClose && onClose(); // allow override by caller
         },
         onInputChange(event, value) {
-            setSearchText(value)
+            setSearchText(value);
+            onInputChange && onInputChange(); // allow override by caller
         },
         renderInput: (params) => {
             return (
@@ -61,22 +74,25 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
     };
 
     useEffect(() => {
+        console.log("useEffect-1", open, searchText, freeSolo);
+        if (!open || (searchText === "" && freeSolo)) {
+            return;
+        }
         let isSubscribed = true;
         (async () => {
             setLoading(true);
             try {
-                const { data } = await props.fetchOptions(searchText);
+                const data = await props.fetchOptions(searchText);
                 if (isSubscribed) {
-                    console.log("useEffect", data);
-                    setOptions(data);
-                    // setOptions(data.data);                    
+                    console.log("useEffect-2", data);
+                    setOptions(data);                   
                 }
             } catch (error) {
                 console.error(error);
                 snackBar.enqueueSnackbar(
                     'Não foi possível carregar as informações',
                     { variant: 'error' }
-                );
+                )
             } finally {
                 setLoading(false);
             }
@@ -84,8 +100,8 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
         return () => {
             isSubscribed = false;
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchText]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [freeSolo ? searchText : open]);
 
     return (
         <Autocomplete {...autocompleteProps} />
