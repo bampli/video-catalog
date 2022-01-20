@@ -80,6 +80,13 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefin
         },
     };
 
+    useEffect( () => {
+        if (!open && !freeSolo) {
+            setOptions([])
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open]);
+
     useEffect(() => {
         console.log("useEffect-1", open, searchText, freeSolo);
         if (!open || (searchText === "" && freeSolo)) {
