@@ -31,8 +31,6 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefin
     const [loading, setLoading] = useState(false);
     const [options, setOptions] = useState([]);
 
-    const snackBar = useSnackbar();
-
     const textFieldProps: TextFieldProps = {
         margin: 'normal',
         variant: 'outlined',

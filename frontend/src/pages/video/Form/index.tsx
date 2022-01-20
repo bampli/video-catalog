@@ -14,13 +14,11 @@ import { useSnackbar } from "notistack";
 import { Video, VideoFileFieldsMap } from "../../../util/models";
 import SubmitActions from '../../../components/SubmitActions';
 import { DefaultForm } from "../../../components/DefaultForm";
-import AsyncAutocomplete from "../../../components/AsyncAutocomplete";
-import GridSelected from "../../../components/GridSelected";
-import GridSelectedItem from "../../../components/GridSelectedItem";
+
 import RatingField from './RatingField';
 import UploadField from './UploadField';
-import genreHttp from '../../../util/http/genre-http';
-import useHttpHandled from '../../../hooks/useHttpHandled';
+import GenreField from './GenreField';
+import CategoryField from './CategoryField';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -143,22 +141,6 @@ const Form = () => {
         }
     }
 
-    const autocompleteHttp = useHttpHandled();
-    const fetchOptions = (searchText) => autocompleteHttp(
-        genreHttp
-            .list({
-                queryParams: {
-                    search: searchText, all: ""
-                }
-            })
-    ).then(data => data.data).catch(error => console.error(error, searchText));
-
-    // const fetchOptions = (searchText) => genreHttp.list({
-    //     queryParams: {
-    //         search: searchText, all: ""
-    //     }
-    // }).then(({data}) => data.data);
-
     return (
         <DefaultForm
             GridItemProps={{ xs: 12 }}
@@ -225,22 +207,15 @@ const Form = () => {
                     </Grid>
                     Elenco
                     <br />
-                    <AsyncAutocomplete
-                        fetchOptions={fetchOptions}
-                        AutocompleteProps={{
-                            freeSolo: true,
-                            getOptionLabel: option => option.name,
-                            options: []
-                        }}
-                        TextFieldProps={{
-                            label: 'Gêneros'
-                        }}
-                    />
-                    <GridSelected>
-                        <GridSelectedItem onDelete={() => { }}>
-                            Gênero 1
-                        </GridSelectedItem>
-                    </GridSelected>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={6}>
+                            <GenreField />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <CategoryField />
+                        </Grid>
+                    </Grid>
+
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <RatingField
