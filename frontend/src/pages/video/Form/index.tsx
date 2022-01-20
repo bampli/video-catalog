@@ -15,6 +15,8 @@ import { Video, VideoFileFieldsMap } from "../../../util/models";
 import SubmitActions from '../../../components/SubmitActions';
 import { DefaultForm } from "../../../components/DefaultForm";
 import AsyncAutocomplete from "../../../components/AsyncAutocomplete";
+import GridSelected from "../../../components/GridSelected";
+import GridSelectedItem from "../../../components/GridSelectedItem";
 import RatingField from './RatingField';
 import UploadField from './UploadField';
 import genreHttp from '../../../util/http/genre-http';
@@ -223,6 +225,11 @@ const Form = () => {
                             label: 'Gêneros'
                         }}
                     />
+                    <GridSelected>
+                        <GridSelectedItem onDelete={() => {}}>
+                            Gênero 1
+                        </GridSelectedItem>
+                    </GridSelected>
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <RatingField
