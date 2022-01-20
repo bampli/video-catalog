@@ -12,7 +12,14 @@ interface AsyncAutocompleteProps<
     > {
     fetchOptions: (searchText) => Promise<any>
     TextFieldProps?: TextFieldProps
-    AutocompleteProps?: Omit<AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>, 'renderInput'>
+    AutocompleteProps?: Omit<
+        AutocompleteProps<
+            T,
+            Multiple,
+            DisableClearable,
+            FreeSolo
+        >, 'renderInput'
+    >
 }
 
 const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefined, boolean>> = (props) => {
@@ -85,7 +92,7 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefin
                 const data = await props.fetchOptions(searchText);
                 if (isSubscribed) {
                     console.log("useEffect-2", data);
-                    setOptions(data);                   
+                    setOptions(data);
                 }
             } catch (error) {
                 console.error(error);
