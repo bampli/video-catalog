@@ -20,6 +20,7 @@ import GridSelectedItem from "../../../components/GridSelectedItem";
 import RatingField from './RatingField';
 import UploadField from './UploadField';
 import genreHttp from '../../../util/http/genre-http';
+import useHttpHandled from '../../../hooks/useHttpHandled';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -141,12 +142,22 @@ const Form = () => {
             setLoading(false);
         }
     }
-    
-    const fetchOptions = (searchText) => genreHttp.list({
-        queryParams: {
-            search: searchText, all: ""
-        }
-    }).then(({data}) => data.data);
+
+    const autocompleteHttp = useHttpHandled();
+    const fetchOptions = (searchText) => autocompleteHttp(
+        genreHttp
+            .list({
+                queryParams: {
+                    search: searchText, all: ""
+                }
+            })
+    ).then(data => data.data).catch(error => console.error(error, searchText));
+
+    // const fetchOptions = (searchText) => genreHttp.list({
+    //     queryParams: {
+    //         search: searchText, all: ""
+    //     }
+    // }).then(({data}) => data.data);
 
     return (
         <DefaultForm
@@ -226,7 +237,7 @@ const Form = () => {
                         }}
                     />
                     <GridSelected>
-                        <GridSelectedItem onDelete={() => {}}>
+                        <GridSelectedItem onDelete={() => { }}>
                             Gênero 1
                         </GridSelectedItem>
                     </GridSelected>

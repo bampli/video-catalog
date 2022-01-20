@@ -88,7 +88,7 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefin
     }, [open]);
 
     useEffect(() => {
-        console.log("useEffect-1", open, searchText, freeSolo);
+        //console.log("useEffect-1", open, searchText, freeSolo);
         if (!open || (searchText === "" && freeSolo)) {
             return;
         }
@@ -98,15 +98,9 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefin
             try {
                 const data = await props.fetchOptions(searchText);
                 if (isSubscribed) {
-                    console.log("useEffect-2", data);
+                    //console.log("useEffect-2", data);
                     setOptions(data);
                 }
-            } catch (error) {
-                console.error(error);
-                snackBar.enqueueSnackbar(
-                    'Não foi possível carregar as informações',
-                    { variant: 'error' }
-                )
             } finally {
                 setLoading(false);
             }
