@@ -46,8 +46,9 @@ gcloud kms decrypt
 ```
 material-ui/core @4.12.3
 material-ui/icons @4.11.2
-material-ui/lab@4.0.0-alpha.60
+material-ui/lab @4.0.0-alpha.60
 notistack @1.0.10
+react-hook-form @5.7.2
 redux @4.1.2
 reduxsauce @1.2.1
 use-debounce @7.0.1
