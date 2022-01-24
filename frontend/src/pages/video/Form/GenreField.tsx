@@ -4,7 +4,7 @@ import GridSelected from "../../../components/GridSelected";
 import GridSelectedItem from "../../../components/GridSelectedItem";
 import genreHttp from '../../../util/http/genre-http';
 import useHttpHandled from '../../../hooks/useHttpHandled';
-import { Grid, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import useCollectionManager from '../../../hooks/useCollectionManager';
 
 interface GenreFieldProps {
@@ -23,7 +23,8 @@ const GenreField: React.FC<GenreFieldProps> = (props) => {
             genreHttp
                 .list({
                     queryParams: {
-                        search: searchText, all: ""
+                        search: searchText,
+                        all: ""
                     }
                 })
         ).then(data => data.data).catch(error => console.error(error, searchText));

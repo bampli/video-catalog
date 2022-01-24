@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
     Card, CardContent, Checkbox,
-    FormControlLabel, Grid, makeStyles,
+    FormControlLabel, FormHelperText, Grid, makeStyles,
     TextField, Theme, Typography,
     useMediaQuery, useTheme
 } from "@material-ui/core";
@@ -59,10 +59,11 @@ const Form = () => {
         reset,
         watch,
         triggerValidation
-    } = useForm<{ title, description, year_launched, rating, duration, genres }>({
+    } = useForm<{ title, description, year_launched, rating, duration, genres, categories }>({
         validationSchema,
         defaultValues: {
-            genres: []
+            genres: [],
+            categories: []
         }
     });
 
@@ -76,7 +77,13 @@ const Form = () => {
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
 
     useEffect(() => {
-        ['rating', 'opened', 'genres', ...fileFields].forEach(name => register(name));
+        [
+            'rating',
+            'opened',
+            'genres',
+            'categories',
+            ...fileFields
+        ].forEach(name => register(name));
     }, [register]);
 
     useEffect(() => {
@@ -211,12 +218,24 @@ const Form = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <GenreField
-                            genres={watch('genres')}
-                            setGenres={(value) => setValue('genres', value, true)}
+                                genres={watch('genres')}
+                                setGenres={(value) => setValue('genres', value, true)}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <CategoryField />
+                            <CategoryField
+                                categories={watch('categories')}
+                                setCategories={(value) => setValue('categories', value, true)}
+                                genres={watch('genres')}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <FormHelperText>
+                                Escolha os gêneros do vídeo
+                            </FormHelperText>
+                            <FormHelperText>
+                                Escolha pelo menos uma categoria de cada gênero
+                            </FormHelperText>
                         </Grid>
                     </Grid>
 

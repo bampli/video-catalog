@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Autocomplete, AutocompleteProps } from '@material-ui/lab';
 import { CircularProgress, TextField } from '@material-ui/core';
 import { TextFieldProps } from '@material-ui/core/TextField';
-import { useSnackbar } from "notistack";
 
 interface AsyncAutocompleteProps<
     T,
