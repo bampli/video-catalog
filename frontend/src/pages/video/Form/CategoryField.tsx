@@ -31,7 +31,6 @@ const CategoryField: React.FC<CategoryFieldProps> = (props) => {
     const { categories, setCategories, genres, error, disabled } = props;
     const classes = useStyles();
     const autocompleteHttp = useHttpHandled();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { addItem, removeItem } = useCollectionManager(categories, setCategories);
 
     function fetchOptions(searchText) {
