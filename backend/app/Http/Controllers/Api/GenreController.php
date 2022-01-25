@@ -81,6 +81,6 @@ class GenreController extends BasicCrudController
 
     protected function queryBuilder(): Builder
     {
-        return parent::queryBuilder();
+        return parent::queryBuilder()->with('categories');
     }
 }

@@ -7,10 +7,13 @@ import useHttpHandled from '../../../hooks/useHttpHandled';
 import { FormControl, FormControlProps, FormHelperText, Typography } from "@material-ui/core";
 
 import useCollectionManager from '../../../hooks/useCollectionManager';
+import { getGenresFromCategory } from '../../../util/model-filters';
 
 interface GenreFieldProps {
     genres: any[],
     setGenres: (genres) => void,
+    categories: any[],
+    setCategories: (categories) => void,
     error: any,
     disabled: boolean;
     FormControlProps?: FormControlProps
@@ -18,10 +21,17 @@ interface GenreFieldProps {
 
 const GenreField: React.FC<GenreFieldProps> = (props) => {
 
-    const { genres, setGenres, error, disabled } = props;
+    const {
+        genres,
+        setGenres,
+        categories,
+        setCategories,
+        error,
+        disabled
+    } = props;
     const autocompleteHttp = useHttpHandled();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { addItem, removeItem } = useCollectionManager(genres, setGenres);
+    const { removeItem: removeCategory } = useCollectionManager(categories, setCategories);
 
     function fetchOptions(searchText) {
         return autocompleteHttp(
@@ -67,9 +77,18 @@ const GenreField: React.FC<GenreFieldProps> = (props) => {
                 <GridSelected>
                     {
                         genres.map((genre, key) => (
-                            <GridSelectedItem key={key} onDelete={() => {
-                                console.log('clicked delete')
-                            }} xs={12}>
+                            <GridSelectedItem
+                                key={key}
+                                onDelete={() => {
+                                    const categoriesWithOneGenre = categories
+                                        .filter(category => {
+                                            const genresFromCategory = getGenresFromCategory(genres, category);
+                                            return genresFromCategory.length === 1 && genres[0].id === genre.id
+                                        });
+                                    categoriesWithOneGenre.forEach(cat =>removeCategory(cat));
+                                    removeItem(genre);
+                            }} xs={12}
+                            >
                                 <Typography noWrap={true}>
                                     {genre.name}
                                 </Typography>
