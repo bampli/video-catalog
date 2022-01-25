@@ -13,6 +13,9 @@ const ptBR: LocaleObject = {
   number: {
     min: "${path} deve ser no mínimo ${min}",
   },
+  array: {
+    min: "${path} deve ter pelo menos ${min} elemento(s)",
+  },
 };
 
 setLocale(ptBR);

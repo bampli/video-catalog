@@ -19,6 +19,7 @@ import RatingField from './RatingField';
 import UploadField from './UploadField';
 import GenreField from './GenreField';
 import CategoryField from './CategoryField';
+//import { Category, Genre } from "../../../util/models";
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -42,6 +43,14 @@ const validationSchema = yup.object().shape({
     duration: yup.number()
         .label('Duração')
         .required().min(1), // original backend added min:1 rule
+    genres: yup.array()
+        .label('Gêneros')
+        .required()
+        .min(1),
+    categories: yup.array()
+        .label('Categorias')
+        .required()
+        .min(1),
     rating: yup.string()
         .label('Classificação')
         .required(),
@@ -59,7 +68,7 @@ const Form = () => {
         reset,
         watch,
         triggerValidation
-    } = useForm<{ title, description, year_launched, rating, duration, genres, categories }>({
+    } = useForm<{ title, description, year_launched, duration, genres, categories, rating }>({
         validationSchema,
         defaultValues: {
             genres: [],
@@ -149,6 +158,8 @@ const Form = () => {
         }
     }
 
+    //console.log("index", errors);
+
     return (
         <DefaultForm
             GridItemProps={{ xs: 12 }}
@@ -220,13 +231,18 @@ const Form = () => {
                             <GenreField
                                 genres={watch('genres')}
                                 setGenres={(value) => setValue('genres', value, true)}
+                                error={errors.genres}
+                                disabled={loading}
                             />
                         </Grid>
+                        
                         <Grid item xs={12} md={6}>
                             <CategoryField
                                 categories={watch('categories')}
                                 setCategories={(value) => setValue('categories', value, true)}
                                 genres={watch('genres')}
+                                error={errors.categories}
+                                disabled={loading}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -238,7 +254,6 @@ const Form = () => {
                             </FormHelperText>
                         </Grid>
                     </Grid>
-
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <RatingField
@@ -283,7 +298,7 @@ const Form = () => {
                                 label={'Principal'}
                                 setValue={(value) => {
                                     setValue('video_file', value);
-                                    console.log(getValues());
+                                    //console.log(getValues());
                                 }}
                             />
                         </CardContent>
