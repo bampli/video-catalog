@@ -19,13 +19,23 @@ import RatingField from './RatingField';
 import UploadField from './UploadField';
 import GenreField from './GenreField';
 import CategoryField from './CategoryField';
+import CastMemberField from './CastMemberField';
 //import { Category, Genre } from "../../../util/models";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import {omit, zipObject} from 'lodash';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
         borderRadius: "4px",
         backgroundColor: "#f5f5f5",
         margin: theme.spacing(2, 0)
+    },
+    cardOpened: {
+        borderRadius: "4px",
+        backgroundColor: "#F5F5F5"
+    },
+    cardContentOpened: {
+        paddingBottom: theme.spacing(2) + 'px !important'
     }
 }));
 
@@ -51,6 +61,10 @@ const validationSchema = yup.object().shape({
         .label('Categorias')
         .required()
         .min(1),
+    cast_members: yup.array()
+        .label('Membros do elenco')
+        .required()
+        .min(1),
     rating: yup.string()
         .label('Classificação')
         .required(),
@@ -68,11 +82,13 @@ const Form = () => {
         reset,
         watch,
         triggerValidation
-    } = useForm<{ title, description, year_launched, duration, genres, categories, rating }>({
+    } = useForm<{ title, description, year_launched, duration, genres, categories, cast_members, rating }>({
         validationSchema,
         defaultValues: {
+            rating: null,
             genres: [],
-            categories: []
+            categories: [],
+            cast_members: [],
         }
     });
 
@@ -91,6 +107,7 @@ const Form = () => {
             'opened',
             'genres',
             'categories',
+            'cast_members',
             ...fileFields
         ].forEach(name => register(name));
     }, [register]);
@@ -127,26 +144,30 @@ const Form = () => {
 
     async function onSubmit(formData, event) {
         setLoading(true);
+        const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
+        sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
+        sendData['categories_id'] = formData['categories'].map(category => category.id);
+        sendData['genres_id'] = formData['genres'].map(genre => genre.id);
+
         try {
             const http = !video
                 ? videoHttp.create(formData)
-                : videoHttp.update(video.id, formData);
+                : videoHttp.update(video.id, {...sendData}); //, _method: 'PUT'}, {http: {}});
             const { data } = await http;
             snackBar.enqueueSnackbar(
                 'Vídeo salvo com sucesso',
                 { variant: 'success' }
             );
+            id && resetForm(video);
             setTimeout(() => {     //avoid no-op warning about side effect
                 event
                     ? ( //save & edit
-                        id
-                            ? history.replace(`/videos/${data.data.id}/edit`)   //videos/<id>/edit
-                            : history.push(`/videos/${data.data.id}/edit`)      //videos/create
+                        !id && history.push(`/videos/${data.data.id}/edit`)      //videos/create
                     )
                     : ( //videos
                         history.push('/videos')
                     )
-            })
+            });
         } catch (error) {
             console.error(error);
             snackBar.enqueueSnackbar(
@@ -156,6 +177,12 @@ const Form = () => {
         } finally {
             setLoading(false);
         }
+    }
+
+    function resetForm(data) {
+        // Object.keys(uploadsRef.current).forEach(
+        //     field => uploadsRef.current[field].current.clear()
+        // )
     }
 
     //console.log("index", errors);
@@ -224,8 +251,16 @@ const Form = () => {
                             />
                         </Grid>
                     </Grid>
-                    Elenco
-                    <br />
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <CastMemberField
+                                castMembers={watch('cast_members')}
+                                setCastMembers={(value) => setValue('cast_members', value, true)}
+                                error={errors.cast_members}
+                                disabled={loading}
+                            />
+                        </Grid>
+                    </Grid>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <GenreField
@@ -237,7 +272,7 @@ const Form = () => {
                                 disabled={loading}
                             />
                         </Grid>
-                        
+
                         <Grid item xs={12} md={6}>
                             <CategoryField
                                 categories={watch('categories')}
@@ -306,27 +341,30 @@ const Form = () => {
                         </CardContent>
                     </Card>
 
-                    <br />
-                    <FormControlLabel
-                        disabled={loading}
-                        control={
-                            <Checkbox
-                                name="opened"
-                                color={"primary"}
-                                onChange={
-                                    () => setValue('opened', !getValues()['opened'])
-                                }
-                                checked={watch('opened')}
+                    <Card className={classes.cardOpened}>
+                        <CardContent className={classes.cardContentOpened}>
+                            <FormControlLabel
                                 disabled={loading}
+                                control={
+                                    <Checkbox
+                                        name="opened"
+                                        color={"primary"}
+                                        onChange={
+                                            () => setValue('opened', !getValues()['opened'])
+                                        }
+                                        checked={watch('opened')}
+                                        disabled={loading}
+                                    />
+                                }
+                                label={
+                                    <Typography color="primary" variant={"subtitle2"}>
+                                        Incluir este conteúdo em lançamentos
+                                    </Typography>
+                                }
+                                labelPlacement={'end'}
                             />
-                        }
-                        label={
-                            <Typography color="primary" variant={"subtitle2"}>
-                                Incluir este conteúdo em lançamentos
-                            </Typography>
-                        }
-                        labelPlacement={'end'}
-                    />
+                        </CardContent>
+                    </Card>
                 </Grid>
             </Grid>
             <SubmitActions

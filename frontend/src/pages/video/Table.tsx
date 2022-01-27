@@ -1,17 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import FormatISODate from "../../util/FormatISODate";
-import categoryHttp from '../../util/http/category-http';
-import genreHttp from '../../util/http/genre-http';
-import { BadgeNo, BadgeYes } from '../../components/Badge';
-import { Category, Genre, ListResponse } from "../../util/models";
+import videoHttp from '../../util/http/video-http';
+import { ListResponse, Video } from "../../util/models";
 import DefaultTable, { makeActionStyles, MuiDataTableRefComponent, TableColumn } from "../../components/Table";
 import { useSnackbar } from 'notistack';
 import { IconButton, MuiThemeProvider } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
-import * as yup from '../../util/vendor/yup';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
-import { Creators } from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
 
 const columnsDefinition: TableColumn[] = [
@@ -25,37 +21,36 @@ const columnsDefinition: TableColumn[] = [
         }
     },
     {
-        name: "name",
-        label: "Nome",
-        width: "30%",
+        name: "title",
+        label: "Título",
+        width: "20%",
         options: {
             filter: false
         }
     },
     {
-        name: "categories",
-        label: "Categorias",
-        width: "30%",
+        name: "genres",
+        label: "Gêneros",
+        width: "13%",
         options: {
-            filterType: 'multiselect',
-            filterOptions: {
-                names: []
-            },
+            sort: false,
+            filter: false,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return value.map(value => value.name).join(", ");
             },
         }
     },
     {
-        name: "is_active",
-        label: "Ativo?",
+        name: "categories",
+        label: "Categorias",
+        width: "12%",
         options: {
+            sort: false,
             filter: false,
-            customBodyRender(value, tableMeta, updateValue) {
-                return value ? <BadgeYes /> : <BadgeNo />;
-            }
-        },
-        width: "4%",
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return value.map(value => value.name).join(", ");
+            },
+        }
     },
     {
         name: "created_at",
@@ -81,7 +76,7 @@ const columnsDefinition: TableColumn[] = [
                     <IconButton
                         color={'secondary'}
                         component={Link}
-                        to={`/genres/${tableMeta.rowData[0]}/edit`}
+                        to={`/videos/${tableMeta.rowData[0]}/edit`}
                     >
                         <EditIcon />
                     </IconButton>
@@ -96,41 +91,11 @@ const debounceSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
 
-const extraFilter = {
-    createValidationSchema: () => {
-        return yup.object().shape({
-            type: yup.mixed()
-                .nullable()
-                .transform(value => {
-                    return !value || value === '' ? undefined : value.split(',');
-                })
-                .default(null)
-        })
-    },
-    formatSearchParams: (debouncedState) => {
-        return debouncedState.extraFilter
-            ? {
-                ...(
-                    debouncedState.extraFilter.categories &&
-                    { categories: debouncedState.extraFilter.categories.join(',') }
-                ),
-            }
-            : undefined
-    },
-    getStateFromURL: (queryParams) => {
-        return {
-            categories: queryParams.get('categories')
-        }
-    }
-}
-
 const Table = () => {
 
     const snackbar = useSnackbar();
     const subscribed = useRef(true);
-    const [data, setData] = useState<Genre[]>([]);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [data, setData] = useState<Video[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
 
@@ -139,6 +104,7 @@ const Table = () => {
         filterManager,
         filterState,
         debouncedFilterState,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         dispatch,
         totalRecords,
         setTotalRecords,
@@ -148,42 +114,7 @@ const Table = () => {
         rowsPerPage,
         rowsPerPageOptions,
         tableRef,
-        extraFilter
     });
-
-    const indexColumnCategories = columns.findIndex(c => c.name === 'categories');
-    const columnCategories = columns[indexColumnCategories];
-    const categoriesFilterValue = filterState.extraFilter && filterState.extraFilter.categories;
-    (columnCategories.options as any).filterList = categoriesFilterValue ? categoriesFilterValue : [];
-    // console.log(
-    //     "Table: categoriesFilterValue ", categoriesFilterValue,
-    //     "filterList", (columnCategories.options as any).filterList
-    // );
-
-    useEffect(() => {
-        let isSubscribed = true;
-        (async () => {
-            try {
-                const { data } = await categoryHttp.list({ queryParams: { all: '' } });
-                if (isSubscribed) {
-                    setCategories(data.data);
-                    (columnCategories.options as any)
-                        .filterOptions.names = data.data.map(category => category.name)
-                }
-            } catch (error) {
-                console.error(error);
-                snackbar.enqueueSnackbar(
-                    'Não foi possível carregar categorias',
-                    { variant: 'error' }
-                );
-            }
-        })();
-
-        return () => {
-            isSubscribed = false;
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     useEffect(() => {
         subscribed.current = true;
@@ -199,54 +130,32 @@ const Table = () => {
         debouncedFilterState.pagination.page,
         debouncedFilterState.pagination.per_page,
         debouncedFilterState.order,
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        JSON.stringify(debouncedFilterState.extraFilter)
     ]);
 
     async function getData() {
         setLoading(true);
         try {
             //console.log("debouncedFilterState", debouncedFilterState);
-            const { data } = await genreHttp.list<ListResponse<Genre>>({
+            const { data } = await videoHttp.list<ListResponse<Video>>({
                 queryParams: {
                     search: filterManager.cleanSearchText(debouncedFilterState.search),
                     page: debouncedFilterState.pagination.page,
                     per_page: debouncedFilterState.pagination.per_page,
                     sort: debouncedFilterState.order.sort,
                     dir: debouncedFilterState.order.dir,
-                    ...(
-                        debouncedFilterState.extraFilter &&
-                        debouncedFilterState.extraFilter.categories &&
-                        {categories: debouncedFilterState.extraFilter.categories.join(',')}
-                    )
                 }
-            });
-            // console.log("getData: queryParams", {
-            //     queryParams: {
-            //         search: filterManager.cleanSearchText(debouncedFilterState.search),
-            //         page: debouncedFilterState.pagination.page,
-            //         per_page: debouncedFilterState.pagination.per_page,
-            //         sort: debouncedFilterState.order.sort,
-            //         dir: debouncedFilterState.order.dir,
-            //         ...(
-            //             debouncedFilterState.extraFilter &&
-            //             debouncedFilterState.extraFilter.categories &&
-            //             {categories: debouncedFilterState.extraFilter.categories.join(',')}
-            //         )
-            //     }
-            // });
-            
+            });            
             if (subscribed.current) {   // do not change when dismounting
                 setData(data.data);
                 setTotalRecords(data.meta.total);
             }
         } catch (error) {
             console.error(error);
-            if (genreHttp.isCancelledRequest(error)) {
+            if (videoHttp.isCancelledRequest(error)) {
                 return;
             }
             snackbar.enqueueSnackbar(
-                'Não foi possível carregar gêneros',
+                'Não foi possível carregar vídeos',
                 { variant: 'error' }
             );
         } finally {
@@ -257,7 +166,7 @@ const Table = () => {
     return (
         <MuiThemeProvider theme={makeActionStyles(columnsDefinition.length - 1)}>
             <DefaultTable
-                title="Lista gêneros"
+                title=""
                 columns={columns}
                 data={data}
                 loading={loading}
@@ -271,18 +180,9 @@ const Table = () => {
                     rowsPerPage: filterState.pagination.per_page,
                     rowsPerPageOptions,
                     count: totalRecords,
-                    onFilterChange: (column, filterList, type) => {
-                        const columnIndex = columns.findIndex(c => c.name === column);
-                        //console.log("onFilterChange:", "column", column, "filterList", filterList);
-                        filterManager.changeExtraFilter({
-                            [column as string]: filterList[columnIndex].length ? filterList[columnIndex] : null
-                        })
-                    },
                     customToolbar: () => (
                         <FilterResetButton
-                            handleClick={() => {
-                                dispatch(Creators.setReset({ state: filterState }));
-                            }}
+                            handleClick={() => filterManager.resetFilter()}
                         />
                     ),
                     onSearchChange: (value) => filterManager.changeSearch(value),
