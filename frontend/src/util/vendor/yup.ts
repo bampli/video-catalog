@@ -1,6 +1,7 @@
 /* eslint-disable no-template-curly-in-string */
 import { setLocale } from 'yup';
 import { LocaleObject } from 'yup/lib/locale';
+//import { addMethod, number, NumberSchema } from 'yup';
 
 const ptBR: LocaleObject = {
   mixed: {
@@ -19,5 +20,15 @@ const ptBR: LocaleObject = {
 };
 
 setLocale(ptBR);
+
+// Global yup method for number
+// addMethod<NumberSchema>(number, 'xpto', function(){
+//   return this.test({
+//     message: 'error message',
+//     test(value) {
+//       return true;
+//     }
+//   })
+// })
 
 export * from 'yup';
