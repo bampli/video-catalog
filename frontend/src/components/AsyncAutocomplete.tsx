@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { RefAttributes, useEffect, useImperativeHandle, useState } from 'react';
 import { Autocomplete, AutocompleteProps } from '@material-ui/lab';
 import { CircularProgress, TextField } from '@material-ui/core';
 import { TextFieldProps } from '@material-ui/core/TextField';
@@ -9,7 +9,7 @@ interface AsyncAutocompleteProps<
     Multiple extends boolean | undefined,
     DisableClearable extends boolean | undefined,
     FreeSolo extends boolean | undefined
-    > {
+    > extends RefAttributes<AsyncAutocompleteComponent>{
     fetchOptions: (searchText) => Promise<any>;
     debounceTime?: number;
     TextFieldProps?: TextFieldProps;
@@ -23,9 +23,20 @@ interface AsyncAutocompleteProps<
     >;
 }
 
-const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefined, boolean>> = (props) => {
+export interface AsyncAutocompleteComponent {
+    clear: () => void;
+}
 
-    const { AutocompleteProps, debounceTime = 300 } = props;
+const AsyncAutocomplete =
+    React.forwardRef<
+        AsyncAutocompleteComponent,
+        AsyncAutocompleteProps<any, undefined, undefined, boolean>
+    >((props, ref) => {
+
+    const {
+        AutocompleteProps,
+        debounceTime = 300
+    } = props;
     const { freeSolo, onOpen, onClose, onInputChange } = AutocompleteProps as any;
     const [open, setOpen] = useState(false);
     const [searchText, setSearchText] = useState("");
@@ -48,7 +59,7 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefin
         open,
         options,
         loading: loading,
-        // inputValue: searchText,
+        inputValue: searchText, // assures that typing is sent to textField
         onOpen() {
             setOpen(true);
             onOpen && onOpen(); // allow override by caller
@@ -111,9 +122,16 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps<any, undefined, undefin
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [freeSolo ? debouncedSearchText : open]);
 
+    useImperativeHandle(ref, () => ({
+        clear: () => {
+            setSearchText("");
+            setOptions([]);
+        }
+    }));
+
     return (
         <Autocomplete {...autocompleteProps} />
     )
-};
+});
 
 export default AsyncAutocomplete;

@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { InputAdornment, TextField, TextFieldProps } from '@material-ui/core';
-import { useImperativeHandle, useRef, useState } from 'react';
+import { RefAttributes, useImperativeHandle, useRef, useState } from 'react';
+//import { MutableRefObject, RefAttributes, useImperativeHandle, useRef } from "react";
 
-export interface InputFileProps {
+export interface InputFileProps extends RefAttributes<InputFileComponent>{
     ButtonFile: React.ReactNode;
     InputFileProps?: React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
     TextFieldProps?: TextFieldProps;
@@ -10,6 +11,7 @@ export interface InputFileProps {
 
 export interface InputFileComponent {
     openWindow: () => void
+    clear: () => void
 };
 
 const InputFile = React.forwardRef<InputFileComponent, InputFileProps>((props, ref) => {
@@ -28,14 +30,6 @@ const InputFile = React.forwardRef<InputFileComponent, InputFileProps>((props, r
             endAdornment: (
                 <InputAdornment position={'end'}>
                     {props.ButtonFile}
-                    {/* <Button
-                        endIcon={<CloudUploadIcon />}
-                        variant={'contained'}
-                        color={'primary'}
-                        onClick={() => fileRef.current.click()}
-                    >
-                        Adicionar
-                    </Button> */}
                 </InputAdornment>
             )
         },
@@ -61,7 +55,8 @@ const InputFile = React.forwardRef<InputFileComponent, InputFileProps>((props, r
     }
 
     useImperativeHandle(ref, () => ({
-        openWindow: () => fileRef.current.click()
+        openWindow: () => fileRef.current.click(),
+        clear: () => setFilename("")
     }));
 
     return (

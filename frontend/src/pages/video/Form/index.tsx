@@ -6,7 +6,7 @@ import {
     useMediaQuery, useTheme
 } from "@material-ui/core";
 import { useForm } from "react-hook-form";
-import { useState, useEffect } from 'react';
+import { createRef, useState, useEffect, useRef } from 'react';
 import videoHttp from '../../../util/http/video-http';
 import * as yup from '../../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
@@ -17,12 +17,12 @@ import { DefaultForm } from "../../../components/DefaultForm";
 
 import RatingField from './RatingField';
 import UploadField from './UploadField';
-import GenreField from './GenreField';
-import CategoryField from './CategoryField';
-import CastMemberField from './CastMemberField';
+import GenreField, { GenreFieldComponent } from './GenreField';
+import CategoryField, { CategoryFieldComponent } from './CategoryField';
+import CastMemberField, { CastMemberFieldComponent } from './CastMemberField';
 //import { Category, Genre } from "../../../util/models";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {omit, zipObject} from 'lodash';
+import { omit, zipObject } from 'lodash';
+import { InputFileComponent } from '../../../components/InputFile';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -71,6 +71,11 @@ const validationSchema = yup.object().shape({
 });
 
 const fileFields = Object.keys(VideoFileFieldsMap);
+// zipObject(fileFields, fileFields.map(() => createRef()))
+// fileFields =                         ['thumb_file', 'banner_file']
+// fileFields.map(() => createRef()) =  [{current: undefined, {ref1, ref2} }]
+// uploadsRef = zipObject()             ['thumb_file': ref1, 'banner_file': ref2]
+// uploadsRef.current['thumb_file'].current.clear()
 
 const Form = () => {
     const {
@@ -100,6 +105,13 @@ const Form = () => {
     const [video, setVideo] = useState<Video | null>(null);
     const theme = useTheme();
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
+
+    const castMemberRef = useRef() as React.MutableRefObject<CastMemberFieldComponent>;
+    const genreRef = useRef() as React.MutableRefObject<GenreFieldComponent>;
+    const categoryRef = useRef() as React.MutableRefObject<CategoryFieldComponent>;
+    const uploadsRef = useRef(
+        zipObject(fileFields, fileFields.map(() => createRef()))
+    ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>;
 
     useEffect(() => {
         [
@@ -143,16 +155,17 @@ const Form = () => {
     }, []);
 
     async function onSubmit(formData, event) {
-        setLoading(true);
         const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
         sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
 
+        setLoading(true);
         try {
             const http = !video
-                ? videoHttp.create(formData)
-                : videoHttp.update(video.id, {...sendData}); //, _method: 'PUT'}, {http: {}});
+                ? videoHttp.create(sendData)
+                : videoHttp.update(video.id, { ...sendData });
+            // : videoHttp.update(video.id, {...sendData, _method: 'PUT'}, {http: {usePost: true}});
             const { data } = await http;
             snackBar.enqueueSnackbar(
                 'Vídeo salvo com sucesso',
@@ -162,11 +175,19 @@ const Form = () => {
             setTimeout(() => {     //avoid no-op warning about side effect
                 event
                     ? ( //save & edit
-                        !id && history.push(`/videos/${data.data.id}/edit`)      //videos/create
+                        id
+                            ? history.replace(`/videos/${data.data.id}/edit`)   //videos/<id>/edit
+                            : history.push(`/videos/${data.data.id}/edit`)      //videos/create
                     )
                     : ( //videos
                         history.push('/videos')
                     )
+                // ? ( //save & edit
+                //     !id && history.push(`/videos/${data.data.id}/edit`)      //videos/create
+                // )
+                // : ( //videos
+                //     history.push('/videos')
+                // )
             });
         } catch (error) {
             console.error(error);
@@ -180,9 +201,13 @@ const Form = () => {
     }
 
     function resetForm(data) {
-        // Object.keys(uploadsRef.current).forEach(
-        //     field => uploadsRef.current[field].current.clear()
-        // )
+        Object.keys(uploadsRef.current).forEach(
+            field => uploadsRef.current[field].current.clear()
+        );
+        castMemberRef.current.clear();
+        genreRef.current.clear();
+        categoryRef.current.clear();
+        reset(data);    // optional
     }
 
     //console.log("index", errors);
@@ -284,10 +309,10 @@ const Form = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <FormHelperText>
-                                Escolha os gêneros do vídeo
+                                Escolha pelo menos um gênero de vídeo.
                             </FormHelperText>
                             <FormHelperText>
-                                Escolha pelo menos uma categoria de cada gênero
+                                Escolha pelo menos uma categoria de cada gênero.
                             </FormHelperText>
                         </Grid>
                     </Grid>
@@ -309,11 +334,13 @@ const Form = () => {
                                 Imagens
                             </Typography>
                             <UploadField
+                                ref={uploadsRef.current['thumb_file']}
                                 accept={'image/*'}
                                 label={'Thumb'}
                                 setValue={(value) => setValue('thumb_file', value)}
                             />
                             <UploadField
+                                ref={uploadsRef.current['banner_file']}
                                 accept={'image/*'}
                                 label={'Banner'}
                                 setValue={(value) => setValue('banner_file', value)}
@@ -326,11 +353,13 @@ const Form = () => {
                                 Videos
                             </Typography>
                             <UploadField
+                                ref={uploadsRef.current['trailer_file']}
                                 accept={'video/mp4'}
                                 label={'Trailer'}
                                 setValue={(value) => setValue('trailer_file', value)}
                             />
                             <UploadField
+                                ref={uploadsRef.current['video_file']}
                                 accept={'video/mp4'}
                                 label={'Principal'}
                                 setValue={(value) => {
