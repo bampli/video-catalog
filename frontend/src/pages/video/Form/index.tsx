@@ -54,22 +54,22 @@ const validationSchema = yup.object().shape({
         .label('Duração')
         .required()
         .min(1),            // original backend added min:1 rule
-        //.xpto(),          // global custom rule at util/vendor/yup.ts
+        //.xpto(),          // see global custom rule created at util/vendor/yup.ts
     genres: yup.array()
         .label('Gêneros')
         .required()
         .min(1)
         .test({
-            message: 'Cada gênero escolhido precisa ter pelo menos uma categoria selecionada',
+            message: 'Cada gênero precisa ter pelo menos uma categoria selecionada',
             test(value) {  // genre[{name, categories: [] ...}, {}, {}, ...]
                 //console.log(this);    // useful to check yup values
-                return value == null || value.every(
+                return (value as any).every(
                     v => v.categories.filter(
                         cat => this.parent.categories.map(c => c.id).includes(cat.id)
-                    ).lenght !== 0
+                    ).length !== 0
                 )
             }       // use this.parent.categories to reach categories (or other) from yup
-        }),
+        }),         // ok for chaining several tests: .test().test().test()
     categories: yup.array()
         .label('Categorias')
         .required()
