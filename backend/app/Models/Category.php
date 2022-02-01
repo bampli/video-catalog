@@ -25,8 +25,8 @@ class Category extends Model
         return $this->provideFilter(CategoryFilter::class);
     }
 
-    // public function genres()
-    // {
-    //     return $this->belongsToMany(Genre::class)->withTrashed(); // withTrashed(): exclusion logic for deleted items
-    // }
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class)->withTrashed(); // withTrashed includes deleted items
+    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\CastMember;
 use App\Models\Genre;
 use App\Models\Video;
 use Illuminate\Database\Eloquent\Model;
@@ -9,9 +10,11 @@ use Illuminate\Http\UploadedFile;
 class VideoSeeder extends Seeder
 {
     private $allGenres;
+    private $allCastMembers;
     private $relations = [
         'genres_id' => [],
-        'categories_id' => []
+        'categories_id' => [],
+        'cast_members_id' => []
     ];
 
     /**
@@ -26,8 +29,9 @@ class VideoSeeder extends Seeder
 
         $self = $this;
         $this->allGenres = Genre::all();
+        $this->allCastMembers = CastMember::all();
         Model::reguard();   // enable mass assignment
-        factory(\App\Models\Video::class, 20)
+        factory(Video::class, 20)
             ->make()
             ->each(function (Video $video) use($self) {
                 $self->fetchRelations();
@@ -56,8 +60,11 @@ class VideoSeeder extends Seeder
         }
         $categoriesId = array_unique($categoriesId);
         $genresId = $subGenres->pluck('id')->toArray();
+        $castMembersId = $this->allCastMembers->random(3)->pluck('id')->toArray();
+
         $this->relations['categories_id'] = $categoriesId;
         $this->relations['genres_id'] = $genresId;
+        $this->relations['cast_members_id'] = $castMembersId;
     }
 
     public function getImageFile()

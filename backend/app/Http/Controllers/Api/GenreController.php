@@ -30,6 +30,7 @@ class GenreController extends BasicCrudController
         $obj->refresh();
         //return $obj;
         $resource = $this->resource();
+        $obj->load($this->queryBuilder()->getEagerLoads());
         return new $resource($obj);
     }
 
@@ -46,6 +47,7 @@ class GenreController extends BasicCrudController
         });
         //return $obj;
         $resource = $this->resource();
+        $obj->load($this->queryBuilder()->getEagerLoads());
         return new $resource($obj);
     }
 
@@ -81,6 +83,6 @@ class GenreController extends BasicCrudController
 
     protected function queryBuilder(): Builder
     {
-        return parent::queryBuilder();
+        return parent::queryBuilder()->with('categories');
     }
 }

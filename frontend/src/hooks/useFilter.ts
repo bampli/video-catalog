@@ -128,7 +128,7 @@ export class FilterManager {
       ...this.schema.cast({}),
       search: { value: null, update: true }
     };
-    this.dispatch(Creators.setReset({state: INITIAL_STATE}));
+    this.dispatch(Creators.setReset({ state: INITIAL_STATE }));
     this.resetTablePagination();
   }
 
@@ -233,9 +233,10 @@ export class FilterManager {
           .default(1),
         per_page: yup
           .number()
-          .oneOf(this.rowsPerPageOptions)
-          .transform((value) => (isNaN(value) ? undefined : value))
-          .default(this.rowsPerPage),
+          .transform(value =>
+            isNaN(value) || !this.rowsPerPageOptions.includes(parseInt(value)) ? undefined : value
+          )
+          .default(this.rowsPerPage)
       }),
       order: yup.object().shape({
         sort: yup.string()

@@ -28,10 +28,10 @@ export const { Types, Creators } = createActions<
 });
 
 export const INITIAL_STATE: Typings.State = {
-  search: "",
+  search: null,
   pagination: {
     page: 1,
-    per_page: 15,
+    per_page: 10
   },
   order: {
     sort: null,
