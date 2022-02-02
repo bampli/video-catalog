@@ -177,8 +177,7 @@ const Form = () => {
         try {
             const http = !video
                 ? videoHttp.create(sendData)
-                : videoHttp.update(video.id, { ...sendData });
-            // : videoHttp.update(video.id, {...sendData, _method: 'PUT'}, {http: {usePost: true}});
+                : videoHttp.update(video.id, {...sendData, _method: 'PUT'}, {http: {usePost: true}});
             const { data } = await http;
             snackBar.enqueueSnackbar(
                 'Vídeo salvo com sucesso',

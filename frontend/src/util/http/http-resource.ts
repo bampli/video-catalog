@@ -33,7 +33,11 @@ export default class HttpResource {
     return this.http.post<T>(this.resource, sendData);
   }
 
-  update<T = any>(id, data, options?: { http?: { usePost: boolean } }): Promise<AxiosResponse<T>> {
+  update<T = any>(
+    id,
+    data,
+    options?: { http?: { usePost: boolean, config?: AxiosRequestConfig } }
+  ): Promise<AxiosResponse<T>> {
     let sendData = data;
     if (this.containsFile(data)) {
       sendData = this.getFormData(data);
@@ -77,8 +81,20 @@ export default class HttpResource {
     return this.containsFile(data) ? this.getFormData(data) : data;
   }
 
+  // object-to-formdata serializes Objects to FormData instances.
+  // const options = {
+  //
+  // };
+  // const formData = serialize(
+  //     object,
+  //     options, // optional, booleansAsIntegers convert true/false to 1/0
+  //     existingFormData, // optional
+  //     keyPrefix, // optional
+  //   );
+  // axios.post(url, formData);
   private getFormData(data) {
-    // const formData = new FormData();
+    return serialize(data, { booleansAsIntegers: true });
+    // const formData = new FormData(); // similar code from old version
     // Object
     //     .keys(data)
     //     .forEach(key => {
@@ -95,7 +111,6 @@ export default class HttpResource {
     //         }
     //         formData.append(key, value)
     //     });
-    return serialize(data, { booleansAsIntegers: true });
   }
 
   private containsFile(data) {
