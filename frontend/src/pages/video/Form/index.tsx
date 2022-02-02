@@ -54,7 +54,7 @@ const validationSchema = yup.object().shape({
         .label('Duração')
         .required()
         .min(1),            // original backend added min:1 rule
-        //.xpto(),          // see global custom rule created at util/vendor/yup.ts
+    //.xpto(),          // see global custom rule created at util/vendor/yup.ts
     genres: yup.array()
         .label('Gêneros')
         .required()
@@ -100,7 +100,16 @@ const Form = () => {
         reset,
         watch,
         triggerValidation
-    } = useForm<{ title, description, year_launched, duration, genres, categories, cast_members, rating }>({
+    } = useForm<{
+        title,
+        description,
+        year_launched,
+        duration,
+        genres,
+        categories,
+        cast_members,
+        rating
+    }>({
         validationSchema,
         defaultValues: {
             rating: null,
@@ -169,6 +178,7 @@ const Form = () => {
 
     async function onSubmit(formData, event) {
         const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
+        //const sendData = omit(formData, [...fileFields, 'cast_members', 'genres', 'categories']);
         sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
@@ -177,12 +187,13 @@ const Form = () => {
         try {
             const http = !video
                 ? videoHttp.create(sendData)
-                : videoHttp.update(video.id, {...sendData, _method: 'PUT'}, {http: {usePost: true}});
+                : videoHttp.update(video.id, { ...sendData, _method: 'PUT' }, { http: { usePost: true } });
             const { data } = await http;
             snackBar.enqueueSnackbar(
                 'Vídeo salvo com sucesso',
                 { variant: 'success' }
             );
+            console.log(video);
             id && resetForm(video);
             setTimeout(() => {     //avoid no-op warning about side effect
                 event
