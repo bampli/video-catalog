@@ -18,7 +18,7 @@ class Video extends Model
     const THUMB_FILE_MAX_SIZE = 1024 * 5;           //  5 MB
     const BANNER_FILE_MAX_SIZE = 1024 * 10;         // 10 MB
     const TRAILER_FILE_MAX_SIZE = 1024 * 1024;      //  1 GB
-    const VIDEO_FILE_MAX_SIZE = 1024 * 1024 * 5;   //   5 GB
+    const VIDEO_FILE_MAX_SIZE = 1024 * 1024 * 50;   // 50 GB
 
     protected $fillable = [
         'title',

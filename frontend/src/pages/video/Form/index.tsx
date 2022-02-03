@@ -53,8 +53,8 @@ const validationSchema = yup.object().shape({
     duration: yup.number()
         .label('Duração')
         .required()
-        .min(1),            // original backend added min:1 rule
-    //.xpto(),          // see global custom rule created at util/vendor/yup.ts
+        .min(1),        // original backend added min:1 rule
+      //.xpto()         // see global custom rule created at util/vendor/yup.ts
     genres: yup.array()
         .label('Gêneros')
         .required()
@@ -84,11 +84,6 @@ const validationSchema = yup.object().shape({
 });
 
 const fileFields = Object.keys(VideoFileFieldsMap);
-// zipObject(fileFields, fileFields.map(() => createRef()))
-// fileFields =                         ['thumb_file', 'banner_file']
-// fileFields.map(() => createRef()) =  [{current: undefined, {ref1, ref2} }]
-// uploadsRef = zipObject()             ['thumb_file': ref1, 'banner_file': ref2]
-// uploadsRef.current['thumb_file'].current.clear()
 
 const Form = () => {
     const {
@@ -131,9 +126,15 @@ const Form = () => {
     const castMemberRef = useRef() as React.MutableRefObject<CastMemberFieldComponent>;
     const genreRef = useRef() as React.MutableRefObject<GenreFieldComponent>;
     const categoryRef = useRef() as React.MutableRefObject<CategoryFieldComponent>;
+    
     const uploadsRef = useRef(
         zipObject(fileFields, fileFields.map(() => createRef()))
     ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>;
+    // automated Refs for fileFields:
+    // fileFields looks like ['thumb_file', 'banner_file']
+    // fileFields.map(() => createRef()) is Refs array [{current: undefined, {ref1, ref2} }]
+    // uploadsRef = zipObject( ['thumb_file': ref1, 'banner_file': ref2] )
+    // then use uploadsRef.current['thumb_file'].current.clear()
 
     useEffect(() => {
         [
@@ -158,7 +159,7 @@ const Form = () => {
                 if (isSubscribed) {
                     setVideo(data.data);
                     reset(data.data);
-                    //console.log(data.data);
+                    //console.log("uE-1", data.data);
                 }
             } catch (error) {
                 console.error(error);
@@ -177,8 +178,8 @@ const Form = () => {
     }, []);
 
     async function onSubmit(formData, event) {
-        const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
-        //const sendData = omit(formData, [...fileFields, 'cast_members', 'genres', 'categories']);
+        //const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
+        const sendData = omit(formData, [...fileFields, 'cast_members', 'genres', 'categories']);
         sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
@@ -187,13 +188,16 @@ const Form = () => {
         try {
             const http = !video
                 ? videoHttp.create(sendData)
-                : videoHttp.update(video.id, { ...sendData, _method: 'PUT' }, { http: { usePost: true } });
+                : videoHttp.update(
+                    video.id,
+                    { ...sendData, _method: 'PUT' }, { http: { usePost: true } }
+                );
             const { data } = await http;
             snackBar.enqueueSnackbar(
                 'Vídeo salvo com sucesso',
                 { variant: 'success' }
             );
-            console.log(video);
+            console.log("onSubmit", id, video);
             id && resetForm(video);
             setTimeout(() => {     //avoid no-op warning about side effect
                 event
