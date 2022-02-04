@@ -103,7 +103,8 @@ const Form = () => {
         genres,
         categories,
         cast_members,
-        rating
+        rating,
+        opened
     }>({
         validationSchema,
         defaultValues: {
@@ -111,6 +112,7 @@ const Form = () => {
             genres: [],
             categories: [],
             cast_members: [],
+            opened: false
         }
     });
 
@@ -178,8 +180,8 @@ const Form = () => {
     }, []);
 
     async function onSubmit(formData, event) {
-        //const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
-        const sendData = omit(formData, [...fileFields, 'cast_members', 'genres', 'categories']);
+        const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
+        //const sendData = omit(formData, [...fileFields, 'cast_members', 'genres', 'categories']);
         sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
@@ -197,7 +199,7 @@ const Form = () => {
                 'Vídeo salvo com sucesso',
                 { variant: 'success' }
             );
-            console.log("onSubmit", id, video);
+            //console.log("onSubmit", id, video);
             id && resetForm(video);
             setTimeout(() => {     //avoid no-op warning about side effect
                 event
@@ -306,6 +308,7 @@ const Form = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <CastMemberField
+                                ref={castMemberRef}
                                 castMembers={watch('cast_members')}
                                 setCastMembers={(value) => setValue('cast_members', value, true)}
                                 error={errors.cast_members}
@@ -316,6 +319,7 @@ const Form = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <GenreField
+                                ref={genreRef}
                                 genres={watch('genres')}
                                 setGenres={(value) => setValue('genres', value, true)}
                                 categories={watch('categories')}
@@ -327,6 +331,7 @@ const Form = () => {
 
                         <Grid item xs={12} md={6}>
                             <CategoryField
+                                ref={categoryRef}
                                 categories={watch('categories')}
                                 setCategories={(value) => setValue('categories', value, true)}
                                 genres={watch('genres')}
@@ -417,7 +422,7 @@ const Form = () => {
                                         Incluir este conteúdo em lançamentos
                                     </Typography>
                                 }
-                                labelPlacement={'end'}
+                                labelPlacement="end"
                             />
                         </CardContent>
                     </Card>
