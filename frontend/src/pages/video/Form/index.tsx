@@ -103,7 +103,8 @@ const Form = () => {
         genres,
         categories,
         cast_members,
-        rating
+        rating,
+        opened
     }>({
         validationSchema,
         defaultValues: {
@@ -111,6 +112,7 @@ const Form = () => {
             genres: [],
             categories: [],
             cast_members: [],
+            opened: false
         }
     });
 
@@ -417,7 +419,7 @@ const Form = () => {
                                         Incluir este conteúdo em lançamentos
                                     </Typography>
                                 }
-                                labelPlacement={'end'}
+                                labelPlacement="end"
                             />
                         </CardContent>
                     </Card>
