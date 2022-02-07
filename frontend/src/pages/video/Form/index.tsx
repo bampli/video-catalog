@@ -23,6 +23,7 @@ import CastMemberField, { CastMemberFieldComponent } from './CastMemberField';
 //import { Category, Genre } from "../../../util/models";
 import { omit, zipObject } from 'lodash';
 import { InputFileComponent } from '../../../components/InputFile';
+import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -94,7 +95,8 @@ const Form = () => {
         errors,
         reset,
         watch,
-        triggerValidation
+        triggerValidation,
+        formState
     } = useForm<{
         title,
         description,
@@ -115,6 +117,7 @@ const Form = () => {
             opened: false
         }
     });
+    useSnackbarFormError(formState.submitCount, errors);
 
     const classes = useStyles();
     const snackBar = useSnackbar();
