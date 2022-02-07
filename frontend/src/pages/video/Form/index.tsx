@@ -120,7 +120,7 @@ const Form = () => {
     useSnackbarFormError(formState.submitCount, errors);
 
     const classes = useStyles();
-    const snackBar = useSnackbar();
+    const snackbar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
@@ -168,7 +168,7 @@ const Form = () => {
                 }
             } catch (error) {
                 console.error(error);
-                snackBar.enqueueSnackbar(
+                snackbar.enqueueSnackbar(
                     'Não foi possível carregar video',
                     { variant: 'error' }
                 );
@@ -198,7 +198,7 @@ const Form = () => {
                     { ...sendData, _method: 'PUT' }, { http: { usePost: true } }
                 );
             const { data } = await http;
-            snackBar.enqueueSnackbar(
+            snackbar.enqueueSnackbar(
                 'Vídeo salvo com sucesso',
                 { variant: 'success' }
             );
@@ -223,7 +223,7 @@ const Form = () => {
             });
         } catch (error) {
             console.error(error);
-            snackBar.enqueueSnackbar(
+            snackbar.enqueueSnackbar(
                 'Não foi possível salvar vídeo',
                 { variant: 'error' }
             );

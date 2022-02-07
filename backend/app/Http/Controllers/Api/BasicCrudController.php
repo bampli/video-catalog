@@ -131,3 +131,6 @@ abstract class BasicCrudController extends Controller
         return $this->model()::query();
     }
 }
+
+//DELETE //address/videos?ids=1,2
+//any info in the delete body will be ignored
