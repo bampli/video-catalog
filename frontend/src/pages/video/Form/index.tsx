@@ -135,11 +135,6 @@ const Form = () => {
     const uploadsRef = useRef(
         zipObject(fileFields, fileFields.map(() => createRef()))
     ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>;
-    // automated Refs for fileFields:
-    // fileFields looks like ['thumb_file', 'banner_file']
-    // fileFields.map(() => createRef()) is Refs array [{current: undefined, {ref1, ref2} }]
-    // uploadsRef = zipObject( ['thumb_file': ref1, 'banner_file': ref2] )
-    // then use uploadsRef.current['thumb_file'].current.clear()
 
     useEffect(() => {
         [
@@ -214,12 +209,6 @@ const Form = () => {
                     : ( //videos
                         history.push('/videos')
                     )
-                // ? ( //save & edit
-                //     !id && history.push(`/videos/${data.data.id}/edit`)      //videos/create
-                // )
-                // : ( //videos
-                //     history.push('/videos')
-                // )
             });
         } catch (error) {
             console.error(error);
@@ -241,9 +230,8 @@ const Form = () => {
         categoryRef.current.clear();
         reset(data);    // optional
     }
-
     //console.log("index", errors);
-
+    
     return (
         <DefaultForm
             GridItemProps={{ xs: 12 }}

@@ -31,7 +31,7 @@ class VideoSeeder extends Seeder
         $this->allGenres = Genre::all();
         $this->allCastMembers = CastMember::all();
         Model::reguard();   // enable mass assignment
-        factory(Video::class, 20)
+        factory(Video::class, 80)
             ->make()
             ->each(function (Video $video) use($self) {
                 $self->fetchRelations();

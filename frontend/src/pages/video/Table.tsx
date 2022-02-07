@@ -189,6 +189,9 @@ const Table = () => {
                     'Registro(s) excluído(s) com sucesso',
                     { variant: 'success' }
                 );
+                // TODO: fails to adjust page after deleting all records from the last page
+                // if it contains n records < filterState.pagination.per_page = 15
+                // Suppose last page has 3 records only!
                 if (    // avoid no content when all rows from last page are deleted
                     rowsToDelete.data.length === filterState.pagination.per_page
                     && filterState.pagination.page > 1
@@ -237,7 +240,7 @@ const Table = () => {
                     onColumnSortChange: (changedColumn: string, direction: string) =>
                         filterManager.changeColumnSort(changedColumn, direction),
                     onRowsDelete: (rowsDeleted) => {
-                        console.log(rowsDeleted);
+                        //console.log(rowsDeleted);
                         setRowsToDelete(rowsDeleted);
                         return false;
                     }
