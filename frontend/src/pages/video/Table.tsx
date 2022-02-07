@@ -191,9 +191,9 @@ const Table = () => {
                 );
                 // avoid 'no content' when all rows from last page are deleted ...
                 const remainingRecords = totalRecords - rowsToDelete.data.length;
-                const indexOnPage = (filterState.pagination.page - 1) * filterState.pagination.per_page;
+                const firstIndexOnPage = (filterState.pagination.page - 1) * filterState.pagination.per_page;
                 if (
-                    indexOnPage === remainingRecords && filterState.pagination.page > 1
+                    firstIndexOnPage === remainingRecords && filterState.pagination.page > 1
                 ){
                     const page = filterState.pagination.page - 2;
                     filterManager.changePage(page);
