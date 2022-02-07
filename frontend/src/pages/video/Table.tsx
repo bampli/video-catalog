@@ -189,16 +189,15 @@ const Table = () => {
                     'Registro(s) excluído(s) com sucesso',
                     { variant: 'success' }
                 );
-                // TODO: fails to adjust page after deleting all records from the last page
-                // if it contains n records < filterState.pagination.per_page = 15
-                // Suppose last page has 3 records only!
-                if (    // avoid no content when all rows from last page are deleted
-                    rowsToDelete.data.length === filterState.pagination.per_page
-                    && filterState.pagination.page > 1
+                // avoid 'no content' when all rows from last page are deleted ...
+                const remainingRecords = totalRecords - rowsToDelete.data.length;
+                const indexOnPage = (filterState.pagination.page - 1) * filterState.pagination.per_page;
+                if (
+                    indexOnPage === remainingRecords && filterState.pagination.page > 1
                 ){
                     const page = filterState.pagination.page - 2;
                     filterManager.changePage(page);
-                }else{  // otherwise just reload data
+                }else{  // ... otherwise just reload data
                     getData();
                 }
             })
