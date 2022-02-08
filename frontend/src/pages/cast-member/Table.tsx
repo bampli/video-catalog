@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import DefaultTable, { makeActionStyles, MuiDataTableRefComponent, TableColumn } from "../../components/Table";
 import { useSnackbar } from 'notistack';
 import FormatISODate from "../../util/FormatISODate";
@@ -12,6 +12,7 @@ import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import { Creators } from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
 import { invert } from 'lodash';
+import LoadingContext from '../../components/loading/LoadingContext';
 
 const castMemberNames = Object.values(CastMemberTypeMap);
 
@@ -118,7 +119,7 @@ const Table = () => {
     const snackbar = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<CastMember[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
 
     const {
@@ -162,7 +163,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
         try {
             const { data } = await castMemberHttp.list<ListResponse<CastMember>>({
                 queryParams: {
@@ -190,8 +190,6 @@ const Table = () => {
                 'Não foi possível carregar membros do elenco',
                 { variant: 'error' }
             );
-        } finally {
-            setLoading(false);
         }
     }
 

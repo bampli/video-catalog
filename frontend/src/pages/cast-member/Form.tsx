@@ -4,11 +4,12 @@ import { useForm } from "react-hook-form";
 import castMemberHttp from '../../util/http/cast-member-http';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
 import { CastMember } from '../../util/models';
 import SubmitActions from '../../components/SubmitActions';
 import {DefaultForm} from "../../components/DefaultForm";
+import LoadingContext from '../../components/loading/LoadingContext';
 
 const validationSchema = yup.object().shape({
     name: yup.string()
@@ -39,7 +40,7 @@ export const Form = () => {
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const [castMember, setCastMember] = useState<CastMember | null>(null);
 
     useEffect(() => {
@@ -48,7 +49,6 @@ export const Form = () => {
         }
         let isSubscribed = true;
         (async () => {
-            setLoading(true);
             try {
                 const { data } = await castMemberHttp.get(id);
                 if (isSubscribed) {
@@ -62,8 +62,6 @@ export const Form = () => {
                     'Não foi possível carregar membro de elenco',
                     { variant: 'error' }
                 );
-            } finally {
-                setLoading(false);
             }
         })();
 
@@ -78,7 +76,6 @@ export const Form = () => {
     }, [register]);
 
     async function onSubmit(formData, event) {
-        setLoading(true);
         try {
             const http = !castMember
                 ? castMemberHttp.create(formData)
@@ -105,8 +102,6 @@ export const Form = () => {
                 'Não foi possível salvar membro de elenco',
                 { variant: 'error' }
             );
-        } finally {
-            setLoading(false);
         }
         //console.log(event);
     }

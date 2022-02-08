@@ -6,7 +6,7 @@ import {
     useMediaQuery, useTheme
 } from "@material-ui/core";
 import { useForm } from "react-hook-form";
-import { createRef, useState, useEffect, useRef } from 'react';
+import { createRef, useContext, useState, useEffect, useRef } from 'react';
 import videoHttp from '../../../util/http/video-http';
 import * as yup from '../../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
@@ -23,6 +23,8 @@ import CastMemberField, { CastMemberFieldComponent } from './CastMemberField';
 //import { Category, Genre } from "../../../util/models";
 import { omit, zipObject } from 'lodash';
 import { InputFileComponent } from '../../../components/InputFile';
+import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
+import LoadingContext from '../../../components/loading/LoadingContext';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -94,7 +96,8 @@ const Form = () => {
         errors,
         reset,
         watch,
-        triggerValidation
+        triggerValidation,
+        formState
     } = useForm<{
         title,
         description,
@@ -115,12 +118,13 @@ const Form = () => {
             opened: false
         }
     });
+    useSnackbarFormError(formState.submitCount, errors);
 
     const classes = useStyles();
-    const snackBar = useSnackbar();
+    const snackbar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const [video, setVideo] = useState<Video | null>(null);
     const theme = useTheme();
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
@@ -132,11 +136,6 @@ const Form = () => {
     const uploadsRef = useRef(
         zipObject(fileFields, fileFields.map(() => createRef()))
     ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>;
-    // automated Refs for fileFields:
-    // fileFields looks like ['thumb_file', 'banner_file']
-    // fileFields.map(() => createRef()) is Refs array [{current: undefined, {ref1, ref2} }]
-    // uploadsRef = zipObject( ['thumb_file': ref1, 'banner_file': ref2] )
-    // then use uploadsRef.current['thumb_file'].current.clear()
 
     useEffect(() => {
         [
@@ -155,7 +154,6 @@ const Form = () => {
         }
         let isSubscribed = true;
         (async () => { // iife
-            setLoading(true);
             try {
                 const { data } = await videoHttp.get(id);
                 if (isSubscribed) {
@@ -165,12 +163,10 @@ const Form = () => {
                 }
             } catch (error) {
                 console.error(error);
-                snackBar.enqueueSnackbar(
+                snackbar.enqueueSnackbar(
                     'Não foi possível carregar video',
                     { variant: 'error' }
                 );
-            } finally {
-                setLoading(false);
             }
         })();
         return () => {
@@ -186,7 +182,6 @@ const Form = () => {
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
 
-        setLoading(true);
         try {
             const http = !video
                 ? videoHttp.create(sendData)
@@ -195,7 +190,7 @@ const Form = () => {
                     { ...sendData, _method: 'PUT' }, { http: { usePost: true } }
                 );
             const { data } = await http;
-            snackBar.enqueueSnackbar(
+            snackbar.enqueueSnackbar(
                 'Vídeo salvo com sucesso',
                 { variant: 'success' }
             );
@@ -211,21 +206,13 @@ const Form = () => {
                     : ( //videos
                         history.push('/videos')
                     )
-                // ? ( //save & edit
-                //     !id && history.push(`/videos/${data.data.id}/edit`)      //videos/create
-                // )
-                // : ( //videos
-                //     history.push('/videos')
-                // )
             });
         } catch (error) {
             console.error(error);
-            snackBar.enqueueSnackbar(
+            snackbar.enqueueSnackbar(
                 'Não foi possível salvar vídeo',
                 { variant: 'error' }
             );
-        } finally {
-            setLoading(false);
         }
     }
 
@@ -238,9 +225,8 @@ const Form = () => {
         categoryRef.current.clear();
         reset(data);    // optional
     }
-
     //console.log("index", errors);
-
+    
     return (
         <DefaultForm
             GridItemProps={{ xs: 12 }}

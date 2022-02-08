@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Checkbox, FormControlLabel, MenuItem, TextField } from "@material-ui/core";
 import { useForm } from "react-hook-form";
-import { useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import genreHttp from '../../util/http/genre-http';
 import categoryHttp from '../../util/http/category-http';
 import * as yup from '../../util/vendor/yup';
@@ -10,6 +10,7 @@ import { useSnackbar } from "notistack";
 import { Category, Genre } from "../../util/models";
 import SubmitActions from '../../components/SubmitActions';
 import {DefaultForm} from "../../components/DefaultForm";
+import LoadingContext from '../../components/loading/LoadingContext';
 
 const validationSchema = yup.object().shape({
     name: yup.string()
@@ -43,14 +44,13 @@ const Form = () => {
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const [genre, setGenre] = useState<Genre | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
 
     useEffect(() => {
         let isSubscribed = true;
-        (async () => {    //iife: Immediately Invoked Function Expression 
-            setLoading(true);
+        (async () => {    //iife: Immediately Invoked Function Expression
             const promises = [categoryHttp.list({queryParams: {all: ''}})];
             if (id) {
                 promises.push(genreHttp.get(id));
@@ -74,8 +74,6 @@ const Form = () => {
                     'Não foi possível carregar as informações',
                     { variant: 'error' }
                 );
-            } finally {
-                setLoading(false);
             }
         })();
 
@@ -91,7 +89,6 @@ const Form = () => {
     }, [register]);
 
     async function onSubmit(formData, event) {
-        setLoading(true);
         try {
             const http = !genre
                 ? genreHttp.create(formData)
@@ -118,8 +115,6 @@ const Form = () => {
                 'Não foi possível salvar gênero',
                 { variant: 'error' }
             );
-        } finally {
-            setLoading(false);
         }
     }
     //console.log(errors);

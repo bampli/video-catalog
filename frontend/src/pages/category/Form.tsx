@@ -4,11 +4,12 @@ import { useForm } from "react-hook-form";
 import categoryHttp from '../../util/http/category-http';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
 import { Category } from "../../util/models";
 import SubmitActions from '../../components/SubmitActions';
 import {DefaultForm} from "../../components/DefaultForm";
+import LoadingContext from '../../components/loading/LoadingContext';
 
 const validationSchema = yup.object().shape({
     name: yup.string()
@@ -37,7 +38,7 @@ export const Form = () => {
     const snackBar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const [category, setCategory] = useState<Category | null>(null);
 
     useEffect(() => {
@@ -49,7 +50,6 @@ export const Form = () => {
         //instead of: async function getCategory() {
         //avoid call: getCategory();
         (async () => {
-            setLoading(true);
             try {
                 const { data } = await categoryHttp.get(id);
                 if (isSubscribed) {
@@ -63,8 +63,6 @@ export const Form = () => {
                     'Não foi possível carregar categoria',
                     { variant: 'error' }
                 );
-            } finally {
-                setLoading(false);
             }
         })();
 
@@ -96,7 +94,6 @@ export const Form = () => {
     }, [register]);
 
     async function onSubmit(formData, event) {
-        setLoading(true);
         try {
             const http = !category
                 ? categoryHttp.create(formData)
@@ -123,8 +120,6 @@ export const Form = () => {
                 'Não foi possível salvar categoria',
                 { variant: 'error' }
             );
-        } finally {
-            setLoading(false)
         }
 
         //console.log(event);

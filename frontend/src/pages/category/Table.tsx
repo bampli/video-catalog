@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
@@ -14,6 +14,7 @@ import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import { Creators } from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
 import { invert } from 'lodash';
+import LoadingContext from '../../components/loading/LoadingContext';
 
 // NOTE: "is_active" filter uses an extraFilter, since mui-datatables version 3 deprecated
 // the "serverSideFilterList" in favor of the "confirmFilters" option. More details below.
@@ -128,7 +129,7 @@ const Table = () => {
     const snackbar = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
 
     const {
@@ -176,7 +177,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
         try {
             //console.log("debouncedFilterState", debouncedFilterState);
             const { data } = await categoryHttp.list<ListResponse<Category>>({
@@ -219,13 +219,12 @@ const Table = () => {
                 'Não foi possível carregar categorias',
                 { variant: 'error' }
             );
-        } finally {
-            setLoading(false);
         }
     }
 
     return (
         <MuiThemeProvider theme={makeActionStyles(columnsDefinition.length - 1)}>
+            {/* {loading ? "true" : "false"} */}
             <DefaultTable
                 title="Lista categorias"
                 columns={columns}
