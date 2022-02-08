@@ -6,7 +6,7 @@ import {
     useMediaQuery, useTheme
 } from "@material-ui/core";
 import { useForm } from "react-hook-form";
-import { createRef, useState, useEffect, useRef } from 'react';
+import { createRef, useContext, useState, useEffect, useRef } from 'react';
 import videoHttp from '../../../util/http/video-http';
 import * as yup from '../../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
@@ -24,6 +24,7 @@ import CastMemberField, { CastMemberFieldComponent } from './CastMemberField';
 import { omit, zipObject } from 'lodash';
 import { InputFileComponent } from '../../../components/InputFile';
 import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
+import LoadingContext from '../../../components/loading/LoadingContext';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -123,7 +124,7 @@ const Form = () => {
     const snackbar = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const [video, setVideo] = useState<Video | null>(null);
     const theme = useTheme();
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
@@ -153,7 +154,6 @@ const Form = () => {
         }
         let isSubscribed = true;
         (async () => { // iife
-            setLoading(true);
             try {
                 const { data } = await videoHttp.get(id);
                 if (isSubscribed) {
@@ -167,8 +167,6 @@ const Form = () => {
                     'Não foi possível carregar video',
                     { variant: 'error' }
                 );
-            } finally {
-                setLoading(false);
             }
         })();
         return () => {
@@ -184,7 +182,6 @@ const Form = () => {
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
 
-        setLoading(true);
         try {
             const http = !video
                 ? videoHttp.create(sendData)
@@ -216,8 +213,6 @@ const Form = () => {
                 'Não foi possível salvar vídeo',
                 { variant: 'error' }
             );
-        } finally {
-            setLoading(false);
         }
     }
 

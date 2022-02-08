@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import genreHttp from '../../util/http/genre-http';
@@ -13,6 +13,7 @@ import * as yup from '../../util/vendor/yup';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import { Creators } from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
+import LoadingContext from '../../components/loading/LoadingContext';
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -131,7 +132,7 @@ const Table = () => {
     const [data, setData] = useState<Genre[]>([]);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
 
     const {
@@ -204,7 +205,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
         try {
             //console.log("debouncedFilterState", debouncedFilterState);
             const { data } = await genreHttp.list<ListResponse<Genre>>({
@@ -249,8 +249,6 @@ const Table = () => {
                 'Não foi possível carregar gêneros',
                 { variant: 'error' }
             );
-        } finally {
-            setLoading(false);
         }
     }
 

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import FormatISODate from "../../util/FormatISODate";
 import videoHttp from '../../util/http/video-http';
 import { ListResponse, Video } from "../../util/models";
@@ -11,6 +11,7 @@ import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import useFilter from "../../hooks/useFilter";
 import useDeleteCollection from "../../hooks/useDeleteCollection";
 import DeleteDialog from '../../components/DeleteDialog';
+import LoadingContext from '../../components/loading/LoadingContext';
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -98,7 +99,7 @@ const Table = () => {
     const snackbar = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<Video[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const {openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete} = useDeleteCollection();
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
 
@@ -136,7 +137,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
         try {
             //console.log("debouncedFilterState", debouncedFilterState);
             const { data } = await videoHttp.list<ListResponse<Video>>({
@@ -162,8 +162,6 @@ const Table = () => {
                 'Não foi possível carregar vídeos',
                 { variant: 'error' }
             );
-        } finally {
-            setLoading(false);
         }
     }
 
