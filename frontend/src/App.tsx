@@ -9,7 +9,7 @@ import { AppRouter } from './routes/AppRouter';
 import Breadcrumbs from './components/Breadcrumbs';
 import theme from './theme';
 import { SnackbarProvider } from './components/SnackbarProvider';
-
+import Spinner from './components/Spinner';
 
 const App: React.FC = () => {
   return (
@@ -18,6 +18,7 @@ const App: React.FC = () => {
         <CssBaseline />
         <SnackbarProvider>
           <BrowserRouter>
+            <Spinner />
             <Navbar />
             <Box paddingTop={'70px'}>
               <Breadcrumbs />
