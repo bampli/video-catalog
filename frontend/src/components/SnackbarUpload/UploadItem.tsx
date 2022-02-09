@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import MovieIcon from "@material-ui/icons/Movie";
 import UploadProgress from "../UploadProgress";
-// import UploadAction from "./UploadAction";
+import UploadAction from "./UploadAction";
 // import { Upload } from "../../store/upload/types";
 // import { hasError } from "../../store/upload/getters";
 // import { useState } from "react";
@@ -68,8 +68,9 @@ const UploadItem: React.FC<UploadItemProps> = (props) => {
                         }
                     />
                     <UploadProgress size={30} />
-                    {/* <UploadProgress size={30} uploadOrFile={upload}/>
-                    <UploadAction upload={upload} hover={itemHover}/> */}
+                    <UploadAction />
+                    {/* <UploadProgress size={30} uploadOrFile={upload}/> */}
+                    {/* <UploadAction upload={upload} hover={itemHover}/> */}
                 </ListItem>
             </Tooltip>
             <Divider component="li" />
