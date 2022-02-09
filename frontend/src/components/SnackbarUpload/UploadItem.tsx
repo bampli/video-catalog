@@ -9,7 +9,7 @@ import {
     Typography
 } from "@material-ui/core";
 import MovieIcon from "@material-ui/icons/Movie";
-// import UploadProgress from "../UploadProgress";
+import UploadProgress from "../UploadProgress";
 // import UploadAction from "./UploadAction";
 // import { Upload } from "../../store/upload/types";
 // import { hasError } from "../../store/upload/getters";
@@ -53,11 +53,11 @@ const UploadItem: React.FC<UploadItemProps> = (props) => {
                 <ListItem
                     className={classes.listItem}
                     button
-                    // onMouseOver={() => setItemHover(true)}
-                    // onMouseLeave={() => setItemHover(false)}
+                // onMouseOver={() => setItemHover(true)}
+                // onMouseLeave={() => setItemHover(false)}
                 >
                     <ListItemIcon className={classes.movieIcon}>
-                        <MovieIcon/>
+                        <MovieIcon />
                     </ListItemIcon>
                     <ListItemText
                         className={classes.listItemText}
@@ -67,11 +67,12 @@ const UploadItem: React.FC<UploadItemProps> = (props) => {
                             </Typography>
                         }
                     />
+                    <UploadProgress size={30} />
                     {/* <UploadProgress size={30} uploadOrFile={upload}/>
                     <UploadAction upload={upload} hover={itemHover}/> */}
                 </ListItem>
             </Tooltip>
-            <Divider component="li"/>
+            <Divider component="li" />
         </>
     )
 };
