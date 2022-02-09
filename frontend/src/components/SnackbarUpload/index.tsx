@@ -13,7 +13,7 @@ import { useSnackbar } from "notistack";
 import { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import classnames from "classnames";
-// import UploadItem from "./UploadItem";
+import UploadItem from "./UploadItem";
 // import {useSelector} from "react-redux";
 // import {Upload, UploadModule} from "../../store/upload/types";
 // import {countInProgress} from "../../store/upload/getters";
@@ -87,7 +87,8 @@ const SnackbarUpload = React.forwardRef<any, SnackbarUploadProps>((props, ref) =
             </CardActions>
             <Collapse in={expanded}>
                 <List className={classes.list}>
-                    Items
+                    <UploadItem></UploadItem>
+                    <UploadItem></UploadItem>
                     {/* {
                         uploads.map((upload, key) => (
                             <UploadItem key={key} upload={upload}/>
