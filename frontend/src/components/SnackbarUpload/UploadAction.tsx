@@ -17,9 +17,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     errorIcon: {
         color: theme.palette.error.main
     },
-    deleteIcon: {
-        color: theme.palette.primary.main
-    },
 }));
 
 interface UploadActionProps {
