@@ -25,6 +25,7 @@ import { omit, zipObject } from 'lodash';
 import { InputFileComponent } from '../../../components/InputFile';
 import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
 import LoadingContext from '../../../components/loading/LoadingContext';
+import SnackbarUpload from '../../../components/SnackbarUpload';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -149,6 +150,23 @@ const Form = () => {
     }, [register]);
 
     useEffect(() => {
+
+        snackbar.enqueueSnackbar('', {
+            key: 'snackbar-upload',
+            persist:true,
+            anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'right'
+            },
+            content: (
+                <SnackbarUpload id={'snackbar-upload'}/>
+            )
+            // content: (key) => {
+            //     const id = key as any;
+            //     <SnackbarUpload id={id}/>
+            // }
+        });
+
         if (!id) {
             return;
         }
