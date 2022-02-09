@@ -76,7 +76,6 @@ export const Form = () => {
         //     .then(({ data }) => {
         //         setCategory(data.data);
         //         reset(data.data);
-        //         //console.log(data.data);
         //     })
         //     .catch((error) => {
         //         console.log(error);
