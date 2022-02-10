@@ -9,9 +9,9 @@ export const {Types, Creators} = createActions<{
     // SET_UPLOAD_ERROR: string
 }, {
     addUpload(payload: Typings.AddUploadAction['payload']): Typings.AddUploadAction
-    removeUpload(payload: Typings.RemoveUploadAction['payload']): Typings.RemoveUploadAction
-    updateProgress(payload: Typings.UpdateProgressAction['payload']): Typings.UpdateProgressAction
-    setUploadError(payload: Typings.SetUploadErrorAction['payload']): Typings.SetUploadErrorAction
+    // removeUpload(payload: Typings.RemoveUploadAction['payload']): Typings.RemoveUploadAction
+    // updateProgress(payload: Typings.UpdateProgressAction['payload']): Typings.UpdateProgressAction
+    // setUploadError(payload: Typings.SetUploadErrorAction['payload']): Typings.SetUploadErrorAction
 }>
 ({
     addUpload: ['payload'],

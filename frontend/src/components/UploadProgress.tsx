@@ -31,14 +31,14 @@ const UploadProgress: React.FC<UploadProgressProps> = (props) => {
         <Fade in={true} timeout={{ enter: 100, exit: 2000 }}>
             <div className={classes.progressContainer}>
                 <CircularProgress
-                    variant="static"
+                    variant="determinate"
                     value={100}
                     className={classes.progressBackground}
                     size={size}
                 />
                 <CircularProgress
                     className={classes.progress}
-                    variant="static"
+                    variant="determinate"
                     value={65}
                     //value={error ? 0 : uploadOrFile.progress * 100}
                     size={size}
