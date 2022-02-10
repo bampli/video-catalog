@@ -2,9 +2,8 @@ import * as React from 'react';
 import LoadingContext from "./LoadingContext";
 import { useEffect, useMemo, useState } from "react";
 import {
-    addGlobalRequestInterceptor,
-    addGlobalResponseInterceptor,
-    removeGlobalRequestInterceptor, removeGlobalResponseInterceptor
+    addGlobalRequestInterceptor, removeGlobalRequestInterceptor,
+    addGlobalResponseInterceptor,removeGlobalResponseInterceptor
 } from "../../util/http";
 
 export const LoadingProvider = (props) => {

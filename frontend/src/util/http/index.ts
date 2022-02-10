@@ -43,5 +43,5 @@ export function removeGlobalResponseInterceptor(ids: number[]) {
 }
 
 //interceptors global
-//interceptors instancias
+//interceptors instances
 

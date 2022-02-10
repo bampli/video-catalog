@@ -44,12 +44,15 @@ gcloud kms decrypt
 ## Frontend upgrades
 
 ```
+classnames @2.3.1
+immutability-helper @3.1.1
 material-ui/core @4.12.3
 material-ui/icons @4.11.2
 material-ui/lab @4.0.0-alpha.60
 object-to-formdata @4.4.1
 notistack @1.0.10
 react-hook-form @5.7.2
+react-redux @7.2.6
 redux @4.1.2
 reduxsauce @1.2.1
 use-debounce @7.0.1

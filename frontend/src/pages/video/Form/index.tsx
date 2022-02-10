@@ -25,6 +25,10 @@ import { omit, zipObject } from 'lodash';
 import { InputFileComponent } from '../../../components/InputFile';
 import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
 import LoadingContext from '../../../components/loading/LoadingContext';
+import SnackbarUpload from '../../../components/SnackbarUpload';
+import { useDispatch, useSelector } from "react-redux";
+import { UploadState, Upload } from "../../../store/upload/types";
+import { Creators } from "../../../store/upload";
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -56,7 +60,7 @@ const validationSchema = yup.object().shape({
         .label('Duração')
         .required()
         .min(1),        // original backend added min:1 rule
-      //.xpto()         // see global custom rule created at util/vendor/yup.ts
+    //.xpto()         // see global custom rule created at util/vendor/yup.ts
     genres: yup.array()
         .label('Gêneros')
         .required()
@@ -132,10 +136,31 @@ const Form = () => {
     const castMemberRef = useRef() as React.MutableRefObject<CastMemberFieldComponent>;
     const genreRef = useRef() as React.MutableRefObject<GenreFieldComponent>;
     const categoryRef = useRef() as React.MutableRefObject<CategoryFieldComponent>;
-    
+
     const uploadsRef = useRef(
         zipObject(fileFields, fileFields.map(() => createRef()))
     ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>;
+
+    const uploads = useSelector<UploadState, Upload[]>(
+        (state) => state.uploads
+    );
+
+    const dispatch = useDispatch();
+
+    setTimeout(() => {
+        const obj: any = {
+            video: {
+                id: '1',
+                title: 'E o vento levou'
+            },
+            files: [
+                {file: new File([""], "teste.mp4")}
+            ]
+        }
+        dispatch(Creators.addUpload(obj))
+    }, 1000);
+
+    console.log(uploads);
 
     useEffect(() => {
         [
@@ -149,6 +174,23 @@ const Form = () => {
     }, [register]);
 
     useEffect(() => {
+
+        snackbar.enqueueSnackbar('', {
+            key: 'snackbar-upload',
+            persist: true,
+            anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'right'
+            },
+            content: (
+                <SnackbarUpload id={'snackbar-upload'} />
+            )
+            // content: (key) => {
+            //     const id = key as any;
+            //     <SnackbarUpload id={id}/>
+            // }
+        });
+
         if (!id) {
             return;
         }
@@ -226,7 +268,7 @@ const Form = () => {
         reset(data);    // optional
     }
     //console.log("index", errors);
-    
+
     return (
         <DefaultForm
             GridItemProps={{ xs: 12 }}
