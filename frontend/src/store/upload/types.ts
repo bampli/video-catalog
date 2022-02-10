@@ -61,5 +61,5 @@ export interface SetUploadErrorAction extends AnyAction {
         error: AxiosError
     }
 }
-export type Actions = AddUploadAction;
-// export type Actions = AddUploadAction | RemoveUploadAction | UpdateProgressAction | SetUploadErrorAction;
+
+export type Actions = AddUploadAction | RemoveUploadAction | UpdateProgressAction | SetUploadErrorAction;
