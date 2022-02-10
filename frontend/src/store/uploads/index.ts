@@ -38,11 +38,11 @@ function addUpload(state = INITIAL_STATE, action: Typings.AddUploadAction): Typi
         return state;
     }
 
-    // const index = findIndexUpload(state, action.payload.video.id);
+    const index = findIndexUpload(state, action.payload.video.id);
 
-    // if (index !== -1 && state.uploads[index].progress < 1) {
-    //     return state;
-    // }
+    if (index !== -1 && state.uploads[index].progress < 1) {
+        return state;
+    }
 
     // const uploads = index === -1
     //     ? state.uploads
@@ -160,9 +160,9 @@ function addUpload(state = INITIAL_STATE, action: Typings.AddUploadAction): Typi
 //     return sumProgress / countFiles;
 // }
 
-// function findIndexUpload(state: Typings.UploadState, id: string) {
-//     return state.uploads.findIndex((upload) => upload.video.id === id);
-// }
+function findIndexUpload(state: Typings.UploadState, id: string) {
+    return state.uploads.findIndex((upload) => upload.video.id === id);
+}
 
 // function findIndexFile(files: Array<{ fileField }>, fileField: string) {
 //     return files.findIndex(file => file.fileField === fileField);
