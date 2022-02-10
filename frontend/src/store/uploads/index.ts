@@ -1,6 +1,6 @@
 import * as Typings from "./types";
 import {createActions, createReducer} from 'reduxsauce';
-//import update from 'immutability-helper';
+import update from 'immutability-helper';
 
 export const {Types, Creators} = createActions<{
     ADD_UPLOAD: string,
@@ -44,24 +44,24 @@ function addUpload(state = INITIAL_STATE, action: Typings.AddUploadAction): Typi
         return state;
     }
 
-    // const uploads = index === -1
-    //     ? state.uploads
-    //     : update(state.uploads, {
-    //         $splice: [[index, 1]]
-    //     });
+    const uploads = index === -1
+        ? state.uploads
+        : update(state.uploads, {
+            $splice: [[index, 1]]
+        });
 
     return {
         uploads: [
-            // ...uploads,
-            // {
-            //     video: action.payload.video,
-            //     progress: 0,
-            //     files: action.payload.files.map(file => ({
-            //         fileField: file.fileField,
-            //         filename: file.file.name,
-            //         progress: 0
-            //     }))
-            // }
+            ...uploads,
+            {
+                video: action.payload.video,
+                progress: 0,
+                files: action.payload.files.map(file => ({
+                    fileField: file.fileField,
+                    filename: file.file.name,
+                    progress: 0
+                }))
+            }
         ]
     };
 }

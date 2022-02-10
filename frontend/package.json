@@ -21,6 +21,7 @@
     "axios": "^0.24.0",
     "classnames": "^2.3.1",
     "date-fns": "^2.27.0",
+    "immutability-helper": "^3.1.1",
     "lodash": "^4.17.21",
     "mui-datatables": "^3.8.2",
     "notistack": "^1.0.10",
