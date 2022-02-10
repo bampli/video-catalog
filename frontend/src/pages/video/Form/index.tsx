@@ -160,7 +160,7 @@ const Form = () => {
         dispatch(Creators.addUpload(obj))
     }, 1000);
 
-    console.log(uploads);
+    console.log("uploads->", uploads);
 
     useEffect(() => {
         [
