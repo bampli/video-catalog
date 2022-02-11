@@ -1,4 +1,5 @@
-import {createStore, applyMiddleware, combineReducers} from "redux";
+//import {createStore, applyMiddleware, combineReducers} from "redux";
+import {createStore, combineReducers} from "redux";
 //import createSagaMiddleware from 'redux-saga';
 import upload from "./upload";
 //import rootSaga from "./root-saga";

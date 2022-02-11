@@ -17,7 +17,7 @@ import UploadItem from "./UploadItem";
 import { Page } from "../../components/Page";
 //import {useSelector} from "react-redux";
 //import {Upload, UploadModule} from "../../store/upload/types";
-import { VideoFileFieldsMap } from "../../util/models";
+//import { VideoFileFieldsMap } from "../../util/models";
 
 const useStyles = makeStyles((theme: Theme) => {
     return ({

@@ -1,4 +1,5 @@
-import React, {useEffect, useState} from "react";
+//import React, {useEffect, useState} from "react";
+import React from "react";
 import {Divider, Fade, IconButton, makeStyles, Theme} from "@material-ui/core";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ErrorIcon from "@material-ui/icons/Error";
@@ -37,7 +38,7 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
     //const {uploadOrFile} = props;
     const classes = useStyles();
     //const dispatch = useDispatch();
-    const [show, setShow] = useState(false);
+    //const [show, setShow] = useState(false);
     //const [debouncedShow] = useDebounce(show, 2500);
     //const error = hasError(uploadOrFile);
     //const videoId = (uploadOrFile as any).video ? (uploadOrFile as any).video.id : "";

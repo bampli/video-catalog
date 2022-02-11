@@ -44,7 +44,6 @@ const useStyles = makeStyles((theme: Theme) => ({
         paddingBottom: theme.spacing(2) + 'px !important'
     }
 }));
-
 const validationSchema = yup.object().shape({
     title: yup.string()
         .label('Título')
@@ -88,7 +87,6 @@ const validationSchema = yup.object().shape({
         .label('Classificação')
         .required(),
 });
-
 const fileFields = Object.keys(VideoFileFieldsMap);
 
 const Form = () => {
@@ -145,6 +143,8 @@ const Form = () => {
         (state) => state.uploads
     );
 
+    console.log("uploads-1->", uploads);
+
     const dispatch = useDispatch();
 
     setTimeout(() => {
@@ -160,7 +160,7 @@ const Form = () => {
         dispatch(Creators.addUpload(obj))
     }, 1000);
 
-    console.log("uploads->", uploads);
+    console.log("uploads-2->", uploads);
 
     useEffect(() => {
         [

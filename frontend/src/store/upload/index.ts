@@ -1,24 +1,25 @@
 import * as Typings from "./types";
-import {createActions, createReducer} from 'reduxsauce';
+import { createActions, createReducer } from 'reduxsauce';
 import update from 'immutability-helper';
 
-export const {Types, Creators} = createActions<{
-    ADD_UPLOAD: string,
-    // REMOVE_UPLOAD: string,
-    // UPDATE_PROGRESS: string,
-    // SET_UPLOAD_ERROR: string
-}, {
-    addUpload(payload: Typings.AddUploadAction['payload']): Typings.AddUploadAction
-    // removeUpload(payload: Typings.RemoveUploadAction['payload']): Typings.RemoveUploadAction
-    // updateProgress(payload: Typings.UpdateProgressAction['payload']): Typings.UpdateProgressAction
-    // setUploadError(payload: Typings.SetUploadErrorAction['payload']): Typings.SetUploadErrorAction
-}>
-({
-    addUpload: ['payload'],
-    // removeUpload: ['payload'],
-    // updateProgress: ['payload'],
-    // setUploadError: ['payload'],
-});
+export const { Types, Creators } = createActions<
+    {
+        ADD_UPLOAD: string,
+        // REMOVE_UPLOAD: string,
+        // UPDATE_PROGRESS: string,
+        // SET_UPLOAD_ERROR: string
+    }, {
+        addUpload(payload: Typings.AddUploadAction['payload']): Typings.AddUploadAction
+        // removeUpload(payload: Typings.RemoveUploadAction['payload']): Typings.RemoveUploadAction
+        // updateProgress(payload: Typings.UpdateProgressAction['payload']): Typings.UpdateProgressAction
+        // setUploadError(payload: Typings.SetUploadErrorAction['payload']): Typings.SetUploadErrorAction
+    }>
+    ({
+        addUpload: ['payload'],
+        // removeUpload: ['payload'],
+        // updateProgress: ['payload'],
+        // setUploadError: ['payload'],
+    });
 
 export const INITIAL_STATE: Typings.UploadState = {
     uploads: []
@@ -40,9 +41,9 @@ function addUpload(state = INITIAL_STATE, action: Typings.AddUploadAction): Typi
 
     const index = findIndexUpload(state, action.payload.video.id);
 
-    if (index !== -1 && state.uploads[index].progress < 1) {
-        return state;
-    }
+    // if (index !== -1 && state.uploads[index].progress < 1) {
+    //     return state;
+    // }
 
     const uploads = index === -1
         ? state.uploads
