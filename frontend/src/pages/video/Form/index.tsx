@@ -139,10 +139,14 @@ const Form = () => {
         zipObject(fileFields, fileFields.map(() => createRef()))
     ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>;
 
-    const uploads = useSelector<UploadState, Upload[]>(
-        (state) => state.uploads
-    );
+    // const uploads = useSelector<UploadState, Upload[]>(
+    //     (state) => state.uploads
+    // );
 
+    const uploads = useSelector(
+        (state) => state
+    );
+    
     console.log("uploads-1->", uploads);
 
     const dispatch = useDispatch();

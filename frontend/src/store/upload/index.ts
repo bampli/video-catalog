@@ -41,9 +41,9 @@ function addUpload(state = INITIAL_STATE, action: Typings.AddUploadAction): Typi
 
     const index = findIndexUpload(state, action.payload.video.id);
 
-    // if (index !== -1 && state.uploads[index].progress < 1) {
-    //     return state;
-    // }
+    if (index !== -1 && state.uploads[index].progress < 1) {
+        return state;
+    }
 
     const uploads = index === -1
         ? state.uploads
