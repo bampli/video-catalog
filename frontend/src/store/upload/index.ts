@@ -7,18 +7,18 @@ export const { Types, Creators } = createActions<
         ADD_UPLOAD: string,
         REMOVE_UPLOAD: string,
         UPDATE_PROGRESS: string,
-        // SET_UPLOAD_ERROR: string
+        SET_UPLOAD_ERROR: string
     }, {
         addUpload(payload: Typings.AddUploadAction['payload']): Typings.AddUploadAction
         removeUpload(payload: Typings.RemoveUploadAction['payload']): Typings.RemoveUploadAction
         updateProgress(payload: Typings.UpdateProgressAction['payload']): Typings.UpdateProgressAction
-        // setUploadError(payload: Typings.SetUploadErrorAction['payload']): Typings.SetUploadErrorAction
+        setUploadError(payload: Typings.SetUploadErrorAction['payload']): Typings.SetUploadErrorAction
     }>
     ({
         addUpload: ['payload'],
         removeUpload: ['payload'],
         updateProgress: ['payload'],
-        // setUploadError: ['payload'],
+        setUploadError: ['payload'],
     });
 
 export const INITIAL_STATE: Typings.UploadState = {
@@ -29,7 +29,7 @@ const reducer = createReducer<Typings.UploadState, Typings.Actions>(INITIAL_STAT
     [Types.ADD_UPLOAD]: addUpload as any,
     [Types.REMOVE_UPLOAD]: removeUpload as any,
     [Types.UPDATE_PROGRESS]: updateProgress as any,
-    // [Types.SET_UPLOAD_ERROR]: setUploadError as any
+    [Types.SET_UPLOAD_ERROR]: setUploadError as any
 });
 
 export default reducer;
@@ -129,31 +129,31 @@ function updateProgress(state: Typings.UploadState = INITIAL_STATE, action: Typi
     return {uploads};
 }
 
-// function setUploadError(state: Typings.UploadState = INITIAL_STATE, action: Typings.SetUploadErrorAction): Typings.UploadState {
-//     //indexUpload, indexFile
-//     const videoId = action.payload.video.id;
-//     const fileField = action.payload.fileField;
-//     const {indexUpload, indexFile} = findIndexUploadAndFile(state, videoId, fileField);
+function setUploadError(state: Typings.UploadState = INITIAL_STATE, action: Typings.SetUploadErrorAction): Typings.UploadState {
+    //indexUpload, indexFile
+    const videoId = action.payload.video.id;
+    const fileField = action.payload.fileField;
+    const {indexUpload, indexFile} = findIndexUploadAndFile(state, videoId, fileField);
 
-//     if (typeof indexUpload === "undefined") {
-//         return state;
-//     }
+    if (typeof indexUpload === "undefined") {
+        return state;
+    }
 
-//     const upload = state.uploads[indexUpload];
-//     const file = upload.files[indexFile];
+    const upload = state.uploads[indexUpload];
+    const file = upload.files[indexFile];
 
-//     const uploads = update(state.uploads, {
-//         [indexUpload]: {
-//             files: {
-//                 [indexFile]: {
-//                     $set: {...file, error: action.payload.error, progress: 1}
-//                 }
-//             }
-//         }
-//     });
+    const uploads = update(state.uploads, {
+        [indexUpload]: {
+            files: {
+                [indexFile]: {
+                    $set: {...file, error: action.payload.error, progress: 1}
+                }
+            }
+        }
+    });
 
-//     return {uploads};
-// }
+    return {uploads};
+}
 
 function findIndexUploadAndFile(state: Typings.UploadState, videoId, fileField): { indexUpload?, indexFile? } {
     const indexUpload = findIndexUpload(state, videoId);
