@@ -147,24 +147,38 @@ const Form = () => {
         (state) => state
     );
     
-    console.log("uploads-1->", uploads);
-
     const dispatch = useDispatch();
 
-    setTimeout(() => {
-        const obj: any = {
-            video: {
-                id: '1',
-                title: 'E o vento levou'
-            },
-            files: [
-                {file: new File([""], "teste.mp4")}
-            ]
-        }
-        dispatch(Creators.addUpload(obj))
-    }, 1000);
-
-    console.log("uploads-2->", uploads);
+    React.useMemo(() => {
+        setTimeout(() => {
+            const obj: any = {
+                video: {
+                    id: '1',
+                    title: 'E o vento levou'
+                },
+                files: [
+                    {
+                        file: new File([""], "teste.mp4"),
+                        fileField: "trailer_file"
+                    },
+                    {
+                        file: new File([""], "teste.mp4"),
+                        fileField: "video_file"
+                    }
+                ]
+            }
+            dispatch(Creators.addUpload(obj));
+            const progress1 = {
+                fileField: "trailer_file",
+                progress: 10,
+                video: {id: '1'}
+            } as any;
+            dispatch(Creators.updateProgress(progress1));
+        }, 1000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [true]);
+    
+    console.log("uploads->", uploads);
 
     useEffect(() => {
         [
