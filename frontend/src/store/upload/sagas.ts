@@ -12,14 +12,14 @@ export function* uploadWatcherSaga() {
     while (true) {
         const {payload}: AddUploadAction = yield take(newFilesChannel); //[ [], [] ]
         console.log(yield select((state) => state));
-        for (const fileInfo of payload.files) {
-            try {
-                const response = yield call(uploadFile, {video: payload.video, fileInfo});
-                console.log(response);
-            }catch (e) {
-                console.log(e);
-            }
-        }
+        // for (const fileInfo of payload.files) {
+        //     try {
+        //         const response = yield call(uploadFile, {video: payload.video, fileInfo});
+        //         console.log(response);
+        //     }catch (e) {
+        //         console.log(e);
+        //     }
+        // }
         console.log(payload);
     }
 }
@@ -48,7 +48,7 @@ function* uploadFile({video, fileInfo}: { video: Video, fileInfo: FileInfo }) {
             yield put(Creators.setUploadError({
                 video,
                 fileField: fileInfo.fileField,
-                error: e
+                error: e as any
             }));
             throw e;
         }
@@ -62,33 +62,33 @@ function* uploadFile({video, fileInfo}: { video: Video, fileInfo: FileInfo }) {
 
 function sendUpload({id, fileInfo}: { id: string, fileInfo: FileInfo }) {
     return eventChannel(emitter => {
-        videoHttp.partialUpdate(
-            id,
-            {
-                _method: 'PATCH',
-                [fileInfo.fileField]: fileInfo.file
-            },
-            {
-                http: {
-                    usePost: true
-                },
-                config: {
-                    headers: {
-                        'x-ignore-loading': true
-                    },
-                    onUploadProgress(progressEvent: ProgressEvent) {
-                        if(progressEvent.lengthComputable) {
-                            const progress = progressEvent.loaded / progressEvent.total;
-                            console.log(progress);
-                            emitter({progress});
-                        }
-                    }
-                }
-            }
-        )
-            .then(response => emitter({response}))
-            .catch(error => emitter(error))
-            .finally(() => emitter(END));
+        // videoHttp.partialUpdate(
+        //     id,
+        //     {
+        //         _method: 'PATCH',
+        //         [fileInfo.fileField]: fileInfo.file
+        //     },
+        //     {
+        //         http: {
+        //             usePost: true
+        //         },
+        //         config: {
+        //             headers: {
+        //                 'x-ignore-loading': true
+        //             },
+        //             onUploadProgress(progressEvent: ProgressEvent) {
+        //                 if(progressEvent.lengthComputable) {
+        //                     const progress = progressEvent.loaded / progressEvent.total;
+        //                     console.log(progress);
+        //                     emitter({progress});
+        //                 }
+        //             }
+        //         }
+        //     }
+        // )
+        //     .then(response => emitter({response}))
+        //     .catch(error => emitter(error))
+        //     .finally(() => emitter(END));
 
         const unsubscribe = () => {
         };
