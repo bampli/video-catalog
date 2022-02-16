@@ -62,33 +62,33 @@ function* uploadFile({video, fileInfo}: { video: Video, fileInfo: FileInfo }) {
 
 function sendUpload({id, fileInfo}: { id: string, fileInfo: FileInfo }) {
     return eventChannel(emitter => {
-        // videoHttp.partialUpdate(
-        //     id,
-        //     {
-        //         _method: 'PATCH',
-        //         [fileInfo.fileField]: fileInfo.file
-        //     },
-        //     {
-        //         http: {
-        //             usePost: true
-        //         },
-        //         config: {
-        //             headers: {
-        //                 'x-ignore-loading': true
-        //             },
-        //             onUploadProgress(progressEvent: ProgressEvent) {
-        //                 if(progressEvent.lengthComputable) {
-        //                     const progress = progressEvent.loaded / progressEvent.total;
-        //                     console.log(progress);
-        //                     emitter({progress});
-        //                 }
-        //             }
-        //         }
-        //     }
-        // )
-        //     .then(response => emitter({response}))
-        //     .catch(error => emitter(error))
-        //     .finally(() => emitter(END));
+        videoHttp.partialUpdate(
+            id,
+            {
+                _method: 'PATCH',
+                [fileInfo.fileField]: fileInfo.file
+            },
+            {
+                http: {
+                    usePost: true
+                },
+                config: {
+                    headers: {
+                        'x-ignore-loading': true
+                    },
+                    onUploadProgress(progressEvent: ProgressEvent) {
+                        if(progressEvent.lengthComputable) {
+                            const progress = progressEvent.loaded / progressEvent.total;
+                            console.log(progress);
+                            emitter({progress});
+                        }
+                    }
+                }
+            }
+        )
+            .then(response => emitter({response}))
+            .catch(error => emitter(error))
+            .finally(() => emitter(END));
 
         const unsubscribe = () => {
         };
