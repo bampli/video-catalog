@@ -27,7 +27,7 @@ import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
 import LoadingContext from '../../../components/loading/LoadingContext';
 import SnackbarUpload from '../../../components/SnackbarUpload';
 import { useDispatch, useSelector } from "react-redux";
-import { UploadState, Upload } from "../../../store/upload/types";
+import { UploadModule, UploadState, Upload } from "../../../store/upload/types";
 import { Creators } from "../../../store/upload";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -139,14 +139,10 @@ const Form = () => {
         zipObject(fileFields, fileFields.map(() => createRef()))
     ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>;
 
-    // const uploads = useSelector<UploadState, Upload[]>(
-    //     (state) => state.uploads
-    // );
-
-    const uploads = useSelector(
-        (state) => state
+    const uploads = useSelector<UploadModule, Upload[]>(
+        (state) => state.upload.uploads
     );
-    
+
     const dispatch = useDispatch();
 
     React.useMemo(() => {
