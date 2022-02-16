@@ -74,7 +74,7 @@ function sendUpload({id, fileInfo}: { id: string, fileInfo: FileInfo }) {
                     usePost: true
                 },
                 config: {
-                    headers: {
+                    headers: {  // see loading/LoadingProvider.tsx about config.headers: 'x-ignore-loading'
                         'x-ignore-loading': 'true'
                     },
                     onUploadProgress(progressEvent: ProgressEvent) {
