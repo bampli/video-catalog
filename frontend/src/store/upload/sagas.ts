@@ -4,6 +4,7 @@ import {actionChannel, take, call, put, select} from 'redux-saga/effects';
 import {AddUploadAction, FileInfo} from "./types";
 import {Video} from "../../util/models";
 import videoHttp from "../../util/http/video-http";
+import {AxiosError} from "axios";
 
 export function* uploadWatcherSaga() {
 
@@ -12,14 +13,14 @@ export function* uploadWatcherSaga() {
     while (true) {
         const {payload}: AddUploadAction = yield take(newFilesChannel); //[ [], [] ]
         console.log(yield select((state) => state));
-        // for (const fileInfo of payload.files) {
-        //     try {
-        //         const response = yield call(uploadFile, {video: payload.video, fileInfo});
-        //         console.log(response);
-        //     }catch (e) {
-        //         console.log(e);
-        //     }
-        // }
+        for (const fileInfo of payload.files) {
+            try {
+                const response = yield call(uploadFile, {video: payload.video, fileInfo});
+                console.log(response);
+            }catch (e) {
+                console.log(e);
+            }
+        }
         console.log(payload);
     }
 }
@@ -48,7 +49,7 @@ function* uploadFile({video, fileInfo}: { video: Video, fileInfo: FileInfo }) {
             yield put(Creators.setUploadError({
                 video,
                 fileField: fileInfo.fileField,
-                error: e as any
+                error: e as AxiosError
             }));
             throw e;
         }
@@ -74,7 +75,7 @@ function sendUpload({id, fileInfo}: { id: string, fileInfo: FileInfo }) {
                 },
                 config: {
                     headers: {
-                        'x-ignore-loading': true
+                        'x-ignore-loading': 'true'
                     },
                     onUploadProgress(progressEvent: ProgressEvent) {
                         if(progressEvent.lengthComputable) {
