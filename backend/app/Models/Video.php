@@ -36,6 +36,9 @@ class Video extends Model
     protected $dates = ['deleted_at'];
 
     public $incrementing = false;
+    protected $keyType = 'string';
+    protected $hidden = ['video_file', 'thumb_file', 'banner_file', 'trailer_file'];
+    public static $fileFields = ['video_file', 'thumb_file', 'banner_file', 'trailer_file'];
 
     protected $casts = [
         'id' => 'string',
@@ -43,8 +46,6 @@ class Video extends Model
         'year_launched' => 'integer',
         'duration' => 'integer'
     ];
-
-    public static $fileFields = ['video_file', 'thumb_file', 'banner_file', 'trailer_file'];
 
     public static function create(array $attributes = [])
     {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
     Card, CardContent, Checkbox,
-    FormControlLabel, FormHelperText, Grid, makeStyles,
+    FormControlLabel, Grid, makeStyles,
     TextField, Theme, Typography,
     useMediaQuery, useTheme
 } from "@material-ui/core";
@@ -29,7 +29,7 @@ import SnackbarUpload from '../../../components/SnackbarUpload';
 import { useDispatch } from "react-redux";
 //import { UploadModule, UploadState, Upload } from "../../../store/upload/types";
 import { Creators } from "../../../store/upload";
-import {FileInfo} from "../../../store/upload/types";
+import { FileInfo } from "../../../store/upload/types";
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -244,13 +244,13 @@ const Form = () => {
     function uploadFiles(video) {
         const files: FileInfo[] = fileFields
             .filter(fileField => getValues()[fileField])
-            .map(fileField => ({fileField, file: getValues()[fileField] as File}));
+            .map(fileField => ({ fileField, file: getValues()[fileField] as File }));
 
         if (!files.length) {
             return;
         }
 
-        dispatch(Creators.addUpload({video, files}));
+        dispatch(Creators.addUpload({ video, files }));
 
         snackbar.enqueueSnackbar('', {
             key: 'snackbar-upload',
@@ -261,7 +261,7 @@ const Form = () => {
             },
             content: (key, message) => {
                 const id = key as any;
-                return <SnackbarUpload id={id}/>
+                return <SnackbarUpload id={id} />
             }
         });
     }
@@ -330,17 +330,14 @@ const Form = () => {
                             />
                         </Grid>
                     </Grid>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <CastMemberField
-                                ref={castMemberRef}
-                                castMembers={watch('cast_members')}
-                                setCastMembers={(value) => setValue('cast_members', value, true)}
-                                error={errors.cast_members}
-                                disabled={loading}
-                            />
-                        </Grid>
-                    </Grid>
+
+                    <CastMemberField
+                        ref={castMemberRef}
+                        castMembers={watch('cast_members')}
+                        setCastMembers={(value) => setValue('cast_members', value, true)}
+                        error={errors.cast_members}
+                        disabled={loading}
+                    />
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <GenreField
@@ -363,14 +360,6 @@ const Form = () => {
                                 error={errors.categories}
                                 disabled={loading}
                             />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <FormHelperText>
-                                Escolha pelo menos um gênero de vídeo.
-                            </FormHelperText>
-                            <FormHelperText>
-                                Escolha pelo menos uma categoria de cada gênero.
-                            </FormHelperText>
                         </Grid>
                     </Grid>
                 </Grid>
