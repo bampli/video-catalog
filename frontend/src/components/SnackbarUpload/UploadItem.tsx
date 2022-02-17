@@ -12,7 +12,7 @@ import MovieIcon from "@material-ui/icons/Movie";
 import UploadProgress from "../UploadProgress";
 import UploadAction from "./UploadAction";
 import { Upload } from "../../store/upload/types";
-// import { hasError } from "../../store/upload/getters";
+import { hasError } from "../../store/upload/getters";
 // import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -39,15 +39,16 @@ interface UploadItemProps {
 const UploadItem: React.FC<UploadItemProps> = (props) => {
     const { upload } = props;
     const classes = useStyles();
+    const error = hasError(upload);
+
     return (
         <>
             <Tooltip
-                // disableFocusListener
-                // disableTouchListener
-                // title={
-                //    error ? "Não foi possível fazer o upload, clique para mais detalhes" : ""
-                // }
-                title={"Não foi possível fazer o upload, clique para mais detalhes"}
+                disableFocusListener
+                disableTouchListener
+                title={
+                   error ? "Não foi possível fazer o upload, clique para mais detalhes" : ""
+                }
                 placement={"left"}
             >
                 <ListItem

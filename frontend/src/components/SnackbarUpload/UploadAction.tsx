@@ -6,7 +6,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import {Upload} from "../../store/upload/types";
 import {useDispatch} from "react-redux";
 import {Creators} from '../../store/upload';
-// import {hasError, isFinished} from "../../store/upload/getters";
+import {hasError, isFinished} from "../../store/upload/getters";
 // import { useEffect, useState } from "react";
 // import { useDebounce } from "use-debounce";
 
@@ -29,7 +29,7 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
     const {upload} = props;
     const classes = useStyles();
     const dispatch = useDispatch();
-    // const error = hasError(upload);
+    const error = hasError(upload);
     // const [show, setShow] = useState(false);
     // const [debouncedShow] = useDebounce(show, 2500);
 
@@ -45,18 +45,18 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
                     <span hidden={false}>
                     {/* <span hidden={hover}> */}
                         {
-                            upload.progress === 1 && ( //&& !error && (
+                            upload.progress === 1 && !error && (
                                 <IconButton className={classes.successIcon} edge={"end"}>
                                     <CheckCircleIcon />
                                 </IconButton>
                             )
                         }
                         {
-                            //error && (
+                            error && (
                                 <IconButton className={classes.errorIcon} edge={"end"}>
                                     <ErrorIcon />
                                 </IconButton>
-                            //)
+                            )
                         }
                     </span>
                     {/* <span hidden={!hover}> */}

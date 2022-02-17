@@ -9,7 +9,7 @@ import {Link} from "react-router-dom";
 import {FileUpload, Upload} from "../../store/upload/types";
 import {Creators} from '../../store/upload';
 import {useDispatch} from "react-redux";
-//import {hasError, isFinished, isUploadType} from "../../store/upload/getters";
+import {hasError, isFinished, isUploadType} from "../../store/upload/getters";
 //import {useDebounce} from "use-debounce";
 
 const useStyles = makeStyles((theme: Theme) => {
@@ -40,9 +40,9 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
     const dispatch = useDispatch();
     //const [show, setShow] = useState(false);
     //const [debouncedShow] = useDebounce(show, 2500);
-    //const error = hasError(uploadOrFile);
+    const error = hasError(uploadOrFile);
     const videoId = (uploadOrFile as any).video ? (uploadOrFile as any).video.id : "";
-    //const activeActions = isUploadType(uploadOrFile);
+    const activeActions = isUploadType(uploadOrFile);
 
     // useEffect(() => {
     //     setShow(isFinished(uploadOrFile))
@@ -54,12 +54,11 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
                 <>
                     {
                         uploadOrFile.progress === 1 &&
-                        // !error &&
+                        !error &&
                         <CheckCircleIcon className={classes.successIcon}/>
                     }
 
-                    {/* {error && <ErrorIcon className={classes.errorIcon}/>} */}
-                    <ErrorIcon className={classes.errorIcon}/>
+                    {error && <ErrorIcon className={classes.errorIcon}/>}
 
                     {
                         //activeActions && (
