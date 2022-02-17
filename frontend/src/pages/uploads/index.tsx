@@ -18,8 +18,6 @@ import { Page } from "../../components/Page";
 import { useSelector } from "react-redux";
 import { Upload, UploadModule } from "../../store/upload/types";
 import { VideoFileFieldsMap } from "../../util/models";
-import { Creators } from "../../store/upload";
-import { useDispatch } from "react-redux";
 
 const useStyles = makeStyles((theme: Theme) => {
     return ({
@@ -39,37 +37,6 @@ const Uploads = () => {
     const uploads = useSelector<UploadModule, Upload[]>(
         (state) => state.upload.uploads
     );
-
-    const dispatch = useDispatch();
-
-    React.useMemo(() => {
-        setTimeout(() => {
-            const obj: any = {
-                video: {
-                    id: '1',
-                    title: 'E o vento levou'
-                },
-                files: [
-                    {
-                        file: new File([""], "teste.mp4"),
-                        fileField: "trailer_file"
-                    },
-                    {
-                        file: new File([""], "teste.mp4"),
-                        fileField: "video_file"
-                    }
-                ]
-            }
-            dispatch(Creators.addUpload(obj));
-            const progress1 = {
-                fileField: "trailer_file",
-                progress: 10,
-                video: { id: '1' }
-            } as any;
-            dispatch(Creators.updateProgress(progress1));
-        }, 1000);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [true]);
 
     return (
         <Page title={'Uploads'}>
