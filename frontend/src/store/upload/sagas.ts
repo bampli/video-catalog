@@ -81,7 +81,7 @@ function sendUpload({id, fileInfo}: { id: string, fileInfo: FileInfo }) {
                         if(progressEvent.lengthComputable) {
                             const progress = progressEvent.loaded / progressEvent.total;
                             console.log(progress);
-                            emitter({progress});
+                            emitter({progress});    // 0..1
                         }
                     }
                 }

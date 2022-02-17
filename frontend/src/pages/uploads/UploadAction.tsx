@@ -6,9 +6,9 @@ import ErrorIcon from "@material-ui/icons/Error";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import {Link} from "react-router-dom";
-//import {FileUpload, Upload} from "../../store/upload/types";
-//import {Creators} from '../../store/upload';
-//import {useDispatch} from "react-redux";
+import {FileUpload, Upload} from "../../store/upload/types";
+import {Creators} from '../../store/upload';
+import {useDispatch} from "react-redux";
 //import {hasError, isFinished, isUploadType} from "../../store/upload/getters";
 //import {useDebounce} from "use-debounce";
 
@@ -31,17 +31,17 @@ const useStyles = makeStyles((theme: Theme) => {
 });
 
 interface UploadActionProps {
-    //uploadOrFile: Upload | FileUpload
+    uploadOrFile: Upload | FileUpload
 }
 
 const UploadAction: React.FC<UploadActionProps> = (props) => {
-    //const {uploadOrFile} = props;
+    const {uploadOrFile} = props;
     const classes = useStyles();
-    //const dispatch = useDispatch();
+    const dispatch = useDispatch();
     //const [show, setShow] = useState(false);
     //const [debouncedShow] = useDebounce(show, 2500);
     //const error = hasError(uploadOrFile);
-    //const videoId = (uploadOrFile as any).video ? (uploadOrFile as any).video.id : "";
+    const videoId = (uploadOrFile as any).video ? (uploadOrFile as any).video.id : "";
     //const activeActions = isUploadType(uploadOrFile);
 
     // useEffect(() => {
@@ -53,7 +53,7 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
             ? (<Fade in={true} timeout={{enter: 1000}}>
                 <>
                     {
-                        // uploadOrFile.progress === 1 &&
+                        uploadOrFile.progress === 1 &&
                         // !error &&
                         <CheckCircleIcon className={classes.successIcon}/>
                     }
@@ -66,7 +66,7 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
                             <>
                                 <Divider className={classes.divider} orientation={'vertical'}/>
                                 <IconButton
-                                    // onClick={() => dispatch(Creators.removeUpload({id: videoId}))}
+                                    onClick={() => dispatch(Creators.removeUpload({id: videoId}))}
                                 >
                                     <DeleteIcon color={'primary'}/>
                                 </IconButton>

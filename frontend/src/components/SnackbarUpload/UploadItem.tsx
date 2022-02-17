@@ -11,7 +11,7 @@ import {
 import MovieIcon from "@material-ui/icons/Movie";
 import UploadProgress from "../UploadProgress";
 import UploadAction from "./UploadAction";
-// import { Upload } from "../../store/upload/types";
+import { Upload } from "../../store/upload/types";
 // import { hasError } from "../../store/upload/getters";
 // import { useState } from "react";
 
@@ -33,11 +33,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 interface UploadItemProps {
-    //upload: Upload;
+    upload: Upload;
 }
 
 const UploadItem: React.FC<UploadItemProps> = (props) => {
-    //const { upload } = props;
+    const { upload } = props;
     const classes = useStyles();
     return (
         <>
@@ -63,13 +63,12 @@ const UploadItem: React.FC<UploadItemProps> = (props) => {
                         className={classes.listItemText}
                         primary={
                             <Typography noWrap={true} variant={'subtitle2'} color={"inherit"}>
-                                E o vento levou!
+                                {upload.video.title}
                             </Typography>
                         }
                     />
-                    <UploadProgress size={30} />
-                    <UploadAction />
-                    {/* <UploadProgress size={30} uploadOrFile={upload}/> */}
+                    <UploadProgress size={30} uploadOrFile={upload}/>
+                    <UploadAction upload={upload} />
                     {/* <UploadAction upload={upload} hover={itemHover}/> */}
                 </ListItem>
             </Tooltip>
