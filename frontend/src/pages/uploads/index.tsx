@@ -15,8 +15,8 @@ import {
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import UploadItem from "./UploadItem";
 import { Page } from "../../components/Page";
-//import {useSelector} from "react-redux";
-//import {Upload, UploadModule} from "../../store/upload/types";
+import { useSelector } from "react-redux";
+import { Upload, UploadModule } from "../../store/upload/types";
 import { VideoFileFieldsMap } from "../../util/models";
 
 const useStyles = makeStyles((theme: Theme) => {
@@ -34,41 +34,47 @@ const useStyles = makeStyles((theme: Theme) => {
 const Uploads = () => {
     const classes = useStyles();
 
-    // const uploads = useSelector<UploadModule, Upload[]>(
-    //     (state) => state.upload.uploads
-    // );
+    const uploads = useSelector<UploadModule, Upload[]>(
+        (state) => state.upload.uploads
+    );
 
     return (
         <Page title={'Uploads'}>
-            {/* {
-                uploads.map((upload, key) => ( */}
-            <Card elevation={5} >
-                <CardContent>
-                    <UploadItem>
-                        E o vento levou!
-                    </UploadItem>
-                    <Accordion style={{ margin: 0 }}>
-                        <AccordionSummary
-                            className={classes.panelSummary}
-                            expandIcon={<ExpandMoreIcon className={classes.expandedIcon} />}
-                        >
-                            <Typography>Ver detalhes</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails style={{ padding: '0px' }}>
-                            <Grid item xs={12}>
-                                <List dense={true} style={{ padding: '0px' }}>
-                                    <Divider />
-                                    <UploadItem >
-                                        Principal - nomedoarquivo.mp4
-                                    </UploadItem>
-                                </List>
-                            </Grid>
-                        </AccordionDetails>
-                    </Accordion>
-                </CardContent>
-            </Card>
-            {/* //     ))
-            // } */}
+            {
+                uploads.map((upload, key) => (
+                    <Card elevation={5} key={key}>
+                        <CardContent>
+                            <UploadItem uploadOrFile={upload}>
+                                {upload.video.title}
+                            </UploadItem>
+                            <Accordion style={{ margin: 0 }}>
+                                <AccordionSummary
+                                    className={classes.panelSummary}
+                                    expandIcon={<ExpandMoreIcon className={classes.expandedIcon} />}
+                                >
+                                    <Typography>Ver detalhes</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails style={{ padding: '0px' }}>
+                                    <Grid item xs={12}>
+                                        <List dense={true} style={{ padding: '0px' }}>
+                                            {
+                                                upload.files.map((file, key) => (
+                                                    <React.Fragment key={key}>
+                                                        <Divider />
+                                                        <UploadItem uploadOrFile={file}>
+                                                            {`${VideoFileFieldsMap[file.fileField]} - ${file.filename}`}
+                                                        </UploadItem>
+                                                    </React.Fragment>
+                                                ))
+                                            }
+                                        </List>
+                                    </Grid>
+                                </AccordionDetails>
+                            </Accordion>
+                        </CardContent>
+                    </Card>
+                ))
+            }
         </Page>
     );
 };

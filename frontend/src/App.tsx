@@ -9,7 +9,7 @@ import { AppRouter } from './routes/AppRouter';
 import Breadcrumbs from './components/Breadcrumbs';
 import theme from './theme';
 import { SnackbarProvider } from './components/SnackbarProvider';
-import {LoadingProvider} from "./components/loading/LoadingProvider";
+import { LoadingProvider } from "./components/loading/LoadingProvider";
 import Spinner from './components/Spinner';
 
 const App: React.FC = () => {
@@ -17,8 +17,8 @@ const App: React.FC = () => {
     <React.Fragment>
       <LoadingProvider>
         <ThemeProvider theme={theme}>
-          <CssBaseline />
           <SnackbarProvider>
+            <CssBaseline />
             <BrowserRouter>
               <Spinner />
               <Navbar />

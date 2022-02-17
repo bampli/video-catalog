@@ -15,10 +15,13 @@ export const LoadingProvider = (props) => {
         let isSubscribed = true;
         //axios.interceptors.request.use();
         const requestIds = addGlobalRequestInterceptor((config) => {
+            // see store/upload/sagas.ts about config.headers: 'x-ignore-loading'
             if (isSubscribed && (!config.headers || !config.headers.hasOwnProperty('x-ignore-loading'))) {
                 setLoading(true);
                 setCountRequest((prevCountRequest) => prevCountRequest + 1);
             }
+            // do we need to extract header? 'x-ignore-loading'
+            // config.headers = omit(config.headers, 'x-ignore-loading'); // import omit from lodash
             return config;
         });
         //axios.interceptors.response.use();

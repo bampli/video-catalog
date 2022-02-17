@@ -11,9 +11,9 @@ import {
 import MovieIcon from "@material-ui/icons/Movie";
 import UploadProgress from "../UploadProgress";
 import UploadAction from "./UploadAction";
-// import { Upload } from "../../store/upload/types";
-// import { hasError } from "../../store/upload/getters";
-// import { useState } from "react";
+import { Upload } from "../../store/upload/types";
+import { hasError } from "../../store/upload/getters";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) => ({
     listItem: {
@@ -33,28 +33,30 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 interface UploadItemProps {
-    //upload: Upload;
+    upload: Upload;
 }
 
 const UploadItem: React.FC<UploadItemProps> = (props) => {
-    //const { upload } = props;
+    const { upload } = props;
     const classes = useStyles();
+    const error = hasError(upload);
+    const [itemHover, setItemHover] = useState(false);
+
     return (
         <>
             <Tooltip
-                // disableFocusListener
-                // disableTouchListener
-                // title={
-                //    error ? "Não foi possível fazer o upload, clique para mais detalhes" : ""
-                // }
-                title={"Não foi possível fazer o upload, clique para mais detalhes"}
+                disableFocusListener
+                disableTouchListener
+                title={
+                    error ? "Não foi possível fazer o upload, clique para mais detalhes" : ""
+                }
                 placement={"left"}
             >
                 <ListItem
                     className={classes.listItem}
                     button
-                // onMouseOver={() => setItemHover(true)}
-                // onMouseLeave={() => setItemHover(false)}
+                    onMouseOver={() => setItemHover(true)}
+                    onMouseLeave={() => setItemHover(false)}
                 >
                     <ListItemIcon className={classes.movieIcon}>
                         <MovieIcon />
@@ -63,14 +65,12 @@ const UploadItem: React.FC<UploadItemProps> = (props) => {
                         className={classes.listItemText}
                         primary={
                             <Typography noWrap={true} variant={'subtitle2'} color={"inherit"}>
-                                E o vento levou!
+                                {upload.video.title}
                             </Typography>
                         }
                     />
-                    <UploadProgress size={30} />
-                    <UploadAction />
-                    {/* <UploadProgress size={30} uploadOrFile={upload}/> */}
-                    {/* <UploadAction upload={upload} hover={itemHover}/> */}
+                    <UploadProgress size={30} uploadOrFile={upload} />
+                    <UploadAction upload={upload} hover={itemHover} />
                 </ListItem>
             </Tooltip>
             <Divider component="li" />
