@@ -1,5 +1,4 @@
-//import React, {useEffect, useState} from "react";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Divider, Fade, IconButton, makeStyles, Theme} from "@material-ui/core";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ErrorIcon from "@material-ui/icons/Error";
@@ -10,7 +9,7 @@ import {FileUpload, Upload} from "../../store/upload/types";
 import {Creators} from '../../store/upload';
 import {useDispatch} from "react-redux";
 import {hasError, isFinished, isUploadType} from "../../store/upload/getters";
-//import {useDebounce} from "use-debounce";
+import {useDebounce} from "use-debounce";
 
 const useStyles = makeStyles((theme: Theme) => {
     return ({
@@ -38,18 +37,18 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
     const {uploadOrFile} = props;
     const classes = useStyles();
     const dispatch = useDispatch();
-    //const [show, setShow] = useState(false);
-    //const [debouncedShow] = useDebounce(show, 2500);
+    const [show, setShow] = useState(false);
+    const [debouncedShow] = useDebounce(show, 2500);
     const error = hasError(uploadOrFile);
     const videoId = (uploadOrFile as any).video ? (uploadOrFile as any).video.id : "";
     const activeActions = isUploadType(uploadOrFile);
 
-    // useEffect(() => {
-    //     setShow(isFinished(uploadOrFile))
-    // }, [uploadOrFile]);
+    useEffect(() => {
+        setShow(isFinished(uploadOrFile))
+    }, [uploadOrFile]);
 
     return (
-        true // debouncedShow
+        debouncedShow
             ? (<Fade in={true} timeout={{enter: 1000}}>
                 <>
                     {
@@ -61,7 +60,7 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
                     {error && <ErrorIcon className={classes.errorIcon}/>}
 
                     {
-                        //activeActions && (
+                        activeActions && (
                             <>
                                 <Divider className={classes.divider} orientation={'vertical'}/>
                                 <IconButton
@@ -71,13 +70,12 @@ const UploadAction: React.FC<UploadActionProps> = (props) => {
                                 </IconButton>
                                 <IconButton
                                     component={Link}
-                                    // to={`/videos/${videoId}/edit`}
-                                    to={`/videos/0d14f6d5-d419-4520-af39-27e37b24651b/edit`}
+                                    to={`/videos/${videoId}/edit`}
                                 >
                                     <EditIcon color={'primary'}/>
                                 </IconButton>
                             </>
-                        //)
+                        )
                     }
                 </>
             </Fade>)

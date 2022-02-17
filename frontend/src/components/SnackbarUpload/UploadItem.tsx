@@ -13,7 +13,7 @@ import UploadProgress from "../UploadProgress";
 import UploadAction from "./UploadAction";
 import { Upload } from "../../store/upload/types";
 import { hasError } from "../../store/upload/getters";
-// import { useState } from "react";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) => ({
     listItem: {
@@ -40,6 +40,7 @@ const UploadItem: React.FC<UploadItemProps> = (props) => {
     const { upload } = props;
     const classes = useStyles();
     const error = hasError(upload);
+    const [itemHover, setItemHover] = useState(false);
 
     return (
         <>
@@ -47,15 +48,15 @@ const UploadItem: React.FC<UploadItemProps> = (props) => {
                 disableFocusListener
                 disableTouchListener
                 title={
-                   error ? "Não foi possível fazer o upload, clique para mais detalhes" : ""
+                    error ? "Não foi possível fazer o upload, clique para mais detalhes" : ""
                 }
                 placement={"left"}
             >
                 <ListItem
                     className={classes.listItem}
                     button
-                // onMouseOver={() => setItemHover(true)}
-                // onMouseLeave={() => setItemHover(false)}
+                    onMouseOver={() => setItemHover(true)}
+                    onMouseLeave={() => setItemHover(false)}
                 >
                     <ListItemIcon className={classes.movieIcon}>
                         <MovieIcon />
@@ -68,9 +69,8 @@ const UploadItem: React.FC<UploadItemProps> = (props) => {
                             </Typography>
                         }
                     />
-                    <UploadProgress size={30} uploadOrFile={upload}/>
-                    <UploadAction upload={upload} />
-                    {/* <UploadAction upload={upload} hover={itemHover}/> */}
+                    <UploadProgress size={30} uploadOrFile={upload} />
+                    <UploadAction upload={upload} hover={itemHover} />
                 </ListItem>
             </Tooltip>
             <Divider component="li" />
