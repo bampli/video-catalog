@@ -1,9 +1,9 @@
-import React, { Dispatch, Reducer, useEffect, useMemo, useReducer, useState } from "react";
+import React, { Dispatch, Reducer, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import reducer, { Creators } from "../store/filter";
 import { Actions as FilterActions, State as FilterState } from "../store/filter/types";
 import { MUIDataTableColumn } from "mui-datatables";
 import { useDebounce } from "use-debounce/lib";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { History } from 'history';
 import { isEqual } from 'lodash';
 import * as yup from '../util/vendor/yup';
@@ -38,9 +38,15 @@ interface UseFilterOptions {
 }
 
 let count = 0;
+
+//
+// u s e F i l t e r
+//
 export default function useFilter(options: UseFilterOptions) {
   console.log("useFilter ", ++count);
   const history = useHistory();
+  const location = useLocation();
+  const {search: locationSearch, pathname: locationPathname, state: locationState} = location;
   const { rowsPerPageOptions, rowsPerPage, columns, extraFilter } = options;
 
   // this schema was moved from FilterManager to be processed just once here
@@ -88,28 +94,101 @@ export default function useFilter(options: UseFilterOptions) {
     })
   }, [rowsPerPageOptions, rowsPerPage, columns, extraFilter]);
 
+  const cleanSearchText = useCallback((text) => {
+    let newText = text;
+    if (text && text.value !== undefined) {
+      newText = text.value;
+    }
+    return newText;
+  }, []);
+
+  const formatSearchParams = useCallback((state, extraFilter) => {
+    const search = cleanSearchText(state.search);
+    return {  // saving if's, return null | obj
+      ...(search && search !== '' && { search: search }),
+      ...(state.pagination.page !== 1 && { page: state.pagination.page }),
+      ...(state.pagination.per_page !== 15 && { per_page: state.pagination.per_page }),
+      ...(
+        state.order.sort && {
+          sort: state.order.sort,
+          dir: state.order.dir
+        }
+      ),
+      ...( // extraFilter = {key1: val1, key2: val2} --> URL: ?key1=val1&key2=val2
+        extraFilter && extraFilter.formatSearchParams(state)
+      )
+    }
+  }, [cleanSearchText]);
+
+  // react-router: history is mutable & location is immutable
+  const stateFromURL = useMemo(() => {
+    const queryParams = new URLSearchParams(locationSearch.substr(1));
+    return schema.cast({
+      search: queryParams.get('search'),
+      pagination: {
+        page: queryParams.get('page'),
+        per_page: queryParams.get('per_page')
+      },
+      order: {
+        sort: queryParams.get('sort'),
+        dir: queryParams.get('dir')
+      },
+      ...(
+        extraFilter && {
+          extraFilter: extraFilter.getStateFromURL(queryParams)
+        }
+      )
+    })
+  }, [locationSearch, schema, extraFilter]);
+
+  //
+  // f i l t e r M a n a g e r
+  //
   const filterManager = new FilterManager({ ...options, history, schema });
-
-  // get state from url
-  const INITIAL_STATE = filterManager.getStateFromURL();
-
+  const INITIAL_STATE = stateFromURL;
   const [filterState, dispatch] = useReducer<Reducer<FilterState, FilterActions>>(reducer, INITIAL_STATE);
   const [debouncedFilterState] = useDebounce(filterState, options.debounceTime);
   const [totalRecords, setTotalRecords] = useState<number>(0);
 
+  useEffect(() => {
+    history.replace({
+      pathname: locationPathname,
+      search: "?" + new URLSearchParams(formatSearchParams(stateFromURL, extraFilter)),
+      state: stateFromURL
+    })
+  }, [history, locationPathname, stateFromURL, extraFilter, formatSearchParams]);
+
+  useEffect(() => {
+    const oldState = locationState;
+    const nextState = debouncedFilterState;
+    if (isEqual(oldState, nextState)) {
+      //console.log('isEqual');
+      return;
+    }
+    //console.log('push history a new location');    
+    const newLocation = {
+      pathname: locationPathname,
+      search: "?" + new URLSearchParams(formatSearchParams(debouncedFilterState, extraFilter)),
+      state: {
+        ...debouncedFilterState,
+        search: cleanSearchText(debouncedFilterState.search)
+      }
+    };
+    history.push(newLocation);
+  }, [
+    cleanSearchText, locationState, locationPathname,
+    debouncedFilterState, extraFilter, formatSearchParams, history
+  ]);
+  
   filterManager.state = filterState;
   filterManager.debouncedState = debouncedFilterState;
   filterManager.dispatch = dispatch;
 
   filterManager.applyOrderInColumns();
 
-  useEffect(() => {
-    filterManager.replaceHistory()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return {
     columns: filterManager.columns,
+    cleanSearchText,
     filterManager,
     filterState,
     debouncedFilterState,
@@ -202,77 +281,5 @@ export class FilterManager {
         }
         : column;
     });
-  }
-
-  cleanSearchText(text) {
-    let newText = text;
-    if (text && text.value !== undefined) {
-      newText = text.value;
-    }
-    return newText;
-  }
-
-  replaceHistory() {
-    this.history.replace({
-      pathname: this.history.location.pathname,
-      search: "?" + new URLSearchParams(this.formatSearchParams()),
-      state: this.debouncedState
-    })
-  }
-
-  pushHistory() {
-    const oldState = this.history.location.state;
-    if (isEqual(oldState, this.debouncedState)) { // avoid duplicates at history
-      //console.log('pushHistory skipped, it is equal')
-      return
-    };
-    //console.log('pushHistory a new location');    
-    const newLocation = {
-      pathname: this.history.location.pathname,
-      search: "?" + new URLSearchParams(this.formatSearchParams()),
-      state: {
-        ...this.debouncedState,
-        search: this.cleanSearchText(this.debouncedState.search)
-      }
-    };
-    this.history.push(newLocation);
-  }
-
-  private formatSearchParams() {
-    const search = this.cleanSearchText(this.debouncedState.search);
-    return {  // saving if's, return null | obj
-      ...(search && search !== '' && { search: search }),
-      ...(this.debouncedState.pagination.page !== 1 && { page: this.debouncedState.pagination.page }),
-      ...(this.debouncedState.pagination.per_page !== 15 && { per_page: this.debouncedState.pagination.per_page }),
-      ...(
-        this.debouncedState.order.sort && {
-          sort: this.debouncedState.order.sort,
-          dir: this.debouncedState.order.dir
-        }
-      ),
-      ...( // extraFilter = {key1: val1, key2: val2} --> URL: ?key1=val1&key2=val2
-        this.extraFilter && this.extraFilter.formatSearchParams(this.debouncedState)
-      )
-    }
-  }
-
-  getStateFromURL() {
-    const queryParams = new URLSearchParams(this.history.location.search.substr(1));
-    return this.schema.cast({
-      search: queryParams.get('search'),
-      pagination: {
-        page: queryParams.get('page'),
-        per_page: queryParams.get('per_page')
-      },
-      order: {
-        sort: queryParams.get('sort'),
-        dir: queryParams.get('dir')
-      },
-      ...(
-        this.extraFilter && {
-          extraFilter: this.extraFilter.getStateFromURL(queryParams)
-        }
-      )
-    })
   }
 }
