@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, { useContext, useMemo, useRef, useState, useEffect } from 'react';
 import DefaultTable, { makeActionStyles, MuiDataTableRefComponent, TableColumn } from "../../components/Table";
 import { useSnackbar } from 'notistack';
 import FormatISODate from "../../util/FormatISODate";
@@ -86,41 +86,39 @@ const debounceSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
 
-const extraFilter = {
-    createValidationSchema: () => {
-        return yup.object().shape({
-            type: yup.string()  // na URL: ?type=Director
-                .nullable()
-                .transform(value => {
-                    return !value || !castMemberNames.includes(value) ? undefined : value;
-                })
-                .default(null)
-        })
-    },
-    formatSearchParams: (debouncedState) => {
-        return debouncedState.extraFilter
-            ? {
-                ...(
-                    debouncedState.extraFilter.type &&
-                    { type: debouncedState.extraFilter.type }
-                ),
-            }
-            : undefined
-    },
-    getStateFromURL: (queryParams) => {
-        return {
-            type: queryParams.get('type')
-        }
-    }
-};
-
 const Table = () => {
-
     const snackbar = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<CastMember[]>([]);
     const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
+    const extraFilter = useMemo(() => ({
+        createValidationSchema: () => {
+            return yup.object().shape({
+                type: yup.string()  // na URL: ?type=Director
+                    .nullable()
+                    .transform(value => {
+                        return !value || !castMemberNames.includes(value) ? undefined : value;
+                    })
+                    .default(null)
+            })
+        },
+        formatSearchParams: (debouncedState) => {
+            return debouncedState.extraFilter
+                ? {
+                    ...(
+                        debouncedState.extraFilter.type &&
+                        { type: debouncedState.extraFilter.type }
+                    ),
+                }
+                : undefined
+        },
+        getStateFromURL: (queryParams) => {
+            return {
+                type: queryParams.get('type')
+            }
+        }
+    }), []);
 
     const {
         columns,

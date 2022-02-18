@@ -97,34 +97,6 @@ const debounceSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
 
-const extraFilter = {
-    createValidationSchema: () => {
-        return yup.object().shape({
-            type: yup.mixed()
-                .nullable()
-                .transform(value => {
-                    return !value || value === '' ? undefined : value.split(',');
-                })
-                .default(null)
-        })
-    },
-    formatSearchParams: (debouncedState) => {
-        return debouncedState.extraFilter
-            ? {
-                ...(
-                    debouncedState.extraFilter.categories &&
-                    { categories: debouncedState.extraFilter.categories.join(',') }
-                ),
-            }
-            : undefined
-    },
-    getStateFromURL: (queryParams) => {
-        return {
-            categories: queryParams.get('categories')
-        }
-    }
-}
-
 const Table = () => {
 
     const snackbar = useSnackbar();
@@ -134,6 +106,33 @@ const Table = () => {
     const [categories, setCategories] = useState<Category[]>([]);
     const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
+    const extraFilter = useMemo(() => ({
+        createValidationSchema: () => {
+            return yup.object().shape({
+                type: yup.mixed()
+                    .nullable()
+                    .transform(value => {
+                        return !value || value === '' ? undefined : value.split(',');
+                    })
+                    .default(null)
+            })
+        },
+        formatSearchParams: (debouncedState) => {
+            return debouncedState.extraFilter
+                ? {
+                    ...(
+                        debouncedState.extraFilter.categories &&
+                        { categories: debouncedState.extraFilter.categories.join(',') }
+                    ),
+                }
+                : undefined
+        },
+        getStateFromURL: (queryParams) => {
+            return {
+                categories: queryParams.get('categories')
+            }
+        }
+    }), []);
 
     const {
         columns,

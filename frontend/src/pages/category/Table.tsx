@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
@@ -96,34 +96,6 @@ const debounceSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
 
-const extraFilter = {
-    createValidationSchema: () => {
-        return yup.object().shape({
-            is_active: yup.string()  // na URL: ?is_active=Sim
-                .nullable()
-                .transform(value => {
-                    return !value || !yesNo.includes(value) ? undefined : value;
-                })
-                .default(null)
-        })
-    },
-    formatSearchParams: (debouncedState) => {
-        return debouncedState.extraFilter
-            ? {
-                ...(
-                    debouncedState.extraFilter.is_active &&
-                    { is_active: debouncedState.extraFilter.is_active }
-                ),
-            }
-            : undefined
-    },
-    getStateFromURL: (queryParams) => {
-        return {
-            is_active: queryParams.get('is_active')
-        }
-    }
-};
-
 const Table = () => {
 
     const snackbar = useSnackbar();
@@ -131,7 +103,34 @@ const Table = () => {
     const [data, setData] = useState<Category[]>([]);
     const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
-
+    const extraFilter = useMemo(() => ({
+        createValidationSchema: () => {
+            return yup.object().shape({
+                is_active: yup.string()  // na URL: ?is_active=Sim
+                    .nullable()
+                    .transform(value => {
+                        return !value || !yesNo.includes(value) ? undefined : value;
+                    })
+                    .default(null)
+            })
+        },
+        formatSearchParams: (debouncedState) => {
+            return debouncedState.extraFilter
+                ? {
+                    ...(
+                        debouncedState.extraFilter.is_active &&
+                        { is_active: debouncedState.extraFilter.is_active }
+                    ),
+                }
+                : undefined
+        },
+        getStateFromURL: (queryParams) => {
+            return {
+                is_active: queryParams.get('is_active')
+            }
+        }
+    }), []);
+    
     const {
         columns,
         filterManager,
