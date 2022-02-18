@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, { useContext, useMemo, useRef, useState, useEffect } from 'react';
 import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import genreHttp from '../../util/http/genre-http';
