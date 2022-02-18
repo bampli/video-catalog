@@ -9,7 +9,7 @@ import { FormControl, FormControlProps, FormHelperText, makeStyles, Theme, Typog
 import { Genre } from "../../../util/models";
 import { getGenresFromCategory } from '../../../util/model-filters';
 import { grey } from "@material-ui/core/colors"
-import { useImperativeHandle, useRef } from "react";
+import { useCallback, useImperativeHandle, useRef } from "react";
 
 const useStyles = makeStyles((theme: Theme) => ({
     genresSubtitle: {
@@ -46,7 +46,7 @@ const CategoryField = React.forwardRef<CategoryFieldComponent, CategoryFieldProp
     const autocompleteRef = useRef() as React.MutableRefObject<AsyncAutocompleteComponent>;
     const theme = useTheme();
 
-    function fetchOptions(searchText) {
+    const fetchOptions = useCallback((searchText) => {
         return autocompleteHttp(
             categoryHttp
                 .list({
@@ -56,7 +56,7 @@ const CategoryField = React.forwardRef<CategoryFieldComponent, CategoryFieldProp
                     }
                 })
         ).then(data => data.data);    //.catch(error => console.error(error, searchText));
-    }
+    }, [autocompleteHttp, genres]);
     //address?genres=id1,id2
 
     useImperativeHandle(ref, () => ({

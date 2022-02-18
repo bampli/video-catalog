@@ -35,7 +35,8 @@ const AsyncAutocomplete =
 
     const {
         AutocompleteProps,
-        debounceTime = 300
+        debounceTime = 300,
+        fetchOptions
     } = props;
     const { freeSolo, onOpen, onClose, onInputChange } = AutocompleteProps as any;
     const [open, setOpen] = useState(false);
@@ -95,19 +96,18 @@ const AsyncAutocomplete =
         if (!open && !freeSolo) {
             setOptions([])
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
+    }, [open, freeSolo]);
 
     useEffect(() => {
         //console.log("useEffect-1", open, searchText, freeSolo);
         if (!open || (debouncedSearchText === "" && freeSolo)) {
             return;
-        }
+        }        
         let isSubscribed = true;
         (async () => {
             setLoading(true);
             try {
-                const data = await props.fetchOptions(debouncedSearchText);
+                const data = await fetchOptions(debouncedSearchText);
                 if (isSubscribed) {
                     //console.log("useEffect-2", data);
                     setOptions(data);
@@ -118,9 +118,8 @@ const AsyncAutocomplete =
         })();
         return () => {
             isSubscribed = false;
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [freeSolo ? debouncedSearchText : open]);
+        }        
+    }, [freeSolo, debouncedSearchText, open, fetchOptions]);
 
     useImperativeHandle(ref, () => ({
         clear: () => {

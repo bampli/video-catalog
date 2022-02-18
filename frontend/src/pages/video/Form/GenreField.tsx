@@ -5,7 +5,7 @@ import GridSelectedItem from "../../../components/GridSelectedItem";
 import genreHttp from '../../../util/http/genre-http';
 import useHttpHandled from '../../../hooks/useHttpHandled';
 import { FormControl, FormControlProps, FormHelperText, Typography, useTheme } from "@material-ui/core";
-import { useImperativeHandle, useRef } from "react";
+import { useCallback, useImperativeHandle, useRef } from "react";
 
 import useCollectionManager from '../../../hooks/useCollectionManager';
 import { getGenresFromCategory } from '../../../util/model-filters';
@@ -40,7 +40,7 @@ const GenreField = React.forwardRef<GenreFieldComponent, GenreFieldProps> ((prop
     const autocompleteRef = useRef() as React.MutableRefObject<AsyncAutocompleteComponent>;
     const theme = useTheme();
 
-    function fetchOptions(searchText) {
+    const fetchOptions = useCallback((searchText) => {
         return autocompleteHttp(
             genreHttp
                 .list({
@@ -50,7 +50,7 @@ const GenreField = React.forwardRef<GenreFieldComponent, GenreFieldProps> ((prop
                     }
                 })
         ).then(data => data.data);  //.catch(error => console.error(error, searchText));
-    }
+    }, [autocompleteHttp]);
 
     useImperativeHandle(ref, () => ({
         clear: () => autocompleteRef.current.clear()
