@@ -6,7 +6,7 @@ import {
     useMediaQuery, useTheme
 } from "@material-ui/core";
 import { useForm } from "react-hook-form";
-import { createRef, useContext, useState, useEffect, useRef } from 'react';
+import { createRef, useCallback, useContext, useState, useEffect, useRef } from 'react';
 import videoHttp from '../../../util/http/video-http';
 import * as yup from '../../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
@@ -124,7 +124,7 @@ const Form = () => {
     useSnackbarFormError(formState.submitCount, errors);
 
     const classes = useStyles();
-    const snackbar = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const loading = useContext(LoadingContext);
@@ -145,6 +145,16 @@ const Form = () => {
     // );
 
     const dispatch = useDispatch();
+
+    const resetForm = useCallback((data) => {
+        Object.keys(uploadsRef.current).forEach(
+            field => uploadsRef.current[field].current.clear()
+        );
+        castMemberRef.current.clear();
+        genreRef.current.clear();
+        categoryRef.current.clear();
+        reset(data);    // optional
+    }, [castMemberRef, categoryRef, genreRef, reset, uploadsRef]); // {current: xx} changes are here
 
     useEffect(() => {
         [
@@ -167,12 +177,12 @@ const Form = () => {
                 const { data } = await videoHttp.get(id);
                 if (isSubscribed) {
                     setVideo(data.data);
-                    reset(data.data);
+                    resetForm(data.data);
                     //console.log("uE-1", data.data);
                 }
             } catch (error) {
                 console.error(error);
-                snackbar.enqueueSnackbar(
+                enqueueSnackbar(
                     'Não foi possível carregar video',
                     { variant: 'error' }
                 );
@@ -181,8 +191,7 @@ const Form = () => {
         return () => {
             isSubscribed = false;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [id, resetForm, enqueueSnackbar]);
 
     async function onSubmit(formData, event) {
         const sendData = omit(
@@ -201,7 +210,7 @@ const Form = () => {
                     //{ ...sendData, _method: 'PUT' }, { http: { usePost: true } }
                 );
             const { data } = await http;
-            snackbar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Vídeo salvo com sucesso',
                 { variant: 'success' }
             );
@@ -224,21 +233,11 @@ const Form = () => {
             });
         } catch (error) {
             console.error(error);
-            snackbar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Não foi possível salvar vídeo',
                 { variant: 'error' }
             );
         }
-    }
-
-    function resetForm(data) {
-        Object.keys(uploadsRef.current).forEach(
-            field => uploadsRef.current[field].current.clear()
-        );
-        castMemberRef.current.clear();
-        genreRef.current.clear();
-        categoryRef.current.clear();
-        reset(data);    // optional
     }
 
     function uploadFiles(video) {
@@ -252,7 +251,7 @@ const Form = () => {
 
         dispatch(Creators.addUpload({ video, files }));
 
-        snackbar.enqueueSnackbar('', {
+        enqueueSnackbar('', {
             key: 'snackbar-upload',
             persist: true,
             anchorOrigin: {

@@ -35,7 +35,7 @@ export const Form = () => {
         }
     });
 
-    const snackBar = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const loading = useContext(LoadingContext);
@@ -59,7 +59,7 @@ export const Form = () => {
                 }
             } catch (error) {
                 console.error(error);
-                snackBar.enqueueSnackbar(
+                enqueueSnackbar(
                     'Não foi possível carregar categoria',
                     { variant: 'error' }
                 );
@@ -85,8 +85,7 @@ export const Form = () => {
         //         );
         //     })
         //     .finally(() => setLoading(false))
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [id, reset, enqueueSnackbar]);
 
     useEffect(() => {
         register({ name: "is_active" })
@@ -98,7 +97,7 @@ export const Form = () => {
                 ? categoryHttp.create(formData)
                 : categoryHttp.update(category.id, formData);
             const { data } = await http;
-            snackBar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Categoria salva com sucesso',
                 { variant: 'success' }
             );
@@ -115,7 +114,7 @@ export const Form = () => {
             })
         } catch (error) {
             console.error(error);
-            snackBar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Não foi possível salvar categoria',
                 { variant: 'error' }
             );
