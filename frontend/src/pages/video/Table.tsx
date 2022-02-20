@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useContext, useRef, useState, useEffect } from 'react';
 import FormatISODate from "../../util/FormatISODate";
 import videoHttp from '../../util/http/video-http';
 import { ListResponse, Video } from "../../util/models";
@@ -96,11 +96,11 @@ const rowsPerPageOptions = [15, 25, 50];
 
 const Table = () => {
 
-    const snackbar = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<Video[]>([]);
     const loading = useContext(LoadingContext);
-    const {openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete} = useDeleteCollection();
+    const { openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete } = useDeleteCollection();
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
 
     const {
@@ -121,33 +121,26 @@ const Table = () => {
         tableRef,
     });
 
-    useEffect(() => {
-        subscribed.current = true;
-        getData();
-        return () => {
-            subscribed.current = false;
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        cleanSearchText(debouncedFilterState.search),
-        debouncedFilterState.pagination.page,
-        debouncedFilterState.pagination.per_page,
-        debouncedFilterState.order,
-    ]);
+    const searchTest = cleanSearchText(debouncedFilterState.search);
 
-    async function getData() {
+    const onSuccessfulGetData = useCallback(() => {
+        if (openDeleteDialog) {
+            setOpenDeleteDialog(false)
+        }
+    }, [openDeleteDialog, setOpenDeleteDialog]);
+
+    const getData = useCallback(async ({ search, page, per_page, sort, dir }) => {
         try {
             //console.log("debouncedFilterState", debouncedFilterState);
             const { data } = await videoHttp.list<ListResponse<Video>>({
                 queryParams: {
-                    search: cleanSearchText(debouncedFilterState.search),
-                    page: debouncedFilterState.pagination.page,
-                    per_page: debouncedFilterState.pagination.per_page,
-                    sort: debouncedFilterState.order.sort,
-                    dir: debouncedFilterState.order.dir,
+                    search,
+                    page,
+                    per_page,
+                    sort,
+                    dir
                 }
-            });            
+            });
             if (subscribed.current) {   // do not change when dismounting
                 setData(data.data);
                 setTotalRecords(data.meta.total);
@@ -158,18 +151,32 @@ const Table = () => {
             if (videoHttp.isCancelledRequest(error)) {
                 return;
             }
-            snackbar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Não foi possível carregar vídeos',
                 { variant: 'error' }
             );
         }
-    }
+    }, [enqueueSnackbar, onSuccessfulGetData, setTotalRecords]);
 
-    function onSuccessfulGetData() {
-        if (openDeleteDialog){
-            setOpenDeleteDialog(false)
+    useEffect(() => {
+        subscribed.current = true;
+        getData({
+            search: searchTest,
+            page: debouncedFilterState.pagination.page,
+            per_page: debouncedFilterState.pagination.per_page,
+            sort: debouncedFilterState.order.sort,
+            dir: debouncedFilterState.order.dir,
+        });
+        return () => {
+            subscribed.current = false;
         }
-    }
+    }, [
+        getData,
+        searchTest,
+        debouncedFilterState.pagination.page,
+        debouncedFilterState.pagination.per_page,
+        debouncedFilterState.order,
+    ]);
 
     function deleteRows(confirmed: boolean) {
         if (!confirmed) {
@@ -181,9 +188,9 @@ const Table = () => {
             .map(value => data[value.index].id)
             .join(',');
         videoHttp
-            .deleteCollection({ids})
+            .deleteCollection({ ids })
             .then(response => {
-                snackbar.enqueueSnackbar(
+                enqueueSnackbar(
                     'Registro(s) excluído(s) com sucesso',
                     { variant: 'success' }
                 );
@@ -192,18 +199,24 @@ const Table = () => {
                 const firstIndexOnPage = (filterState.pagination.page - 1) * filterState.pagination.per_page;
                 if (
                     firstIndexOnPage === remainingRecords && filterState.pagination.page > 1
-                ){
+                ) {
                     const page = filterState.pagination.page - 2;
                     filterManager.changePage(page);
-                }else{  // ... otherwise just reload data
-                    getData();
+                } else {  // ... otherwise just reload data
+                    getData({
+                        search: searchTest,
+                        page: debouncedFilterState.pagination.page,
+                        per_page: debouncedFilterState.pagination.per_page,
+                        sort: debouncedFilterState.order.sort,
+                        dir: debouncedFilterState.order.dir,
+                    });
                 }
             })
             .catch((error) => {
                 console.error(error);
-                snackbar.enqueueSnackbar(
+                enqueueSnackbar(
                     'Não foi possível excluir os registros',
-                    {variant: 'error'}
+                    { variant: 'error' }
                 )
             })
     }

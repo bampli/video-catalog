@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
 import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import genreHttp from '../../util/http/genre-http';
@@ -99,7 +99,7 @@ const rowsPerPageOptions = [15, 25, 50];
 
 const Table = () => {
 
-    const snackbar = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<Genre[]>([]);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -152,6 +152,7 @@ const Table = () => {
         extraFilter
     });
 
+    const searchTest = cleanSearchText(debouncedFilterState.search);
     const indexColumnCategories = columns.findIndex(c => c.name === 'categories');
     const columnCategories = columns[indexColumnCategories];
     const categoriesFilterValue = filterState.extraFilter && filterState.extraFilter.categories;
@@ -160,6 +161,39 @@ const Table = () => {
     //     "Table: categoriesFilterValue ", categoriesFilterValue,
     //     "filterList", (columnCategories.options as any).filterList
     // );
+
+    const getData = useCallback(async ({ search, page, per_page, sort, dir, categories }) => {
+        try {
+            //console.log("debouncedFilterState", debouncedFilterState);
+            const { data } = await genreHttp.list<ListResponse<Genre>>({
+                queryParams: {
+                    search,
+                    page,
+                    per_page,
+                    sort,
+                    dir,
+                    ...(
+                        categories &&
+                        { categories: categories.join(',') }
+                    )
+                }
+            });
+
+            if (subscribed.current) {   // do not change when dismounting
+                setData(data.data);
+                setTotalRecords(data.meta.total);
+            }
+        } catch (error) {
+            console.error(error);
+            if (genreHttp.isCancelledRequest(error)) {
+                return;
+            }
+            enqueueSnackbar(
+                'Não foi possível carregar gêneros',
+                { variant: 'error' }
+            );
+        }
+    }, [enqueueSnackbar, setTotalRecords]);
 
     useEffect(() => {
         let isSubscribed = true;
@@ -173,7 +207,7 @@ const Table = () => {
                 }
             } catch (error) {
                 console.error(error);
-                snackbar.enqueueSnackbar(
+                enqueueSnackbar(
                     'Não foi possível carregar categorias',
                     { variant: 'error' }
                 );
@@ -183,73 +217,32 @@ const Table = () => {
         return () => {
             isSubscribed = false;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [columnCategories.options, enqueueSnackbar]);
 
     useEffect(() => {
         subscribed.current = true;
-        getData();
+        getData({
+            search: searchTest,
+            page: debouncedFilterState.pagination.page,
+            per_page: debouncedFilterState.pagination.per_page,
+            sort: debouncedFilterState.order.sort,
+            dir: debouncedFilterState.order.dir,
+            ...(
+                debouncedFilterState?.extraFilter?.categories &&
+                {categories: debouncedFilterState.extraFilter.categories}
+            )
+        });
         return () => {
             subscribed.current = false;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        cleanSearchText(debouncedFilterState.search),
+        getData,
+        searchTest,
         debouncedFilterState.pagination.page,
         debouncedFilterState.pagination.per_page,
         debouncedFilterState.order,
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        JSON.stringify(debouncedFilterState.extraFilter)
+        debouncedFilterState.extraFilter
     ]);
-
-    async function getData() {
-        try {
-            //console.log("debouncedFilterState", debouncedFilterState);
-            const { data } = await genreHttp.list<ListResponse<Genre>>({
-                queryParams: {
-                    search: cleanSearchText(debouncedFilterState.search),
-                    page: debouncedFilterState.pagination.page,
-                    per_page: debouncedFilterState.pagination.per_page,
-                    sort: debouncedFilterState.order.sort,
-                    dir: debouncedFilterState.order.dir,
-                    ...(
-                        debouncedFilterState.extraFilter &&
-                        debouncedFilterState.extraFilter.categories &&
-                        {categories: debouncedFilterState.extraFilter.categories.join(',')}
-                    )
-                }
-            });
-            // console.log("getData: queryParams", {
-            //     queryParams: {
-            //         search: cleanSearchText(debouncedFilterState.search),
-            //         page: debouncedFilterState.pagination.page,
-            //         per_page: debouncedFilterState.pagination.per_page,
-            //         sort: debouncedFilterState.order.sort,
-            //         dir: debouncedFilterState.order.dir,
-            //         ...(
-            //             debouncedFilterState.extraFilter &&
-            //             debouncedFilterState.extraFilter.categories &&
-            //             {categories: debouncedFilterState.extraFilter.categories.join(',')}
-            //         )
-            //     }
-            // });
-            
-            if (subscribed.current) {   // do not change when dismounting
-                setData(data.data);
-                setTotalRecords(data.meta.total);
-            }
-        } catch (error) {
-            console.error(error);
-            if (genreHttp.isCancelledRequest(error)) {
-                return;
-            }
-            snackbar.enqueueSnackbar(
-                'Não foi possível carregar gêneros',
-                { variant: 'error' }
-            );
-        }
-    }
 
     return (
         <MuiThemeProvider theme={makeActionStyles(columnsDefinition.length - 1)}>

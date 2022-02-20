@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import FormatISODate from "../../util/FormatISODate";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
@@ -98,7 +98,7 @@ const rowsPerPageOptions = [15, 25, 50];
 
 const Table = () => {
 
-    const snackbar = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<Category[]>([]);
     const loading = useContext(LoadingContext);
@@ -130,7 +130,7 @@ const Table = () => {
             }
         }
     }), []);
-    
+
     const {
         columns,
         filterManager,
@@ -149,6 +149,7 @@ const Table = () => {
         extraFilter
     });
 
+    const searchTest = cleanSearchText(debouncedFilterState.search);
     const indexColumnIsActive = columns.findIndex(c => c.name === 'is_active');
     const columnIsActive = columns[indexColumnIsActive];
     const isActiveFilterValue = filterState.extraFilter && filterState.extraFilter.is_active; //as never;
@@ -158,52 +159,21 @@ const Table = () => {
     //     "filterList", (columnIsActive.options as any).filterList
     // );
 
-    useEffect(() => {
-        subscribed.current = true;
-        getData();
-        return () => {
-            subscribed.current = false;
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        cleanSearchText(debouncedFilterState.search),
-        debouncedFilterState.pagination.page,
-        debouncedFilterState.pagination.per_page,
-        debouncedFilterState.order,
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        JSON.stringify(debouncedFilterState.extraFilter),
-    ]);
-
-    async function getData() {
+    const getData = useCallback(async ({ search, page, per_page, sort, dir, is_active }) => {
         try {
             //console.log("debouncedFilterState", debouncedFilterState);
             const { data } = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: cleanSearchText(debouncedFilterState.search),
-                    page: debouncedFilterState.pagination.page,
-                    per_page: debouncedFilterState.pagination.per_page,
-                    sort: debouncedFilterState.order.sort,
-                    dir: debouncedFilterState.order.dir,
-                    ...(debouncedFilterState.extraFilter &&
-                        debouncedFilterState.extraFilter.is_active && {
-                        is_active: invert(YesNoMap)[debouncedFilterState.extraFilter.is_active]
+                    search,
+                    page,
+                    per_page,
+                    sort,
+                    dir,
+                    ...(is_active && {
+                        is_active: invert(YesNoMap)[is_active]
                     })
                 }
             });
-            // console.log("getData: queryParams", {
-            //     queryParams: {
-            //         search: cleanSearchText(debouncedFilterState.search),
-            //         page: debouncedFilterState.pagination.page,
-            //         per_page: debouncedFilterState.pagination.per_page,
-            //         sort: debouncedFilterState.order.sort,
-            //         dir: debouncedFilterState.order.dir,
-            //         ...(debouncedFilterState.extraFilter &&
-            //             debouncedFilterState.extraFilter.is_active && {
-            //             is_active: invert(YesNoMap)[debouncedFilterState.extraFilter.is_active]
-            //         })
-            //     }
-            // });
 
             if (subscribed.current) {   // do not change when dismounting
                 setData(data.data);
@@ -214,12 +184,37 @@ const Table = () => {
             if (categoryHttp.isCancelledRequest(error)) {
                 return;
             }
-            snackbar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Não foi possível carregar categorias',
                 { variant: 'error' }
             );
         }
-    }
+    }, [enqueueSnackbar, setTotalRecords]);
+
+    useEffect(() => {
+        subscribed.current = true;
+        getData({
+            search: searchTest,
+            page: debouncedFilterState.pagination.page,
+            per_page: debouncedFilterState.pagination.per_page,
+            sort: debouncedFilterState.order.sort,
+            dir: debouncedFilterState.order.dir,
+            ...(debouncedFilterState.extraFilter &&
+                debouncedFilterState.extraFilter.is_active && {
+                is_active: debouncedFilterState.extraFilter.is_active
+            })
+        });
+        return () => {
+            subscribed.current = false;
+        }
+    }, [
+        getData,
+        searchTest,
+        debouncedFilterState.pagination.page,
+        debouncedFilterState.pagination.per_page,
+        debouncedFilterState.order,
+        debouncedFilterState.extraFilter,
+    ]);
 
     return (
         <MuiThemeProvider theme={makeActionStyles(columnsDefinition.length - 1)}>
