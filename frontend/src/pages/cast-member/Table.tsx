@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, { useContext, useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import DefaultTable, { makeActionStyles, MuiDataTableRefComponent, TableColumn } from "../../components/Table";
 import { useSnackbar } from 'notistack';
 import FormatISODate from "../../util/FormatISODate";
@@ -86,45 +86,44 @@ const debounceSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
 
-const extraFilter = {
-    createValidationSchema: () => {
-        return yup.object().shape({
-            type: yup.string()  // na URL: ?type=Director
-                .nullable()
-                .transform(value => {
-                    return !value || !castMemberNames.includes(value) ? undefined : value;
-                })
-                .default(null)
-        })
-    },
-    formatSearchParams: (debouncedState) => {
-        return debouncedState.extraFilter
-            ? {
-                ...(
-                    debouncedState.extraFilter.type &&
-                    { type: debouncedState.extraFilter.type }
-                ),
-            }
-            : undefined
-    },
-    getStateFromURL: (queryParams) => {
-        return {
-            type: queryParams.get('type')
-        }
-    }
-};
-
 const Table = () => {
-
-    const snackbar = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const subscribed = useRef(true);
     const [data, setData] = useState<CastMember[]>([]);
     const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
+    const extraFilter = useMemo(() => ({
+        createValidationSchema: () => {
+            return yup.object().shape({
+                type: yup.string()  // na URL: ?type=Director
+                    .nullable()
+                    .transform(value => {
+                        return !value || !castMemberNames.includes(value) ? undefined : value;
+                    })
+                    .default(null)
+            })
+        },
+        formatSearchParams: (debouncedState) => {
+            return debouncedState.extraFilter
+                ? {
+                    ...(
+                        debouncedState.extraFilter.type &&
+                        { type: debouncedState.extraFilter.type }
+                    ),
+                }
+                : undefined
+        },
+        getStateFromURL: (queryParams) => {
+            return {
+                type: queryParams.get('type')
+            }
+        }
+    }), []);
 
     const {
         columns,
         filterManager,
+        cleanSearchText,
         filterState,
         debouncedFilterState,
         dispatch,
@@ -139,41 +138,23 @@ const Table = () => {
         extraFilter
     });
 
+    const searchTest = cleanSearchText(debouncedFilterState.search);
     const indexColumnType = columns.findIndex(c => c.name === 'type');
     const columnType = columns[indexColumnType];
     const typeFilterValue = filterState.extraFilter && filterState.extraFilter.type; //as never;
     (columnType.options as any).filterList = typeFilterValue ? [typeFilterValue] : [];
 
-    useEffect(() => {
-        subscribed.current = true;
-        filterManager.pushHistory();
-        getData();
-        return () => {
-            subscribed.current = false;
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        filterManager.cleanSearchText(debouncedFilterState.search),
-        debouncedFilterState.pagination.page,
-        debouncedFilterState.pagination.per_page,
-        debouncedFilterState.order,
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        JSON.stringify(debouncedFilterState.extraFilter), //"{"type": "Diretor"}"
-    ]);
-
-    async function getData() {
+    const getData = useCallback(async ({ search, page, per_page, sort, dir, type }) => {
         try {
             const { data } = await castMemberHttp.list<ListResponse<CastMember>>({
                 queryParams: {
-                    search: filterManager.cleanSearchText(debouncedFilterState.search),
-                    page: debouncedFilterState.pagination.page,
-                    per_page: debouncedFilterState.pagination.per_page,
-                    sort: debouncedFilterState.order.sort,
-                    dir: debouncedFilterState.order.dir,
-                    ...(debouncedFilterState.extraFilter &&
-                        debouncedFilterState.extraFilter.type && {
-                        type: invert(CastMemberTypeMap)[debouncedFilterState.extraFilter.type],
+                    search,
+                    page,
+                    per_page,
+                    sort,
+                    dir,
+                    ...(type && {
+                        type: invert(CastMemberTypeMap)[type],
                     })
                 }
             });
@@ -186,12 +167,37 @@ const Table = () => {
             if (castMemberHttp.isCancelledRequest(error)) {
                 return;
             }
-            snackbar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Não foi possível carregar membros do elenco',
                 { variant: 'error' }
             );
         }
-    }
+    }, [enqueueSnackbar, setTotalRecords]);
+
+    useEffect(() => {
+        subscribed.current = true;
+        getData({
+            search: searchTest,
+            page: debouncedFilterState.pagination.page,
+            per_page: debouncedFilterState.pagination.per_page,
+            sort: debouncedFilterState.order.sort,
+            dir: debouncedFilterState.order.dir,
+            ...(debouncedFilterState.extraFilter &&             // not needed anymore at typescript
+                debouncedFilterState?.extraFilter?.type && {    // use ? instead
+                type: debouncedFilterState.extraFilter.type,
+            })
+        });
+        return () => {
+            subscribed.current = false;
+        }
+    }, [
+        getData,
+        searchTest,
+        debouncedFilterState.pagination.page,
+        debouncedFilterState.pagination.per_page,
+        debouncedFilterState.order,
+        debouncedFilterState.extraFilter, //"{"type": "Diretor"}"
+    ]);
 
     return (
         <MuiThemeProvider theme={makeActionStyles(columnsDefinition.length - 1)}>

@@ -41,7 +41,7 @@ const Form = () => {
         }
     });
 
-    const snackBar = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const loading = useContext(LoadingContext);
@@ -70,7 +70,7 @@ const Form = () => {
                 }
             } catch (error) {
                 console.error(error);
-                snackBar.enqueueSnackbar(
+                enqueueSnackbar(
                     'Não foi possível carregar as informações',
                     { variant: 'error' }
                 );
@@ -80,8 +80,7 @@ const Form = () => {
         return () => {
             isSubscribed = false;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [id, reset, enqueueSnackbar]);
 
     useEffect(() => {
         register({ name: "is_active" });
@@ -94,7 +93,7 @@ const Form = () => {
                 ? genreHttp.create(formData)
                 : genreHttp.update(genre.id, formData);
             const { data } = await http;
-            snackBar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Gênero salvo com sucesso',
                 { variant: 'success' }
             );
@@ -111,7 +110,7 @@ const Form = () => {
             })
         } catch (error) {
             console.error(error);
-            snackBar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Não foi possível salvar gênero',
                 { variant: 'error' }
             );

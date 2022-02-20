@@ -37,7 +37,7 @@ export const Form = () => {
         // }
     });
 
-    const snackBar = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const { id } = useParams<{ id: string }>();
     const loading = useContext(LoadingContext);
@@ -58,7 +58,7 @@ export const Form = () => {
                 }
             } catch (error) {
                 console.error(error);
-                snackBar.enqueueSnackbar(
+                enqueueSnackbar(
                     'Não foi possível carregar membro de elenco',
                     { variant: 'error' }
                 );
@@ -68,8 +68,7 @@ export const Form = () => {
         return () => {
             isSubscribed = false;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [id, reset, enqueueSnackbar]);
 
     useEffect(() => {
         register({ name: "type" })
@@ -81,7 +80,7 @@ export const Form = () => {
                 ? castMemberHttp.create(formData)
                 : castMemberHttp.update(castMember.id, formData);
             const { data } = await http;
-            snackBar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Membro de elenco salvo com sucesso',
                 { variant: 'success' }
             );
@@ -98,7 +97,7 @@ export const Form = () => {
             });
         } catch (error) {
             console.log(error);
-            snackBar.enqueueSnackbar(
+            enqueueSnackbar(
                 'Não foi possível salvar membro de elenco',
                 { variant: 'error' }
             );
