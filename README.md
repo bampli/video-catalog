@@ -39,6 +39,19 @@ php artisan model:filter CategoryFilter
 gcloud kms encrypt
 gcloud kms decrypt
 
+composer require --dev laravel/dusk
+
+npm config set cache /var/www/.npm-cache --global
+npm --global cache verify
+
+TODO: The /opt/project/bootstrap/cache directory must be present and writable.
+php artisan dusk --env=testing
+needs:
+mkdir -p /opt/project/bootstrap/cache
+chmod 777 /opt/project/bootstrap/cache
+
+php artisan dusk:make FrontendTest
+
 ```
 
 ## Frontend upgrades
@@ -56,5 +69,11 @@ react-redux @7.2.6
 redux @4.1.2
 reduxsauce @1.2.1
 use-debounce @7.0.1
+
+```
+## Backend upgrades
+
+```
+laravel/dusk @v6.22.1
 
 ```
