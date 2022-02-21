@@ -45,9 +45,9 @@ steps:
   name: 'gcr.io/cloud-builders/docker'
   args: ['exec','-t','micro-videos-app','php','/var/www/backend/artisan','migrate']
 
-- id: "Rodando Phpunit"
-  name: 'gcr.io/cloud-builders/docker'
-  args: ['exec','-t','micro-videos-app','php','/var/www/backend/vendor/bin/phpunit','-c','/var/www/backend/phpunit.xml']
+# - id: "Rodando Phpunit"
+#   name: 'gcr.io/cloud-builders/docker'
+#   args: ['exec','-t','micro-videos-app','php','/var/www/backend/vendor/bin/phpunit','-c','/var/www/backend/phpunit.xml']
 
 - id: "Copiando frontend .env"
   name: 'gcr.io/cloud-builders/docker'
