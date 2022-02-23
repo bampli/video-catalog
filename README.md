@@ -19,11 +19,11 @@ f2d734be7408   micro-videos-db      video-catalog_db
 ```
 ![image](https://user-images.githubusercontent.com/86032/155351797-87a602dc-6947-4048-8ee3-a49f905c720f.png)
 
-## Backend
+## Backend Admin Catálogo Vídeos
 
 Extracted from https://github.com/bampli/laravel-microservice-quickstart/tree/devgc
 
-## Templates
+### Templates
 
 ```
 php artisan make:model <model>
@@ -56,7 +56,16 @@ chmod 777 /opt/project/bootstrap/cache
 
 ```
 
-## Frontend upgrades
+### Upgrades
+
+```
+laravel/dusk @v6.22.1
+
+```
+
+## Frontend Admin Catálogo Vídeos
+
+### Upgrades
 
 ```
 classnames @2.3.1
@@ -73,9 +82,4 @@ reduxsauce @1.2.1
 use-debounce @7.0.1
 
 ```
-## Backend upgrades
 
-```
-laravel/dusk @v6.22.1
-
-```
