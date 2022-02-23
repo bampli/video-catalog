@@ -17,6 +17,7 @@ CONTAINER ID   NAMES                IMAGE
 f9970c75aac5   micro-videos-redis   redis:alpine
 f2d734be7408   micro-videos-db      video-catalog_db
 ```
+![](/readme.codeflix.diagram.png)
 
 ## Backend
 
@@ -44,13 +45,14 @@ composer require --dev laravel/dusk
 npm config set cache /var/www/.npm-cache --global
 npm --global cache verify
 
-TODO: The /opt/project/bootstrap/cache directory must be present and writable.
+php artisan dusk:make FrontendTest
 php artisan dusk --env=testing
-needs:
+
+# Note:
+#   - since /opt/project/bootstrap/cache must be present and writable,
+#   - its initialization was added to Dockerfile.
 mkdir -p /opt/project/bootstrap/cache
 chmod 777 /opt/project/bootstrap/cache
-
-php artisan dusk:make FrontendTest
 
 ```
 
