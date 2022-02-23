@@ -17,7 +17,7 @@ CONTAINER ID   NAMES                IMAGE
 f9970c75aac5   micro-videos-redis   redis:alpine
 f2d734be7408   micro-videos-db      video-catalog_db
 ```
-![](/readme.codeflix.diagram.png)
+![](/readme-codeflix-diagram.pdf)
 
 ## Backend
 
