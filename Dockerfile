@@ -19,7 +19,7 @@ RUN npm config set cache /var/www/.npm-cache --global
 RUN mkdir -p /opt/project/bootstrap/cache
 RUN chmod 777 /opt/project/bootstrap/cache
 
-RUN docker-php-ext-install pdo pdo_mysql bcmath zip
+RUN docker-php-ext-install pdo pdo_mysql bcmath sockets zip
 RUN docker-php-ext-configure gd --with-gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/
 RUN docker-php-ext-install -j$(nproc) gd
 
