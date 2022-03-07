@@ -79,6 +79,23 @@ laravel/dusk @v6.22.1
 
 ## Frontend Admin Catálogo Vídeos
 
+### Frontend image
+
+Generate optimized frontend image running at frontend container:
+
+```
+npm run build-laravel
+
+```
+Frontend image files are generated at:
+
+- frontend/build
+
+Frontend image files are also copied to backend:
+
+- backend/public/admin-frontend
+- backend/resources/views/admin-frontend
+
 ### Upgrades
 
 ```
