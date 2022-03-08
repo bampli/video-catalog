@@ -19,7 +19,7 @@ RUN npm config set cache /var/www/.npm-cache --global
 RUN mkdir -p /opt/project/bootstrap/cache
 RUN chmod 777 /opt/project/bootstrap/cache
 
-RUN docker-php-ext-install pdo pdo_mysql bcmath zip
+RUN docker-php-ext-install pdo pdo_mysql bcmath sockets zip
 RUN docker-php-ext-configure gd --with-gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/
 RUN docker-php-ext-install -j$(nproc) gd
 
@@ -28,16 +28,13 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
 RUN usermod -u 1000 --shell /bin/bash www-data
-
 WORKDIR /var/www
 
 RUN rm -rf /var/www/html && ln -s public html
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 USER $USER
 
 EXPOSE 9000
-
 ENTRYPOINT ["php-fpm"]

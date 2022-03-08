@@ -37,6 +37,20 @@ php artisan storage:link
 php artisan make:resource CategoryResource
 php artisan model:filter CategoryFilter
 
+php artisan make:observer CategoryObserver --model="Models/Category"
+
+php artisan vendor:publish --provider="Bschmitt\Amqp\AmqpServiceProvider"
+
+```
+
+errata
+```
+composer require bschmitt/laravel-amqp:2.0.10
+vendor/composer/composer/bin/composer require bschmitt/laravel-amqp:2.0.10
+
+```
+CI/CD
+```
 gcloud kms encrypt
 gcloud kms decrypt
 
@@ -64,6 +78,23 @@ laravel/dusk @v6.22.1
 ```
 
 ## Frontend Admin Catálogo Vídeos
+
+### Frontend image
+
+Generate optimized frontend image running at frontend container:
+
+```
+npm run build-laravel
+
+```
+Frontend image files are generated at:
+
+- frontend/build
+
+Frontend image files are also copied to backend:
+
+- backend/public/admin-frontend
+- backend/resources/views/admin-frontend
 
 ### Upgrades
 
