@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\Models\CastMember;
 use Bschmitt\Amqp\Message;
 
-class CategoryObserver
+class CastMemberObserver
 {
     public function created(CastMember $castMember)
     {
