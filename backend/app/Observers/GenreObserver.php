@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\Models\Genre;
 use Bschmitt\Amqp\Message;
 
-class CategoryObserver
+class GenreObserver
 {
     public function created(Genre $genre)
     {
