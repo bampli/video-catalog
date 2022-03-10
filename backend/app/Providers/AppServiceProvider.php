@@ -7,10 +7,6 @@ use App\Models\Genre;
 use App\Models\CastMember;
 use App\Observers\SyncModelObserver;
 
-use App\Observers\CategoryObserver;
-use App\Observers\GenreObserver;
-use App\Observers\CastMemberObserver;
-
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -37,9 +33,9 @@ class AppServiceProvider extends ServiceProvider
         // CastMember::observe(SyncModelObserver::class);
 
         \View::addExtension('html', 'blade');
-        Category::observe(CategoryObserver::class);
-        Genre::observe(GenreObserver::class);
-        CastMember::observe(CastMemberObserver::class);
+        Category::observe(SyncModelObserver::class);
+        Genre::observe(SyncModelObserver::class);
+        CastMember::observe(SyncModelObserver::class);
         
         //intercept and dump queries to DB
         // \DB::listen(function($query){
