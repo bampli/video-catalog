@@ -15,7 +15,17 @@ class SyncModelObserver
         $action = __FUNCTION__;
         $routingKey = "model.{$modelName}.{$action}";
 
-        $this->publish($routingKey, $data);
+        try {
+            $this->publish($routingKey, $data);
+        }catch (\Exception $exception) {
+            $id = $model->id;
+            $this->reportException([
+                'modelName' => $modelName,
+                'id' => $id,
+                'action' => $action,
+                'exception' => $exception
+            ]);
+        }
     }
 
     public function updated(Model $model)
@@ -25,7 +35,17 @@ class SyncModelObserver
         $action = __FUNCTION__;
         $routingKey = "model.{$modelName}.{$action}";
 
-        $this->publish($routingKey, $data);
+        try {
+            $this->publish($routingKey, $data);
+        }catch (\Exception $exception) {
+            $id = $model->id;
+            $this->reportException([
+                'modelName' => $modelName,
+                'id' => $id,
+                'action' => $action,
+                'exception' => $exception
+            ]);
+        }
     }
 
     public function deleted(Model $model)
@@ -35,7 +55,17 @@ class SyncModelObserver
         $action = __FUNCTION__;
         $routingKey = "model.{$modelName}.{$action}";
 
-        $this->publish($routingKey, $data);
+        try {
+            $this->publish($routingKey, $data);
+        }catch (\Exception $exception) {
+            $id = $model->id;
+            $this->reportException([
+                'modelName' => $modelName,
+                'id' => $id,
+                'action' => $action,
+                'exception' => $exception
+            ]);
+        }
     }
 
     public function restored(Model $model)
@@ -71,4 +101,19 @@ class SyncModelObserver
             ]
         );
     }
+
+    protected function reportException(array $params){
+        list(
+            'modelName' => $modelName,
+            'id' => $id,
+            'action' => $action,
+            'exception' => $exception
+        ) = $params;
+        $myException = new \Exception(
+            "Sync $action error with model $modelName with ID $id",
+            0, $exception   // also reports previous exception
+        )
+        report($myException);
+    }
+   
 }
