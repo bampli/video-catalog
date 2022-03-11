@@ -5,6 +5,7 @@ namespace App\Observers;
 use Bschmitt\Amqp\Message;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\helpers;
 
 class SyncModelObserver
 {
@@ -112,8 +113,7 @@ class SyncModelObserver
         $myException = new \Exception(
             "Sync $action error with model $modelName with ID $id",
             0, $exception   // also reports previous exception
-        )
+        );
         report($myException);
     }
-   
 }
