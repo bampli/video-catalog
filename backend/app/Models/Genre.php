@@ -7,11 +7,11 @@ use EloquentFilter\Filterable;
 use App\Models\Traits\SerializeDateToIso8601;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Chelout\RelationshipEvents\Concerns\HasBelongToManyEvents;
+use Chelout\RelationshipEvents\Concerns\HasBelongsToManyEvents;
 
 class Genre extends Model
 {
-    use SoftDeletes, Traits\Uuid, Filterable, SerializeDateToIso8601, HasBelongToManyEvents;
+    use SoftDeletes, Traits\Uuid, Filterable, SerializeDateToIso8601, HasBelongsToManyEvents;
 
     protected $fillable = ['name', 'is_active'];
     protected $dates = ['deleted_at'];
