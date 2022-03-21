@@ -77,7 +77,7 @@ class SyncModelObserver
         $relationName = Str::snake($relation);
         $data = [
             'id' => $model->id,
-            'relations_ids' => $ids
+            'relation_ids' => $ids
         ];
         $routingKey = "model.{$modelName}_{$relationName}.attached";
 
