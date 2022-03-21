@@ -74,6 +74,7 @@ chmod 777 /opt/project/bootstrap/cache
 
 ```
 laravel/dusk @v6.22.1
+chelout/laravel-relationship-events @v1.5.0
 
 ```
 
