@@ -69,6 +69,7 @@ class SyncModelObserver
         }
     }
 
+    //model.genre.relation
     public function belongsToManyAttached($relation, $model, $ids){
         //routing key - model.genre_categories.attached
         // id - genre id
