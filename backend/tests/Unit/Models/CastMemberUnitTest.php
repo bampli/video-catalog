@@ -29,7 +29,8 @@ class CastMemberUnitTest extends TestCase
         $traits = [
             SoftDeletes::class,
             Uuid::class,
-            Filterable::class
+            Filterable::class,
+            SerializeDateToIso8601::class,
         ];
         $castMemberTraits = array_keys(class_uses(CastMember::class));
         $this->assertEquals($traits, $castMemberTraits);

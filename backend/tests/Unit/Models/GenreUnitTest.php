@@ -31,7 +31,8 @@ class GenreUnitTest extends TestCase
             SoftDeletes::class,
             Uuid::class,
             Filterable::class,
-            SerializeDateToIso8601::class
+            SerializeDateToIso8601::class,
+            Chelout\RelationshipEvents\Concerns\HasBelongsToManyEvents::class,
         ];
         $genreTraits = array_keys(class_uses(Genre::class));
         $this->assertEquals($traits, $genreTraits);
