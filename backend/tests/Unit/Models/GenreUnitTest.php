@@ -8,6 +8,7 @@ use App\Models\Traits\Uuid;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PHPUnit\Framework\TestCase;
+use Chelout\RelationshipEvents\Concerns\HasBelongsToManyEvents;
 
 class GenreUnitTest extends TestCase
 {

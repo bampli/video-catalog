@@ -3,6 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Models\CastMember;
+use App\Models\Traits\SerializeDateToIso8601;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PHPUnit\Framework\TestCase;
