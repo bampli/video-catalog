@@ -41,6 +41,9 @@ php artisan make:observer CategoryObserver --model="Models/Category"
 
 php artisan vendor:publish --provider="Bschmitt\Amqp\AmqpServiceProvider"
 
+php artisan make:provider SyncServiceProvider
+
+
 ```
 
 errata
@@ -74,6 +77,7 @@ chmod 777 /opt/project/bootstrap/cache
 
 ```
 laravel/dusk @v6.22.1
+chelout/laravel-relationship-events @v1.5.0
 
 ```
 

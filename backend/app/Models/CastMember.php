@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CastMember extends Model
 {
-    use SoftDeletes, Traits\Uuid, Filterable;
+    use SoftDeletes, Traits\Uuid, Filterable, SerializeDateToIso8601;
 
     const TYPE_DIRECTOR = 1;
     const TYPE_ACTOR = 2;
