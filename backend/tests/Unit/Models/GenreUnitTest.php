@@ -8,7 +8,6 @@ use App\Models\Traits\Uuid;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PHPUnit\Framework\TestCase;
-use Tests\Unit\Models\Chelout\RelationshipEvents\Concerns\HasBelongsToManyEvents;
 
 class GenreUnitTest extends TestCase
 {
@@ -33,7 +32,6 @@ class GenreUnitTest extends TestCase
             Uuid::class,
             Filterable::class,
             SerializeDateToIso8601::class,
-            HasBelongsToManyEvents::class,
         ];
         $genreTraits = array_keys(class_uses(Genre::class));
         $this->assertEquals($traits, $genreTraits);
