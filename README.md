@@ -41,6 +41,9 @@ php artisan make:observer CategoryObserver --model="Models/Category"
 
 php artisan vendor:publish --provider="Bschmitt\Amqp\AmqpServiceProvider"
 
+php artisan make:provider SyncServiceProvider
+
+
 ```
 
 errata

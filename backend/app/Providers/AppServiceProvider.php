@@ -33,9 +33,6 @@ class AppServiceProvider extends ServiceProvider
         // CastMember::observe(SyncModelObserver::class);
 
         \View::addExtension('html', 'blade');
-        Category::observe(SyncModelObserver::class);
-        Genre::observe(SyncModelObserver::class);
-        CastMember::observe(SyncModelObserver::class);
         
         //intercept and dump queries to DB
         // \DB::listen(function($query){
