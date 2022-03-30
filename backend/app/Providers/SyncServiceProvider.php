@@ -27,7 +27,7 @@ class SyncServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if(env('SYNC_ENABLED') !== true){
+        if(env('SYNC_RABBITMQ_ENABLED') !== true){
             return;
         }
 
